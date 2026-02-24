@@ -44,6 +44,27 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Flutter/Dart
+.flutter-plugins
+.packages
+
+# Android
+.gradle/
+local.properties
+*.kwks
+*.keystore
+head.rev
+architecture.rev
+
+# iOS/macOS
+.generated/
+DerivedData/
+Pods/
+*.mo
+*.pck
+*.app
+*.ipa
+
 # Ambientes e Segredos
 .env
 .env.*
