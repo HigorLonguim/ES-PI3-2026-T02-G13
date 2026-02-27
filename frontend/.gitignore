@@ -1,3 +1,4 @@
+# Nome: Felipe Sousa de Almeida | RA: 22018160
 # Miscellaneous
 *.class
 *.log
@@ -43,6 +44,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/build/
 
 # Flutter/Dart
 .flutter-plugins
