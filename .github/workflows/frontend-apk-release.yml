@@ -1,0 +1,72 @@
+# Felipe Sousa de Almeida  RA: 22018160
+name: Frontend APK Release
+
+on:
+  push:
+    branches:
+      - develop
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Instalar dependências do frontend
+        working-directory: frontend
+        run: flutter pub get
+
+      - name: Build APK (release)
+        working-directory: frontend
+        run: flutter build apk --release
+
+      - name: Validar APK gerado
+        shell: bash
+        run: test -f frontend/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Definir nome do APK
+        id: apk_meta
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "apk_name=app-${GITHUB_REF_NAME}.apk" >> "$GITHUB_OUTPUT"
+          else
+            echo "apk_name=app-dev-${GITHUB_SHA::7}.apk" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Preparar APK renomeado
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp frontend/build/app/outputs/flutter-apk/app-release.apk "dist/${{ steps.apk_meta.outputs.apk_name }}"
+
+      - name: Publicar APK como Artifact (develop)
+        if: github.ref == 'refs/heads/develop'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-apk-dev-${{ github.sha }}
+          path: dist/${{ steps.apk_meta.outputs.apk_name }}
+          if-no-files-found: error
+
+      - name: Publicar APK no GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-rc.') }}
+          generate_release_notes: true
+          files: |
+            dist/${{ steps.apk_meta.outputs.apk_name }}
