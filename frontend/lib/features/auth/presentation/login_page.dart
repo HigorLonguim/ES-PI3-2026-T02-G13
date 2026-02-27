@@ -1,6 +1,7 @@
 /* Nome: Felipe Sousa de Almeida | RA: 22018160 */
 
 import 'package:flutter/material.dart';
+import '../../../core/navigation/app_route.dart';
 import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -249,9 +250,7 @@ class _LoginPageState extends State<LoginPage> {
                                   GestureDetector(
                                     onTap: () {
                                       Navigator.of(context).push(
-                                        MaterialPageRoute<void>(
-                                          builder: (_) => const SignUpPage(),
-                                        ),
+                                        AppRoute(const SignUpPage()),
                                       );
                                     },
                                     child: const Text(

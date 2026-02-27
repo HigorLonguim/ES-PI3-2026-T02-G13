@@ -2,7 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'app/mescla_invest_app.dart';
+import 'core/config/system_ui_config.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  configureSystemUI();
   runApp(const MesclaInvestApp());
 }

@@ -1,6 +1,7 @@
 /* Nome: Felipe Sousa de Almeida | RA: 22018160 */
 
 import 'package:flutter/material.dart';
+import '../../../core/navigation/app_route.dart';
 import '../../auth/presentation/login_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -148,9 +149,7 @@ class HomePage extends StatelessWidget {
                               child: TextButton(
                                 onPressed: () {
                                   Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (_) => const LoginPage(),
-                                    ),
+                                    AppRoute(const LoginPage()),
                                   );
                                 },
                                 style: TextButton.styleFrom(

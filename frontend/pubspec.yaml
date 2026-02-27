@@ -36,6 +36,9 @@ dependencies:
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
+  # Nome: Felipe Sousa de Almeida | RA: 22018160
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
 
