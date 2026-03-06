@@ -23,11 +23,7 @@ class _LoginPageState extends State<LoginPage> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF0A0A1A),
-                Color(0xFF1A0A2E),
-                Color(0xFF0A0A1A),
-              ],
+              colors: [Color(0xFF0A0A1A), Color(0xFF1A0A2E), Color(0xFF0A0A1A)],
             ),
           ),
           child: Stack(
@@ -91,7 +87,10 @@ class _LoginPageState extends State<LoginPage> {
                                   gradient: const LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
-                                    colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
+                                    colors: [
+                                      Color(0xFF4F39F6),
+                                      Color(0xFF9810FA),
+                                    ],
                                   ),
                                   boxShadow: const [
                                     BoxShadow(
@@ -148,9 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(height: 48),
                           const _FieldLabel('Email'),
                           const SizedBox(height: 8),
-                          const _InputField(
-                            hintText: 'seu@email.com',
-                          ),
+                          const _InputField(hintText: 'seu@email.com'),
                           const SizedBox(height: 16),
                           const _FieldLabel('Senha'),
                           const SizedBox(height: 8),
@@ -199,7 +196,10 @@ class _LoginPageState extends State<LoginPage> {
                                 gradient: const LinearGradient(
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
-                                  colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
+                                  colors: [
+                                    Color(0xFF4F39F6),
+                                    Color(0xFF9810FA),
+                                  ],
                                 ),
                                 boxShadow: const [
                                   BoxShadow(
@@ -249,9 +249,9 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      Navigator.of(context).push(
-                                        AppRoute(const SignUpPage()),
-                                      );
+                                      Navigator.of(
+                                        context,
+                                      ).push(AppRoute(const SignUpPage()));
                                     },
                                     child: const Text(
                                       'Cadastre-se',
@@ -317,21 +317,18 @@ class _InputField extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A2E),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          width: 1.183,
-          color: const Color(0xFF2A2A3E),
-        ),
+        border: Border.all(width: 1.183, color: const Color(0xFF2A2A3E)),
       ),
       child: TextField(
         obscureText: obscureText,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: Color(0xFF6A7282),
-            fontSize: 16,
+          hintStyle: const TextStyle(color: Color(0xFF6A7282), fontSize: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           border: InputBorder.none,
           suffixIcon: suffix,
         ),

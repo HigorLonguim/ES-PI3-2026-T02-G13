@@ -3,6 +3,5 @@
 import 'package:flutter/cupertino.dart';
 
 class AppRoute<T> extends CupertinoPageRoute<T> {
-  AppRoute(Widget page)
-      : super(builder: (_) => page);
+  AppRoute(Widget page) : super(builder: (_) => page);
 }

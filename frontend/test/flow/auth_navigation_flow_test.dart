@@ -5,7 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/app/mescla_invest_app.dart';
 
 void main() {
-  testWidgets('Fluxo: Home -> Login -> Cadastro -> Volta Login', (WidgetTester tester) async {
+  testWidgets('Fluxo: Home -> Login -> Cadastro -> Volta Login', (
+    WidgetTester tester,
+  ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.0;
     addTearDown(tester.view.reset);

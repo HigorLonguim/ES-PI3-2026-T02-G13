@@ -16,11 +16,7 @@ class HomePage extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFF0A0A1A),
-                Color(0xFF1A0A2E),
-                Color(0xFF2A1A4A),
-              ],
+              colors: [Color(0xFF0A0A1A), Color(0xFF1A0A2E), Color(0xFF2A1A4A)],
             ),
           ),
           child: Stack(
@@ -131,7 +127,10 @@ class HomePage extends StatelessWidget {
                                 gradient: const LinearGradient(
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
-                                  colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
+                                  colors: [
+                                    Color(0xFF4F39F6),
+                                    Color(0xFF9810FA),
+                                  ],
                                 ),
                                 boxShadow: const [
                                   BoxShadow(
@@ -148,9 +147,9 @@ class HomePage extends StatelessWidget {
                               ),
                               child: TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).push(
-                                    AppRoute(const LoginPage()),
-                                  );
+                                  Navigator.of(
+                                    context,
+                                  ).push(AppRoute(const LoginPage()));
                                 },
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
