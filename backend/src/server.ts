@@ -1,50 +1,17 @@
-import 'dotenv/config';
-import fastify from 'fastify';
-import swagger from '@fastify/swagger';
-import swaggerUi from '@fastify/swagger-ui';
+import express from "express";
+import userRoutes from "./routes/userRoutes";
 
-const app = fastify({ logger: true });
-const PORT = Number(process.env.PORT) || 3000;
+const app = express();
+const PORT = 8080;
 
-app.register(swagger, {
-  openapi: {
-    info: {
-      title: 'MesclaInvest API',
-      description: 'Documentação das rotas com Fastify',
-      version: '1.0.0'
-    }
-  }
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("Backend rodando com sucesso!");
 });
 
-app.register(swaggerUi, {
-  routePrefix: '/docs'
+app.use("/users", userRoutes);
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
-
-// Exemplo de rota
-app.get('/', {
-  schema: {
-    summary: 'Health check da API',
-    response: {
-      200: {
-        type: 'object',
-        properties: {
-          hello: { type: 'string' }
-        }
-      }
-    }
-  }
-}, async () => {
-  return { hello: 'world - backend ativo!' };
-});
-
-const start = async () => {
-  try {
-    await app.listen({ port: PORT });
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
-  } catch (err) {
-    app.log.error(err);
-    process.exit(1);
-  }
-};
-
-start();

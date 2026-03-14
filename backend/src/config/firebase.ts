@@ -1,25 +1,25 @@
-import 'dotenv/config';
-import admin from 'firebase-admin';
-import type { Auth } from 'firebase-admin/auth';
+// import 'dotenv/config';
+// import admin from 'firebase-admin';
+// import type { Auth } from 'firebase-admin/auth';
 
-const projectId = process.env.FIREBASE_PROJECT_ID;
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+// const projectId = process.env.FIREBASE_PROJECT_ID;
+// const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+// const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-if (!projectId || !clientEmail || !privateKey) {
-    throw new Error('Variáveis de ambiente do Firebase não configuradas. Verifique o .env');
-}
+// if (!projectId || !clientEmail || !privateKey) {
+//     throw new Error('Variáveis de ambiente do Firebase não configuradas. Verifique o .env');
+// }
 
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert({
-            projectId,
-            clientEmail,
-            privateKey,
-        }),
-    });
-}
+// if (!admin.apps.length) {
+//     admin.initializeApp({
+//         credential: admin.credential.cert({
+//             projectId,
+//             clientEmail,
+//             privateKey,
+//         }),
+//     });
+// }
 
-export const db = admin.firestore();
-export const auth: Auth = admin.auth();
-export default admin;
+// export const db = admin.firestore();
+// export const auth: Auth = admin.auth();
+// export default admin;
