@@ -1,7 +1,9 @@
-/* Nome: Felipe Sousa de Almeida | RA: 22018160 */
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
+import '../../../core/widgets/app_status_indicator.dart';
 import '../../../core/navigation/app_route.dart';
+import '../data/auth_api_service.dart';
 import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,6 +15,56 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
+  final AuthApiService _authApiService = AuthApiService();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _senhaController.dispose();
+    _authApiService.dispose();
+    super.dispose();
+  }
+
+  Future<void> _entrar() async {
+    final email = _emailController.text.trim();
+    final senha = _senhaController.text;
+
+    if (email.isEmpty || senha.isEmpty) {
+      _showMessage('Preencha email e senha.', success: false);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final result = await _authApiService.login(email: email, senha: senha);
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    _showMessage(result.message, success: result.success);
+
+    if (result.success) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _showMessage(String message, {required bool success}) {
+    showAppStatusSnackBar(
+      context: context,
+      message: message,
+      type: success ? AppStatusType.success : AppStatusType.error,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,12 +199,17 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(height: 48),
                           const _FieldLabel('Email'),
                           const SizedBox(height: 8),
-                          const _InputField(hintText: 'seu@email.com'),
+                          _InputField(
+                            hintText: 'seu@email.com',
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
                           const SizedBox(height: 16),
                           const _FieldLabel('Senha'),
                           const SizedBox(height: 8),
                           _InputField(
                             hintText: '••••••••',
+                            controller: _senhaController,
                             obscureText: _obscurePassword,
                             suffix: IconButton(
                               onPressed: () {
@@ -215,21 +272,33 @@ class _LoginPageState extends State<LoginPage> {
                                 ],
                               ),
                               child: TextButton(
-                                onPressed: () {},
+                                onPressed: _isLoading ? null : _entrar,
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Entrar',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.5,
-                                  ),
-                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Entrar',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          height: 1.5,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),
@@ -302,13 +371,17 @@ class _FieldLabel extends StatelessWidget {
 class _InputField extends StatelessWidget {
   const _InputField({
     required this.hintText,
+    required this.controller,
     this.obscureText = false,
     this.suffix,
+    this.keyboardType,
   });
 
   final String hintText;
+  final TextEditingController controller;
   final bool obscureText;
   final Widget? suffix;
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) {
@@ -320,6 +393,8 @@ class _InputField extends StatelessWidget {
         border: Border.all(width: 1.183, color: const Color(0xFF2A2A3E)),
       ),
       child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
         obscureText: obscureText,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(

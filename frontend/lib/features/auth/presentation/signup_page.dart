@@ -1,6 +1,8 @@
-/* Nome: Felipe Sousa de Almeida | RA: 22018160 */
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
+import '../../../core/widgets/app_status_indicator.dart';
+import '../data/auth_api_service.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -12,6 +14,77 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isLoading = false;
+
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _cpfController = TextEditingController();
+  final TextEditingController _telefoneController = TextEditingController();
+  final TextEditingController _senhaController = TextEditingController();
+  final TextEditingController _confirmarSenhaController =
+      TextEditingController();
+  final AuthApiService _authApiService = AuthApiService();
+
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _emailController.dispose();
+    _cpfController.dispose();
+    _telefoneController.dispose();
+    _senhaController.dispose();
+    _confirmarSenhaController.dispose();
+    _authApiService.dispose();
+    super.dispose();
+  }
+
+  Future<void> _cadastrar() async {
+    final nome = _nomeController.text.trim();
+    final email = _emailController.text.trim();
+    final senha = _senhaController.text;
+    final confirmarSenha = _confirmarSenhaController.text;
+
+    if (nome.isEmpty || email.isEmpty || senha.isEmpty || confirmarSenha.isEmpty) {
+      _showMessage('Preencha todos os campos obrigatórios.', success: false);
+      return;
+    }
+
+    if (senha != confirmarSenha) {
+      _showMessage('As senhas não conferem.', success: false);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final result = await _authApiService.register(
+      nome: nome,
+      email: email,
+      senha: senha,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    _showMessage(result.message, success: result.success);
+
+    if (result.success) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _showMessage(String message, {required bool success}) {
+    showAppStatusSnackBar(
+      context: context,
+      message: message,
+      type: success ? AppStatusType.success : AppStatusType.error,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,24 +222,41 @@ class _SignUpPageState extends State<SignUpPage> {
                           const SizedBox(height: 32),
                           const _FieldLabel('Nome Completo'),
                           const SizedBox(height: 8),
-                          const _InputField(hintText: 'João Silva'),
+                          _InputField(
+                            hintText: 'João Silva',
+                            controller: _nomeController,
+                            keyboardType: TextInputType.name,
+                          ),
                           const SizedBox(height: 16),
                           const _FieldLabel('Email'),
                           const SizedBox(height: 8),
-                          const _InputField(hintText: 'seu@email.com'),
+                          _InputField(
+                            hintText: 'seu@email.com',
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
                           const SizedBox(height: 16),
                           const _FieldLabel('CPF'),
                           const SizedBox(height: 8),
-                          const _InputField(hintText: '000.000.000-00'),
+                          _InputField(
+                            hintText: '000.000.000-00',
+                            controller: _cpfController,
+                            keyboardType: TextInputType.number,
+                          ),
                           const SizedBox(height: 16),
                           const _FieldLabel('Telefone'),
                           const SizedBox(height: 8),
-                          const _InputField(hintText: '(11) 98765-4321'),
+                          _InputField(
+                            hintText: '(11) 98765-4321',
+                            controller: _telefoneController,
+                            keyboardType: TextInputType.phone,
+                          ),
                           const SizedBox(height: 16),
                           const _FieldLabel('Senha'),
                           const SizedBox(height: 8),
                           _InputField(
                             hintText: '••••••••',
+                            controller: _senhaController,
                             obscureText: _obscurePassword,
                             suffix: IconButton(
                               onPressed: () {
@@ -188,6 +278,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           const SizedBox(height: 8),
                           _InputField(
                             hintText: '••••••••',
+                            controller: _confirmarSenhaController,
                             obscureText: _obscureConfirmPassword,
                             suffix: IconButton(
                               onPressed: () {
@@ -234,21 +325,33 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ],
                               ),
                               child: TextButton(
-                                onPressed: () {},
+                                onPressed: _isLoading ? null : _cadastrar,
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Criar Conta',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.5,
-                                  ),
-                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Criar Conta',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          height: 1.5,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),
@@ -316,13 +419,17 @@ class _FieldLabel extends StatelessWidget {
 class _InputField extends StatelessWidget {
   const _InputField({
     required this.hintText,
+    required this.controller,
     this.obscureText = false,
     this.suffix,
+    this.keyboardType,
   });
 
   final String hintText;
+  final TextEditingController controller;
   final bool obscureText;
   final Widget? suffix;
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) {
@@ -334,6 +441,8 @@ class _InputField extends StatelessWidget {
         border: Border.all(width: 1.183, color: const Color(0xFF2A2A3E)),
       ),
       child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
         obscureText: obscureText,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
