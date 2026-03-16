@@ -1,6 +1,8 @@
 // Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../../core/utils/input_formatters.dart';
 import '../../../core/widgets/app_status_indicator.dart';
 import '../data/auth_api_service.dart';
 
@@ -242,6 +244,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             hintText: '000.000.000-00',
                             controller: _cpfController,
                             keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(11),
+                              CpfInputFormatter(),
+                            ],
                           ),
                           const SizedBox(height: 16),
                           const _FieldLabel('Telefone'),
@@ -250,6 +257,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             hintText: '(11) 98765-4321',
                             controller: _telefoneController,
                             keyboardType: TextInputType.phone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(11),
+                              TelefoneInputFormatter(),
+                            ],
                           ),
                           const SizedBox(height: 16),
                           const _FieldLabel('Senha'),
@@ -423,6 +435,7 @@ class _InputField extends StatelessWidget {
     this.obscureText = false,
     this.suffix,
     this.keyboardType,
+    this.inputFormatters,
   });
 
   final String hintText;
@@ -430,6 +443,7 @@ class _InputField extends StatelessWidget {
   final bool obscureText;
   final Widget? suffix;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -444,6 +458,7 @@ class _InputField extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         obscureText: obscureText,
+        inputFormatters: inputFormatters,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: hintText,
@@ -459,3 +474,4 @@ class _InputField extends StatelessWidget {
     );
   }
 }
+
