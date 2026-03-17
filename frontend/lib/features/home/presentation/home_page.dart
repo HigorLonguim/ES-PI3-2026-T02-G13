@@ -1,6 +1,7 @@
 /* Nome: Felipe Sousa de Almeida | RA: 22018160 */
-
+/* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 import 'package:flutter/material.dart';
+import 'package:frontend/features/home/presentation/profile_page.dart';
 import '../../../core/navigation/app_route.dart';
 import '../../auth/presentation/login_page.dart';
 
@@ -104,20 +105,19 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const SizedBox(
-                            width: 290,
-                            child: Text(
-                              'Invista em startups promissoras com\ntokens digitais',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 18,
-                                height: 1.5,
-                                color: Color(0xFF99A1AF),
-                                fontWeight: FontWeight.w400,
-                              ),
+                          const Text(
+                            'Invista em startups promissoras com\ntokens digitais',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              height: 1.5,
+                              color: Color(0xFF99A1AF),
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                           const SizedBox(height: 48),
+                          
+                          // BOTÃO 1: CONTINUAR (FLUXO LOGIN)
                           SizedBox(
                             width: double.infinity,
                             height: 55.96,
@@ -147,9 +147,7 @@ class HomePage extends StatelessWidget {
                               ),
                               child: TextButton(
                                 onPressed: () {
-                                  Navigator.of(
-                                    context,
-                                  ).push(AppRoute(const LoginPage()));
+                                  Navigator.of(context).push(AppRoute(const LoginPage()));
                                 },
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
@@ -164,6 +162,33 @@ class HomePage extends StatelessWidget {
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600,
                                   ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 16),
+
+                          // BOTÃO 2: IR PARA PERFIL (ATALHO)
+                          SizedBox(
+                            width: double.infinity,
+                            height: 55.96,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.of(context).push(AppRoute(const ProfilePage()));
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFF9810FA), width: 2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: const Text(
+                                'Ver Perfil',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
