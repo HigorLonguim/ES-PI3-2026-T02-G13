@@ -1,9 +1,11 @@
 /* Nome: Felipe Sousa de Almeida | RA: 22018160 */
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
+
 import 'package:flutter/material.dart';
 import 'package:frontend/features/home/presentation/profile_page.dart';
 import '../../../core/navigation/app_route.dart';
 import '../../auth/presentation/login_page.dart';
+import 'main_navigation_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -175,7 +177,7 @@ class HomePage extends StatelessWidget {
                             height: 55.96,
                             child: OutlinedButton(
                               onPressed: () {
-                                Navigator.of(context).push(AppRoute(const ProfilePage()));
+                                Navigator.of(context).push(AppRoute(const MainNavigationPage()));
                               },
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(color: Color(0xFF9810FA), width: 2),

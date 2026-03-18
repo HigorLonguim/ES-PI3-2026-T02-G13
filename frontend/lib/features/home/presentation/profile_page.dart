@@ -20,7 +20,6 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _obscureNova = true;
   bool _obscureConfirmar = true;
 
-  // --- FUNÇÃO: Simular Recarga de Saldo (Req. 5.3) ---
   // --- FUNÇÃO: Simular Recarga de Saldo Profissional (Req. 5.3) ---
   void _adicionarSaldo() {
     TextEditingController _valorController = TextEditingController();
@@ -52,7 +51,6 @@ class _ProfilePageState extends State<ProfilePage> {
               const Text('O saldo adicionado é fictício e será utilizado apenas para testes de investimento.', style: TextStyle(color: Color(0xFF99A1AF), fontSize: 14)),
               const SizedBox(height: 24),
               
-              // Campo de valor estilizado
               TextField(
                 controller: _valorController,
                 keyboardType: TextInputType.number,
@@ -70,7 +68,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 16),
               
-              // Botões de valor rápido
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -81,7 +78,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 32),
               
-              // Botão de Confirmação
               SizedBox(
                 width: double.infinity,
                 height: 55,
@@ -95,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         backgroundColor: const Color(0xFF00A36C),
-                        content: Text('R\$ ${_valorController.text} adicionados à sua carteira!'),
+                        content: Text('R\$ ${_valorController.text} adicionados com sucesso!'),
                       ),
                     );
                   },
@@ -113,7 +109,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Widget auxiliar para botões de valores rápidos
   Widget _buildQuickValueButton(String value, TextEditingController controller) {
     return GestureDetector(
       onTap: () => controller.text = value,
@@ -228,7 +223,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomBar(),
     );
   }
 
@@ -338,21 +332,5 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildLogoutTile() {
     return Container(decoration: BoxDecoration(color: const Color(0xFF141E2D), borderRadius: BorderRadius.circular(12)), child: ListTile(onTap: () => Navigator.pop(context), leading: const Icon(Icons.logout, color: Colors.redAccent), title: const Text('Sair da conta', style: TextStyle(color: Colors.redAccent))));
-  }
-
-  Widget _buildBottomBar() {
-    return BottomNavigationBar(
-      backgroundColor: const Color(0xFF0A0A1A),
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFF00A36C),
-      unselectedItemColor: Colors.grey,
-      currentIndex: 3,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Startups'),
-        BottomNavigationBarItem(icon: Icon(Icons.swap_horiz), label: 'Balcão'),
-        BottomNavigationBarItem(icon: Icon(Icons.pie_chart_outline), label: 'Portfólio'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
-      ],
-    );
   }
 }
