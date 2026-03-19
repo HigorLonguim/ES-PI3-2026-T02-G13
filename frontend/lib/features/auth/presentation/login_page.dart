@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF0A0A1A), Color(0xFF1A0A2E), Color(0xFF0A0A1A)],
+              colors: [Color(0xFF0A0A1A), Color(0xFF0C1E1A), Color(0xFF0A0A1A)],
             ),
           ),
           child: Stack(
@@ -88,12 +88,12 @@ class _LoginPageState extends State<LoginPage> {
                   height: 287.991,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color.fromRGBO(79, 57, 246, 0.3),
+                    color: Color.fromRGBO(0, 163, 108, 0.18),
                     boxShadow: [
                       BoxShadow(
-                        color: Color.fromRGBO(79, 57, 246, 0.3),
-                        blurRadius: 120,
-                        spreadRadius: 14,
+                        color: Color.fromRGBO(0, 163, 108, 0.18),
+                        blurRadius: 90,
+                        spreadRadius: 10,
                       ),
                     ],
                   ),
@@ -107,12 +107,12 @@ class _LoginPageState extends State<LoginPage> {
                   height: 287.991,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color.fromRGBO(152, 16, 250, 0.2),
+                    color: Color.fromRGBO(68, 209, 122, 0.12),
                     boxShadow: [
                       BoxShadow(
-                        color: Color.fromRGBO(152, 16, 250, 0.2),
-                        blurRadius: 120,
-                        spreadRadius: 14,
+                        color: Color.fromRGBO(68, 209, 122, 0.12),
+                        blurRadius: 90,
+                        spreadRadius: 10,
                       ),
                     ],
                   ),
@@ -140,18 +140,18 @@ class _LoginPageState extends State<LoginPage> {
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      Color(0xFF4F39F6),
-                                      Color(0xFF9810FA),
+                                      Color(0xFF00A36C),
+                                      Color(0xFF44D17A),
                                     ],
                                   ),
                                   boxShadow: const [
                                     BoxShadow(
-                                      color: Color.fromRGBO(97, 95, 255, 0.5),
+                                      color: Color.fromRGBO(0, 163, 108, 0.35),
                                       blurRadius: 15,
                                       offset: Offset(0, 10),
                                     ),
                                     BoxShadow(
-                                      color: Color.fromRGBO(97, 95, 255, 0.5),
+                                      color: Color.fromRGBO(0, 163, 108, 0.35),
                                       blurRadius: 6,
                                       offset: Offset(0, 4),
                                     ),
@@ -237,7 +237,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: const Text(
                               'Esqueceu a senha?',
                               style: TextStyle(
-                                color: Color(0xFF7C86FF),
+                                color: Color(0xFF44D17A),
                                 fontSize: 14,
                                 height: 1.4,
                               ),
@@ -254,18 +254,18 @@ class _LoginPageState extends State<LoginPage> {
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                   colors: [
-                                    Color(0xFF4F39F6),
-                                    Color(0xFF9810FA),
+                                    Color(0xFF00A36C),
+                                    Color(0xFF44D17A),
                                   ],
                                 ),
                                 boxShadow: const [
                                   BoxShadow(
-                                    color: Color.fromRGBO(97, 95, 255, 0.3),
+                                    color: Color.fromRGBO(0, 163, 108, 0.3),
                                     blurRadius: 15,
                                     offset: Offset(0, 10),
                                   ),
                                   BoxShadow(
-                                    color: Color.fromRGBO(97, 95, 255, 0.3),
+                                    color: Color.fromRGBO(0, 163, 108, 0.3),
                                     blurRadius: 6,
                                     offset: Offset(0, 4),
                                   ),
@@ -325,7 +325,7 @@ class _LoginPageState extends State<LoginPage> {
                                     child: const Text(
                                       'Cadastre-se',
                                       style: TextStyle(
-                                        color: Color(0xFF7C86FF),
+                                        color: Color(0xFF44D17A),
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                         height: 1.5,

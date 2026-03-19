@@ -2,7 +2,6 @@
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 
 import 'package:flutter/material.dart';
-import 'package:frontend/features/home/presentation/profile_page.dart';
 import '../../../core/navigation/app_route.dart';
 import '../../auth/presentation/login_page.dart';
 import 'main_navigation_page.dart';
@@ -19,7 +18,7 @@ class HomePage extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF0A0A1A), Color(0xFF1A0A2E), Color(0xFF2A1A4A)],
+              colors: [Color(0xFF0A0A1A), Color(0xFF0C1E1A), Color(0xFF102821)],
             ),
           ),
           child: Stack(
@@ -32,12 +31,12 @@ class HomePage extends StatelessWidget {
                   height: 383.994,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color.fromRGBO(79, 57, 246, 0.5),
+                    color: Color.fromRGBO(0, 163, 108, 0.22),
                     boxShadow: [
                       BoxShadow(
-                        color: Color.fromRGBO(79, 57, 246, 0.5),
-                        blurRadius: 150,
-                        spreadRadius: 24,
+                        color: Color.fromRGBO(0, 163, 108, 0.22),
+                        blurRadius: 110,
+                        spreadRadius: 12,
                       ),
                     ],
                   ),
@@ -51,12 +50,12 @@ class HomePage extends StatelessWidget {
                   height: 383.994,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color.fromRGBO(152, 16, 250, 0.4),
+                    color: Color.fromRGBO(68, 209, 122, 0.16),
                     boxShadow: [
                       BoxShadow(
-                        color: Color.fromRGBO(152, 16, 250, 0.4),
-                        blurRadius: 150,
-                        spreadRadius: 24,
+                        color: Color.fromRGBO(68, 209, 122, 0.16),
+                        blurRadius: 110,
+                        spreadRadius: 12,
                       ),
                     ],
                   ),
@@ -80,11 +79,11 @@ class HomePage extends StatelessWidget {
                               gradient: const LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [Color(0xFF615FFF), Color(0xFF9810FA)],
+                                colors: [Color(0xFF00A36C), Color(0xFF44D17A)],
                               ),
                               boxShadow: const [
                                 BoxShadow(
-                                  color: Color.fromRGBO(97, 95, 255, 0.8),
+                                  color: Color.fromRGBO(0, 163, 108, 0.45),
                                   blurRadius: 50,
                                   offset: Offset(0, 25),
                                 ),
@@ -118,7 +117,7 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 48),
-                          
+
                           // BOTÃO 1: CONTINUAR (FLUXO LOGIN)
                           SizedBox(
                             width: double.infinity,
@@ -130,18 +129,18 @@ class HomePage extends StatelessWidget {
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                   colors: [
-                                    Color(0xFF4F39F6),
-                                    Color(0xFF9810FA),
+                                    Color(0xFF00A36C),
+                                    Color(0xFF44D17A),
                                   ],
                                 ),
                                 boxShadow: const [
                                   BoxShadow(
-                                    color: Color.fromRGBO(97, 95, 255, 0.5),
+                                    color: Color.fromRGBO(0, 163, 108, 0.35),
                                     blurRadius: 15,
                                     offset: Offset(0, 10),
                                   ),
                                   BoxShadow(
-                                    color: Color.fromRGBO(97, 95, 255, 0.5),
+                                    color: Color.fromRGBO(0, 163, 108, 0.35),
                                     blurRadius: 6,
                                     offset: Offset(0, 4),
                                   ),
@@ -149,7 +148,9 @@ class HomePage extends StatelessWidget {
                               ),
                               child: TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).push(AppRoute(const LoginPage()));
+                                  Navigator.of(
+                                    context,
+                                  ).push(AppRoute(const LoginPage()));
                                 },
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
@@ -168,7 +169,7 @@ class HomePage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          
+
                           const SizedBox(height: 16),
 
                           // BOTÃO 2: IR PARA PERFIL (ATALHO)
@@ -177,10 +178,15 @@ class HomePage extends StatelessWidget {
                             height: 55.96,
                             child: OutlinedButton(
                               onPressed: () {
-                                Navigator.of(context).push(AppRoute(const MainNavigationPage()));
+                                Navigator.of(
+                                  context,
+                                ).push(AppRoute(const MainNavigationPage()));
                               },
                               style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: Color(0xFF9810FA), width: 2),
+                                side: const BorderSide(
+                                  color: Color(0xFF00A36C),
+                                  width: 2,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
