@@ -12,7 +12,7 @@ class StartupPage extends StatefulWidget {
 class _StartupPageState extends State<StartupPage> {
   // Controle do texto de busca
   final TextEditingController _searchController = TextEditingController();
-  
+
   // Filtro selecionado (Padrão: Todas)
   String _selectedFilter = "Todas";
 
@@ -74,13 +74,14 @@ class _StartupPageState extends State<StartupPage> {
   List<Map<String, dynamic>> get _filteredStartups {
     return startups.where((startup) {
       // Regra de Filtro por Tag (Chip)
-      final matchesFilter = _selectedFilter == "Todas" || 
-                            startup['estagio'].toLowerCase() == _selectedFilter.toLowerCase();
+      final matchesFilter =
+          _selectedFilter == "Todas" ||
+          startup['estagio'].toLowerCase() == _selectedFilter.toLowerCase();
 
       // Regra de Busca por Nome
-      final matchesSearch = startup['nome']
-          .toLowerCase()
-          .contains(_searchController.text.toLowerCase());
+      final matchesSearch = startup['nome'].toLowerCase().contains(
+        _searchController.text.toLowerCase(),
+      );
 
       return matchesFilter && matchesSearch;
     }).toList();
@@ -95,7 +96,10 @@ class _StartupPageState extends State<StartupPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Startups', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Startups',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
       body: Column(
         children: [
@@ -110,7 +114,8 @@ class _StartupPageState extends State<StartupPage> {
               ),
               child: TextField(
                 controller: _searchController,
-                onChanged: (value) => setState(() {}), // Atualiza a lista enquanto digita
+                onChanged: (value) =>
+                    setState(() {}), // Atualiza a lista enquanto digita
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   icon: Icon(Icons.search, color: Colors.grey),
@@ -138,15 +143,20 @@ class _StartupPageState extends State<StartupPage> {
           const SizedBox(height: 16),
           // Lista de Startups Dinâmica
           Expanded(
-            child: filteredList.isEmpty 
-              ? const Center(child: Text("Nenhuma startup encontrada", style: TextStyle(color: Colors.grey)))
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: filteredList.length,
-                  itemBuilder: (context, index) {
-                    return _buildStartupCard(filteredList[index]);
-                  },
-                ),
+            child: filteredList.isEmpty
+                ? const Center(
+                    child: Text(
+                      "Nenhuma startup encontrada",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: filteredList.length,
+                    itemBuilder: (context, index) {
+                      return _buildStartupCard(filteredList[index]);
+                    },
+                  ),
           ),
         ],
       ),
@@ -204,8 +214,18 @@ class _StartupPageState extends State<StartupPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(data['nome'], style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text(data['categoria'], style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text(
+                      data['nome'],
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      data['categoria'],
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
                   ],
                 ),
               ),
@@ -215,12 +235,22 @@ class _StartupPageState extends State<StartupPage> {
                   color: Colors.orange.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(data['estagio'].toUpperCase(), style: const TextStyle(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold)),
+                child: Text(
+                  data['estagio'].toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          Text(data['descricao'], style: const TextStyle(color: Colors.white70, fontSize: 14)),
+          Text(
+            data['descricao'],
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
+          ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -228,17 +258,35 @@ class _StartupPageState extends State<StartupPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Preço do token", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                  Text("R\$ ${data['preco'].toStringAsFixed(2)}", style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  const Text(
+                    "Preço do token",
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                  Text(
+                    "R\$ ${data['preco'].toStringAsFixed(2)}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isPositive ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                  color: isPositive
+                      ? Colors.green.withOpacity(0.1)
+                      : Colors.red.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(data['variacao'], style: TextStyle(color: isPositive ? Colors.green : Colors.red, fontWeight: FontWeight.bold)),
+                child: Text(
+                  data['variacao'],
+                  style: TextStyle(
+                    color: isPositive ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
@@ -246,8 +294,14 @@ class _StartupPageState extends State<StartupPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Capital captado", style: TextStyle(color: Colors.grey, fontSize: 11)),
-              Text("R\$ ${data['captado']} / R\$ ${data['meta']}", style: const TextStyle(color: Colors.white, fontSize: 11)),
+              const Text(
+                "Capital captado",
+                style: TextStyle(color: Colors.grey, fontSize: 11),
+              ),
+              Text(
+                "R\$ ${data['captado']} / R\$ ${data['meta']}",
+                style: const TextStyle(color: Colors.white, fontSize: 11),
+              ),
             ],
           ),
           const SizedBox(height: 8),

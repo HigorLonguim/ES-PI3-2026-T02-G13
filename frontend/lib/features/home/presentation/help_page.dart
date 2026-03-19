@@ -118,7 +118,10 @@ class HelpPage extends StatelessWidget {
                           SizedBox(height: 4),
                           Text(
                             'Entre em contato com o suporte do Mescla.',
-                            style: TextStyle(color: Colors.white70, fontSize: 13),
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),

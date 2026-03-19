@@ -34,16 +34,10 @@ class AuthApiService {
     return 'http://localhost:8080';
   }
 
-  Future<AuthResult> login({
-    required String email,
-    required String senha,
-  }) {
+  Future<AuthResult> login({required String email, required String senha}) {
     return _post(
       endpoint: '/users/login',
-      payload: {
-        'email': email,
-        'senha': senha,
-      },
+      payload: {'email': email, 'senha': senha},
       successStatusCodes: {200},
       fallbackSuccessMessage: 'Login realizado',
     );
@@ -56,11 +50,7 @@ class AuthApiService {
   }) {
     return _post(
       endpoint: '/users/register',
-      payload: {
-        'nome': nome,
-        'email': email,
-        'senha': senha,
-      },
+      payload: {'nome': nome, 'email': email, 'senha': senha},
       successStatusCodes: {201},
       fallbackSuccessMessage: 'Usuário cadastrado',
     );

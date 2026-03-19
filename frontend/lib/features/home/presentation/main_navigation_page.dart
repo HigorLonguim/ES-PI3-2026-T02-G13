@@ -18,18 +18,19 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   // Lista das páginas das abas
   final List<Widget> _pages = [
     const StartupPage(), // Aba 0
-    const Center(child: Text('Balcão', style: TextStyle(color: Colors.white))), // Aba 1
-    const Center(child: Text('Portfólio', style: TextStyle(color: Colors.white))), // Aba 2
+    const Center(
+      child: Text('Balcão', style: TextStyle(color: Colors.white)),
+    ), // Aba 1
+    const Center(
+      child: Text('Portfólio', style: TextStyle(color: Colors.white)),
+    ), // Aba 2
     const ProfilePage(), // Aba 3
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color(0xFF0A0A1A),
         type: BottomNavigationBarType.fixed,
@@ -42,9 +43,18 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           });
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Startups'),
-          BottomNavigationBarItem(icon: Icon(Icons.swap_horiz), label: 'Balcão'),
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart_outline), label: 'Portfólio'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.grid_view),
+            label: 'Startups',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.swap_horiz),
+            label: 'Balcão',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.pie_chart_outline),
+            label: 'Portfólio',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
         ],
       ),
