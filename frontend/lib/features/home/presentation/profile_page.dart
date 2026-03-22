@@ -11,7 +11,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // --- Estados da Tela (Simulação Requisitos 5.1, 5.3 e 5.5) ---
+  // --- Estados da Tela 
   double _saldo = 50000.00;
   bool _isMfaEnabled = false;
 
@@ -20,7 +20,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _obscureNova = true;
   bool _obscureConfirmar = true;
 
-  // --- FUNÇÃO: Simular Recarga de Saldo Profissional (Req. 5.3) ---
+  // --- FUNÇÃO: Simular Recarga de Saldo Profissional 
   void _adicionarSaldo() {
     TextEditingController _valorController = TextEditingController();
 
@@ -216,7 +216,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // --- FUNÇÃO: Troca de Senha Profissional (Req. 5.1) ---
+  // --- FUNÇÃO: Troca de Senha
   void _showChangePasswordBottomSheet() {
     showModalBottomSheet(
       context: context,
