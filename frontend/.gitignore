@@ -1,4 +1,4 @@
-# Nome: Felipe Sousa de Almeida | RA: 22018160
+# Autoria: Felipe Sousa - RA: 22018160
 # Miscellaneous
 *.class
 *.log
@@ -69,4 +69,3 @@ Pods/
 
 # Ambientes e Segredos
 .env
-.env.*
