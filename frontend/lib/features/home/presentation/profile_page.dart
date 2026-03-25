@@ -14,13 +14,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  double _saldo = 50000.00;
-  bool _isMfaEnabled = false;
-
-  // Estados de visibilidade das senhas
-  bool _obscureAtual = true;
-  bool _obscureNova = true;
-  bool _obscureConfirmar = true;
 
   @override
   Widget build(BuildContext context) {
@@ -234,46 +227,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // --- Mantenha as funções auxiliares (_adicionarSaldo, _showChangePasswordBottomSheet, etc) abaixo ---
-  // Elas continuam funcionando da mesma forma, mas agora chamadas pelo novo layout.
-  
-  void _adicionarSaldo() { /* Seu código anterior aqui */ }
 
-  void _showChangePasswordBottomSheet() {
-    // Mantenha seu código profissional de troca de senha aqui
-  }
 
-  Widget _buildPasswordField(String label, bool obscure, VoidCallback toggle) {
-    return TextField(
-      obscureText: obscure,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Color(0xFF99A1AF)),
-        filled: true,
-        fillColor: const Color(0xFF0A0A1A),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        suffixIcon: IconButton(
-          icon: Icon(obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.grey),
-          onPressed: toggle,
-        ),
-      ),
-    );
-  }
 
-  Widget _buildGradientButton(String text, VoidCallback onTap) {
-    return Container(
-      width: double.infinity,
-      height: 55,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(colors: [Color(0xFF4F39F6), Color(0xFF9810FA)]),
-      ),
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent),
-        child: Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-    );
-  }
+
 }
