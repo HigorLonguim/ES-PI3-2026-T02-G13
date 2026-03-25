@@ -7,182 +7,187 @@ class HelpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A1A),
+      backgroundColor: const Color(0xFF0A0A1A), // Fundo padrão do app
+      // AppBar transparente com botão voltar estilizado
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          'Centro de Ajuda',
+          'Ajuda e Suporte',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.white, size: 30),
-          onPressed: () => Navigator.pop(context),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.white.withOpacity(0.1),
+            child: IconButton(
+              icon: const Icon(Icons.chevron_left, color: Colors.white, size: 24),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
         ),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0A0A1A), Color(0xFF1A0A2E)],
-          ),
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              // --- Barra de Pesquisa Simulada ---
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                height: 50,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF141E2D),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF2A2A3E)),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.search, color: Color(0xFF99A1AF)),
-                    SizedBox(width: 12),
-                    Text(
-                      'Como podemos ajudar?',
-                      style: TextStyle(color: Color(0xFF99A1AF), fontSize: 16),
-                    ),
-                  ],
-                ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Card de Ações Principais (Central, Contato, Termos)
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF141E2D),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withOpacity(0.05)),
               ),
-              const SizedBox(height: 32),
-              const Text(
-                'Perguntas Frequentes',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              // --- Lista de FAQs ---
-              _buildFaqItem(
-                Icons.info_outline,
-                'O que é o MesclaInvest?',
-                'É uma plataforma acadêmica para simulação de investimentos em startups do ecossistema Mescla da PUC-Campinas. O foco é aprendizado prático sobre o mercado de inovação.',
-              ),
-              _buildFaqItem(
-                Icons.monetization_on_outlined,
-                'O investimento é real?',
-                'Não. Todas as operações, saldos e tokens são estritamente simulados para fins pedagógicos. Não há envolvimento de dinheiro real.',
-              ),
-              _buildFaqItem(
-                Icons.token_outlined,
-                'O que são Tokens?',
-                'Nesta plataforma, tokens representam unidades digitais de participação em uma startup. Eles permitem que você simule a compra de partes de um negócio.',
-              ),
-              _buildFaqItem(
-                Icons.account_balance_wallet_outlined,
-                'Como ganho saldo?',
-                'Você pode adicionar saldo fictício através da sua área de perfil, clicando em "Adicionar Saldo" dentro da sua carteira digital.',
-              ),
-              _buildFaqItem(
-                Icons.security_outlined,
-                'Como funciona o MFA?',
-                'O Multi-Factor Authentication (MFA) é uma camada extra de segurança opcional que você ativa para proteger sua conta contra acessos indevidos.',
-              ),
-              const SizedBox(height: 40),
-              // --- Seção de Contato Final ---
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
+              child: Column(
+                children: [
+                  _buildActionTile(
+                    icon: Icons.forum_outlined,
+                    title: 'Central de Ajuda',
+                    subtitle: 'Encontre respostas para suas dúvidas',
                   ),
-                ),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Ainda tem dúvidas?',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Entre em contato com o suporte do Mescla.',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF4F39F6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Suporte'),
-                    ),
-                  ],
-                ),
+                  _divider(),
+                  _buildActionTile(
+                    icon: Icons.email_outlined,
+                    title: 'Contatar Suporte',
+                    subtitle: 'Fale diretamente com nossa equipe',
+                  ),
+                  _divider(),
+                  _buildActionTile(
+                    icon: Icons.description_outlined,
+                    title: 'Termos e Políticas',
+                    subtitle: 'Leia nossos termos de uso e privacidade',
+                  ),
+                ],
               ),
-              const SizedBox(height: 40),
-            ],
-          ),
+            ),
+            const SizedBox(height: 32),
+            
+            // 2. Título da Seção FAQ
+            const Text(
+              'Perguntas Frequentes',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // 3. Lista de FAQs com ExpansionTile (Estilo Sanfona)
+            _buildFaqTile('Como funciona o investimento em startups?', 'Todas as operações são simuladas...'),
+            _buildFaqTile('Os investimentos são reais?', 'Não, o MesclaInvest é um ambiente pedagógico simulado.'),
+            _buildFaqTile('Como posso vender meus tokens?', 'Você pode colocar ofertas de venda no Balcão...'),
+            _buildFaqTile('Existe taxa de transação?', 'No ambiente simulado, não há taxas reais.'),
+            
+            const SizedBox(height: 32),
+
+            // 4. Card de Horário de Atendimento (Azul)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF101A3D), // Azul escuro para destaque
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF1E3A8A).withOpacity(0.5)),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Horário de Atendimento:',
+                    style: TextStyle(
+                      color: Color(0xFF60A5FA), // Azul claro
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Segunda a Sexta: 9h às 18h\nSábado: 9h às 13h',
+                    style: TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildFaqItem(IconData icon, String question, String answer) {
+  // --- Widgets Auxiliares ---
+
+  // Constrói os itens do primeiro card (Central, Contato, Termos)
+  Widget _buildActionTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      leading: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF9810FA).withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: const Color(0xFF9810FA), size: 24),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(color: Colors.grey, fontSize: 12),
+      ),
+      trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
+      onTap: () {}, // Adicionar navegação depois
+    );
+  }
+
+  // Constrói as perguntas frequentes com estilo sanfona
+  Widget _buildFaqTile(String question, String answer) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: const Color(0xFF141E2D),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2A2A3E)),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: ExpansionTile(
-        leading: Icon(icon, color: const Color(0xFF9810FA), size: 22),
         iconColor: const Color(0xFF9810FA),
-        collapsedIconColor: Colors.white,
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        collapsedIconColor: Colors.grey,
         title: Text(
           question,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 15,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(54, 0, 20, 20),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: Text(
               answer,
-              style: const TextStyle(
-                color: Color(0xFF99A1AF),
-                fontSize: 14,
-                height: 1.5,
-              ),
+              style: const TextStyle(color: Color(0xFF99A1AF), height: 1.5),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _divider() {
+    return Divider(
+      color: Colors.white.withOpacity(0.05),
+      height: 1,
+      indent: 20,
+      endIndent: 20,
     );
   }
 }
