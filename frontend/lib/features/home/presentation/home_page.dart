@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/navigation/app_route.dart';
 import '../../auth/presentation/login_page.dart';
-import 'main_navigation_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -165,38 +164,6 @@ class HomePage extends StatelessWidget {
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600,
                                   ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // BOTÃO 2: IR PARA PERFIL (ATALHO)
-                          SizedBox(
-                            width: double.infinity,
-                            height: 55.96,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                Navigator.of(
-                                  context,
-                                ).push(AppRoute(const MainNavigationPage()));
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(
-                                  color: Color(0xFF00A36C),
-                                  width: 2,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              child: const Text(
-                                'Ver Perfil',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),

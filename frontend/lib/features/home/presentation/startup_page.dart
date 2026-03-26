@@ -1,6 +1,8 @@
-/* Nome: Luigi Mazzoni Targa | RA: 23010918 */
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
+
+import '../../../core/theme/mescla_colors.dart';
 
 class StartupPage extends StatefulWidget {
   const StartupPage({super.key});
@@ -10,309 +12,488 @@ class StartupPage extends StatefulWidget {
 }
 
 class _StartupPageState extends State<StartupPage> {
-  // Controle do texto de busca
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _filterScrollController = ScrollController();
 
-  // Filtro selecionado (Padrão: Todas)
-  String _selectedFilter = "Todas";
+  String _selectedFilter = 'Todas';
 
-  // Lista original de dados
-  final List<Map<String, dynamic>> startups = [
-    {
-      "nome": "EcoLoop",
-      "descricao": "Logística reversa inteligente para condomínios.",
-      "categoria": "Cleantech",
-      "estagio": "Nova",
-      "preco": 1.50,
-      "variacao": "+2.5%",
-      "captado": 100000,
-      "meta": 150000,
-    },
-    {
-      "nome": "EduVibe",
-      "descricao": "Plataforma de aprendizado gamificado para o ENEM.",
-      "categoria": "Edtech",
-      "estagio": "Em operação",
-      "preco": 2.10,
-      "variacao": "+1.8%",
-      "captado": 300000,
-      "meta": 450000,
-    },
-    {
-      "nome": "VitalTrack",
-      "descricao": "Pulseiras inteligentes para monitoramento de idosos.",
-      "categoria": "Healthtech",
-      "estagio": "Em expansão",
-      "preco": 4.80,
-      "variacao": "-1.5%",
-      "captado": 500000,
-      "meta": 1200000,
-    },
-    {
-      "nome": "AgroSense",
-      "descricao": "Monitoramento de solo em tempo real via IoT.",
-      "categoria": "Agrotech",
-      "estagio": "Em operação",
-      "preco": 3.25,
-      "variacao": "+4.2%",
-      "captado": 400000,
-      "meta": 800000,
-    },
-    {
-      "nome": "SafePay",
-      "descricao": "Carteira digital para micro-transações em campus.",
-      "categoria": "Fintech",
-      "estagio": "Nova",
-      "preco": 1.20,
-      "variacao": "+0.5%",
-      "captado": 150000,
-      "meta": 200000,
-    },
+  final List<_StartupData> _startups = const [
+    _StartupData(
+      name: 'TechFlow',
+      description: 'Plataforma de automação para e-commerce',
+      stage: 'Expansão',
+      tokenValue: 'R\$ 125.50',
+      variation: '+12.50%',
+      imageUrl:
+          'https://www.figma.com/api/mcp/asset/6ab3a4a1-55c3-40a1-854b-82fda3a66a82',
+    ),
+    _StartupData(
+      name: 'GreenEnergy',
+      description: 'Soluções em energia solar residencial',
+      stage: 'Operação',
+      tokenValue: 'R\$ 85.30',
+      variation: '+5.20%',
+      imageUrl:
+          'https://www.figma.com/api/mcp/asset/398eb24d-fe8f-4800-bfbf-4f45c5664cf5',
+    ),
+    _StartupData(
+      name: 'HealthAI',
+      description: 'Diagnóstico médico assistido por IA',
+      stage: 'Nova',
+      tokenValue: 'R\$ 50.00',
+      variation: '-2.30%',
+      imageUrl:
+          'https://www.figma.com/api/mcp/asset/da02914f-fcbe-44ad-ad89-4d1b9070b0c8',
+    ),
+    _StartupData(
+      name: 'EduTech Pro',
+      description: 'Ensino online personalizado para empresas',
+      stage: 'Operação',
+      tokenValue: 'R\$ 95.75',
+      variation: '+8.10%',
+      imageUrl:
+          'https://www.figma.com/api/mcp/asset/5bb39f20-9628-4caf-b3de-f2e3ea1c1a7f',
+    ),
+    _StartupData(
+      name: 'FoodChain',
+      description: 'Rastreabilidade blockchain para alimentos',
+      stage: 'Nova',
+      tokenValue: 'R\$ 42.80',
+      variation: '+15.70%',
+      imageUrl:
+          'https://www.figma.com/api/mcp/asset/15655d0b-dfa4-4a5f-a7fe-7c9c1157e7ed',
+    ),
   ];
 
-  // Função lógica que retorna a lista filtrada
-  List<Map<String, dynamic>> get _filteredStartups {
-    return startups.where((startup) {
-      // Regra de Filtro por Tag (Chip)
-      final matchesFilter =
-          _selectedFilter == "Todas" ||
-          startup['estagio'].toLowerCase() == _selectedFilter.toLowerCase();
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _filterScrollController.dispose();
+    super.dispose();
+  }
 
-      // Regra de Busca por Nome
-      final matchesSearch = startup['nome'].toLowerCase().contains(
-        _searchController.text.toLowerCase(),
-      );
+  List<_StartupData> get _filteredStartups {
+    final query = _searchController.text.trim().toLowerCase();
+
+    return _startups.where((startup) {
+      final matchesFilter =
+          _selectedFilter == 'Todas' ||
+          startup.stage == _filterToStage(_selectedFilter);
+      final matchesSearch =
+          query.isEmpty ||
+          startup.name.toLowerCase().contains(query) ||
+          startup.description.toLowerCase().contains(query);
 
       return matchesFilter && matchesSearch;
     }).toList();
   }
 
+  String _filterToStage(String filter) {
+    switch (filter) {
+      case 'Novas':
+        return 'Nova';
+      case 'Em Operação':
+        return 'Operação';
+      case 'Em Expansão':
+        return 'Expansão';
+      default:
+        return filter;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final filteredList = _filteredStartups;
+    const filters = ['Todas', 'Novas', 'Em Operação', 'Em Expansão'];
+    final startups = _filteredStartups;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A1A),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          'Startups',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Column(
-        children: [
-          // Barra de Busca Funcional
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF141E2D),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) =>
-                    setState(() {}), // Atualiza a lista enquanto digita
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.search, color: Colors.grey),
-                  hintText: "Buscar startups...",
-                  hintStyle: TextStyle(color: Colors.grey),
-                  border: InputBorder.none,
-                ),
+      backgroundColor: MesclaColors.background,
+      body: SafeArea(
+        bottom: false,
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(gradient: MesclaGradients.headerFade),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          // Chips de Filtro Clicáveis
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
+            ListView(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
               children: [
-                _buildFilterChip("Todas"),
-                _buildFilterChip("Nova"),
-                _buildFilterChip("Em operação"),
-                _buildFilterChip("Em expansão"),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Lista de Startups Dinâmica
-          Expanded(
-            child: filteredList.isEmpty
-                ? const Center(
-                    child: Text(
-                      "Nenhuma startup encontrada",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: filteredList.length,
-                    itemBuilder: (context, index) {
-                      return _buildStartupCard(filteredList[index]);
-                    },
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label) {
-    bool isSelected = _selectedFilter == label;
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      child: FilterChip(
-        label: Text(label),
-        selected: isSelected,
-        onSelected: (bool selected) {
-          setState(() {
-            _selectedFilter = label;
-          });
-        },
-        backgroundColor: const Color(0xFF141E2D),
-        selectedColor: const Color(0xFF00A36C),
-        checkmarkColor: Colors.white,
-        labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.grey),
-      ),
-    );
-  }
-
-  Widget _buildStartupCard(Map<String, dynamic> data) {
-    double progresso = data['captado'] / data['meta'];
-    bool isPositive = data['variacao'].contains('+');
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF141E2D),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF1E2A3A)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: const Color(0xFF0A0A1A),
-                ),
-                child: const Icon(Icons.business, color: Colors.white),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Text(
-                      data['nome'],
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Olá, João',
+                            style: TextStyle(
+                              color: MesclaColors.textPrimary,
+                              fontSize: 24,
+                              height: 1.1,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Explore oportunidades',
+                            style: TextStyle(
+                              color: MesclaColors.textSecondary,
+                              fontSize: 14,
+                              height: 1.2,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Text(
-                      data['categoria'],
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: MesclaGradients.purple,
+                        boxShadow: [
+                          BoxShadow(
+                            color: MesclaColors.purpleGlow,
+                            blurRadius: 15,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'J',
+                        style: TextStyle(
+                          color: MesclaColors.textPrimary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  data['estagio'].toUpperCase(),
-                  style: const TextStyle(
-                    color: Colors.orange,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(height: 16),
+                Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: MesclaColors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: MesclaColors.border, width: 1.2),
                   ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            data['descricao'],
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Preço do token",
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                  Text(
-                    "R\$ ${data['preco'].toStringAsFixed(2)}",
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (_) => setState(() {}),
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      color: MesclaColors.textPrimary,
+                      fontSize: 16,
+                    ),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: MesclaColors.textTertiary,
+                      ),
+                      hintText: 'Buscar startups...',
+                      hintStyle: TextStyle(
+                        color: MesclaColors.textTertiary,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isPositive
-                      ? Colors.green.withValues(alpha: 0.1)
-                      : Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  data['variacao'],
-                  style: TextStyle(
-                    color: isPositive ? Colors.green : Colors.red,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(height: 16),
+                SingleChildScrollView(
+                  controller: _filterScrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: filters.map((filter) {
+                      final isSelected = filter == _selectedFilter;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: GestureDetector(
+                          onTap: () => setState(() => _selectedFilter = filter),
+                          child: Container(
+                            height: 42,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              gradient: isSelected
+                                  ? MesclaGradients.purpleHorizontal
+                                  : null,
+                              color: isSelected ? null : MesclaColors.surface,
+                              border: isSelected
+                                  ? null
+                                  : Border.all(
+                                      color: MesclaColors.border,
+                                      width: 1.2,
+                                    ),
+                              boxShadow: isSelected
+                                  ? const [
+                                      BoxShadow(
+                                        color: MesclaColors.purpleGlow,
+                                        blurRadius: 15,
+                                        offset: Offset(0, 4),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              filter,
+                              style: TextStyle(
+                                color: isSelected
+                                    ? MesclaColors.textPrimary
+                                    : MesclaColors.textSecondary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (startups.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 64),
+                    child: Center(
+                      child: Text(
+                        'Nenhuma startup encontrada',
+                        style: TextStyle(
+                          color: MesclaColors.textSecondary,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  ...startups.map(
+                    (startup) => Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: _StartupCard(data: startup),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StartupCard extends StatelessWidget {
+  const _StartupCard({required this.data});
+
+  final _StartupData data;
+
+  @override
+  Widget build(BuildContext context) {
+    final stageStyle = _stageStyles[data.stage] ?? _stageStyles['Nova']!;
+    final isPositive = data.variation.startsWith('+');
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MesclaColors.border, width: 1.2),
+        gradient: MesclaGradients.startupCard,
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x33000000),
+            blurRadius: 15,
+            offset: Offset(0, 10),
+          ),
+          BoxShadow(
+            color: Color(0x33000000),
+            blurRadius: 6,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              width: 64,
+              height: 64,
+              child: Image.network(
+                data.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, error, stackTrace) => Container(
+                  color: MesclaColors.border,
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.image_not_supported_outlined,
+                    color: MesclaColors.textTertiary,
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Capital captado",
-                style: TextStyle(color: Colors.grey, fontSize: 11),
-              ),
-              Text(
-                "R\$ ${data['captado']} / R\$ ${data['meta']}",
-                style: const TextStyle(color: Colors.white, fontSize: 11),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          LinearProgressIndicator(
-            value: progresso,
-            backgroundColor: const Color(0xFF0A0A1A),
-            color: const Color(0xFF00A36C),
-            borderRadius: BorderRadius.circular(10),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        data.name,
+                        style: const TextStyle(
+                          color: MesclaColors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        color: stageStyle.background,
+                      ),
+                      child: Text(
+                        data.stage,
+                        style: TextStyle(
+                          color: stageStyle.foreground,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  data.description,
+                  style: const TextStyle(
+                    color: MesclaColors.textSecondary,
+                    fontSize: 14,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Valor do token',
+                            style: TextStyle(
+                              color: MesclaColors.textTertiary,
+                              fontSize: 12,
+                              height: 1.3,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            data.tokenValue,
+                            style: const TextStyle(
+                              color: MesclaColors.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: isPositive
+                            ? MesclaColors.successSoft
+                            : MesclaColors.dangerSoft,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isPositive
+                                ? Icons.trending_up_rounded
+                                : Icons.trending_down_rounded,
+                            size: 16,
+                            color: isPositive
+                                ? MesclaColors.success
+                                : MesclaColors.danger,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            data.variation,
+                            style: TextStyle(
+                              color: isPositive
+                                  ? MesclaColors.success
+                                  : MesclaColors.danger,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 }
+
+class _StartupData {
+  const _StartupData({
+    required this.name,
+    required this.description,
+    required this.stage,
+    required this.tokenValue,
+    required this.variation,
+    required this.imageUrl,
+  });
+
+  final String name;
+  final String description;
+  final String stage;
+  final String tokenValue;
+  final String variation;
+  final String imageUrl;
+}
+
+class _StageStyle {
+  const _StageStyle({required this.background, required this.foreground});
+
+  final Color background;
+  final Color foreground;
+}
+
+const _stageStyles = <String, _StageStyle>{
+  'Expansão': _StageStyle(
+    background: MesclaColors.stageExpansionSoft,
+    foreground: MesclaColors.stageExpansion,
+  ),
+  'Operação': _StageStyle(
+    background: MesclaColors.successSoft,
+    foreground: MesclaColors.success,
+  ),
+  'Nova': _StageStyle(
+    background: MesclaColors.stageNewSoft,
+    foreground: MesclaColors.stageNew,
+  ),
+};

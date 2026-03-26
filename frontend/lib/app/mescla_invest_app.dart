@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/theme/mescla_colors.dart';
 import '../features/home/presentation/home_page.dart';
 import '../core/navigation/app_route.dart';
 import '../core/widgets/debug_menu_overlay.dart';
@@ -24,7 +25,8 @@ class MesclaInvestApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           brightness: Brightness.dark,
-          primaryColor: const Color(0xFF00A36C),
+          primaryColor: MesclaColors.purpleStart,
+          scaffoldBackgroundColor: MesclaColors.background,
         ),
         builder: (context, child) {
           const isDebug = String.fromEnvironment('DEBUG_MODE') == 'true';
