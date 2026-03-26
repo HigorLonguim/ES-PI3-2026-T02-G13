@@ -29,7 +29,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundColor: Colors.white.withOpacity(0.1),
+            backgroundColor: Colors.white.withValues(alpha: 0.1),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
               onPressed: () => Navigator.pop(context),
@@ -47,7 +47,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           decoration: BoxDecoration(
             color: const Color(0xFF141E2D), // Card escuro
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           ),
           child: Column(
             children: [
@@ -88,7 +88,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 icon: Icons.chat_bubble_outline_rounded,
                 iconColor: Colors.pinkAccent,
                 title: 'Respostas a Perguntas',
-                subtitle: 'Seja notificado quando suas perguntas forem respondidas',
+                subtitle:
+                    'Seja notificado quando suas perguntas forem respondidas',
               ),
             ],
           ),
@@ -110,14 +111,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.2),
+          color: iconColor.withValues(alpha: 0.2),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: iconColor, size: 24),
       ),
       title: Text(
         title,
-        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
       ),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 4),
@@ -128,8 +133,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
       ),
       trailing: Switch(
         value: _settings[id] ?? false,
-        activeColor: const Color(0xFF00A36C), // Verde do protótipo
-        activeTrackColor: const Color(0xFF00A36C).withOpacity(0.3),
+        activeThumbColor: const Color(0xFF00A36C), // Verde do protótipo
+        activeTrackColor: const Color(0xFF00A36C).withValues(alpha: 0.3),
         inactiveThumbColor: Colors.grey[400],
         inactiveTrackColor: Colors.white10,
         onChanged: (bool value) {
@@ -143,7 +148,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   Widget _divider() {
     return Divider(
-      color: Colors.white.withOpacity(0.05),
+      color: Colors.white.withValues(alpha: 0.05),
       height: 1,
       indent: 16,
       endIndent: 16,

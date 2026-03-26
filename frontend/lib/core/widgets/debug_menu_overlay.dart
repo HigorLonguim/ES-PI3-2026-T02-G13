@@ -76,16 +76,40 @@ class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
                       children: [
                         _buildSection('Autenticação'),
                         _buildMenuItem('Login', const LoginPage(), Icons.login),
-                        _buildMenuItem('SignUp', const SignUpPage(), Icons.person_add),
+                        _buildMenuItem(
+                          'SignUp',
+                          const SignUpPage(),
+                          Icons.person_add,
+                        ),
                         const SizedBox(height: 16),
                         _buildSection('Principal'),
-                        _buildMenuItem('Página Inicial (Home)', const HomePage(), Icons.home),
-                        _buildMenuItem('Navegação Principal', const MainNavigationPage(), Icons.navigation),
-                        _buildMenuItem('Portfolio/Startups', const StartupPage(), Icons.business),
+                        _buildMenuItem(
+                          'Página Inicial (Home)',
+                          const HomePage(),
+                          Icons.home,
+                        ),
+                        _buildMenuItem(
+                          'Navegação Principal',
+                          const MainNavigationPage(),
+                          Icons.navigation,
+                        ),
+                        _buildMenuItem(
+                          'Portfolio/Startups',
+                          const StartupPage(),
+                          Icons.business,
+                        ),
                         const SizedBox(height: 16),
                         _buildSection('Usuário'),
-                        _buildMenuItem('Perfil', const ProfilePage(), Icons.person),
-                        _buildMenuItem('Ajuda / FAQ', const HelpPage(), Icons.help),
+                        _buildMenuItem(
+                          'Perfil',
+                          const ProfilePage(),
+                          Icons.person,
+                        ),
+                        _buildMenuItem(
+                          'Ajuda / FAQ',
+                          const HelpPage(),
+                          Icons.help,
+                        ),
                       ],
                     ),
                   ),
@@ -123,10 +147,7 @@ class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
       ),
       child: ListTile(
         leading: Icon(icon, color: Colors.white70),
-        title: Text(
-          title,
-          style: const TextStyle(color: Colors.white),
-        ),
+        title: Text(title, style: const TextStyle(color: Colors.white)),
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: () {
           final navigator = AppRoute.navigatorKey.currentState;
@@ -148,12 +169,8 @@ class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
         child: Overlay(
           initialEntries: [
             OverlayEntry(
-              builder: (context) => Stack(
-                children: [
-                  widget.child,
-                  _buildDraggableButton(),
-                ],
-              ),
+              builder: (context) =>
+                  Stack(children: [widget.child, _buildDraggableButton()]),
             ),
           ],
         ),
@@ -195,17 +212,13 @@ class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00A36C).withOpacity(0.4),
+                color: const Color(0xFF00A36C).withValues(alpha: 0.4),
                 blurRadius: 15,
                 offset: const Offset(0, 6),
               ),
             ],
           ),
-          child: const Icon(
-            Icons.bug_report,
-            color: Colors.white,
-            size: 28,
-          ),
+          child: const Icon(Icons.bug_report, color: Colors.white, size: 28),
         ),
       ),
     );

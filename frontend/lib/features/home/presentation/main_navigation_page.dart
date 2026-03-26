@@ -2,8 +2,8 @@
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 
 import 'package:flutter/material.dart';
-import 'startup_page.dart'; 
-import 'profile_page.dart'; 
+import 'startup_page.dart';
+import 'profile_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});

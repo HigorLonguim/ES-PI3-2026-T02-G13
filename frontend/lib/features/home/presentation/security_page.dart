@@ -16,7 +16,7 @@ class SecurityPage extends StatelessWidget {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundColor: Colors.white.withOpacity(0.1),
+            backgroundColor: Colors.white.withValues(alpha: 0.1),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
               onPressed: () => Navigator.pop(context),
@@ -37,7 +37,7 @@ class SecurityPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF141E2D),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.05)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
               ),
               child: Column(
                 children: [
@@ -57,7 +57,9 @@ class SecurityPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const ChangePasswordPage(),
+                        ),
                       );
                     },
                   ),
@@ -73,7 +75,9 @@ class SecurityPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF101A3D), // Azul bem escuro
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF1E3A8A).withOpacity(0.5)),
+                border: Border.all(
+                  color: const Color(0xFF1E3A8A).withValues(alpha: 0.5),
+                ),
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,10 +92,38 @@ class SecurityPage extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   // Dicas em formato de lista (sem ícones na imagem)
-                  Text('• Use senhas fortes e únicas', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.8)),
-                  Text('• Ative a autenticação de dois fatores', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.8)),
-                  Text('• Não compartilhe seus dados de acesso', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.8)),
-                  Text('• Salve seus códigos de backup em local seguro', style: TextStyle(color: Colors.white, fontSize: 13, height: 1.8)),
+                  Text(
+                    '• Use senhas fortes e únicas',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      height: 1.8,
+                    ),
+                  ),
+                  Text(
+                    '• Ative a autenticação de dois fatores',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      height: 1.8,
+                    ),
+                  ),
+                  Text(
+                    '• Não compartilhe seus dados de acesso',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      height: 1.8,
+                    ),
+                  ),
+                  Text(
+                    '• Salve seus códigos de backup em local seguro',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      height: 1.8,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -116,14 +148,18 @@ class SecurityPage extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05), // Fundo cinza bem suave
+          color: Colors.white.withValues(alpha: 0.05), // Fundo cinza bem suave
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: Colors.grey[400], size: 22), // Ícone cinza
       ),
       title: Text(
         title,
-        style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
       ),
       // Exibe o subtítulo apenas se ele for fornecido
       subtitle: subtitle != null
@@ -141,7 +177,7 @@ class SecurityPage extends StatelessWidget {
 
   Widget _divider() {
     return Divider(
-      color: Colors.white.withOpacity(0.05),
+      color: Colors.white.withValues(alpha: 0.05),
       height: 1,
       indent: 20,
       endIndent: 20,

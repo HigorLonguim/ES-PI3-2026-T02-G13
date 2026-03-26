@@ -3,7 +3,8 @@
 import 'package:flutter/cupertino.dart';
 
 class AppRoute<T> extends CupertinoPageRoute<T> {
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   AppRoute(Widget page) : super(builder: (_) => page);
 }

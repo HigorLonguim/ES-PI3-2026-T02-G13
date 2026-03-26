@@ -15,7 +15,7 @@ class PersonalDataPage extends StatelessWidget {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundColor: Colors.white.withOpacity(0.1),
+            backgroundColor: Colors.white.withValues(alpha: 0.1),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
               onPressed: () => Navigator.pop(context),
@@ -55,7 +55,7 @@ class PersonalDataPage extends StatelessWidget {
               label: 'Telefone',
               value: '(11) 98765-4321',
             ),
-            
+
             const SizedBox(height: 24),
 
             // Card de Aviso (Importante)
@@ -65,18 +65,28 @@ class PersonalDataPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF101A3D), // Azul escuro
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF1E3A8A).withOpacity(0.5)),
+                border: Border.all(
+                  color: const Color(0xFF1E3A8A).withValues(alpha: 0.5),
+                ),
               ),
               child: RichText(
                 text: const TextSpan(
-                  style: TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
                   children: [
                     TextSpan(
                       text: 'Importante: ',
-                      style: TextStyle(color: Color(0xFF60A5FA), fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Color(0xFF60A5FA),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     TextSpan(
-                      text: 'Para alterar seus dados pessoais, entre em contato com o suporte.',
+                      text:
+                          'Para alterar seus dados pessoais, entre em contato com o suporte.',
                     ),
                   ],
                 ),
@@ -99,7 +109,7 @@ class PersonalDataPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF141E2D),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [

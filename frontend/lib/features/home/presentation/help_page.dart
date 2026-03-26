@@ -20,9 +20,13 @@ class HelpPage extends StatelessWidget {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundColor: Colors.white.withOpacity(0.1),
+            backgroundColor: Colors.white.withValues(alpha: 0.1),
             child: IconButton(
-              icon: const Icon(Icons.chevron_left, color: Colors.white, size: 24),
+              icon: const Icon(
+                Icons.chevron_left,
+                color: Colors.white,
+                size: 24,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -38,7 +42,7 @@ class HelpPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF141E2D),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.05)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
               ),
               child: Column(
                 children: [
@@ -63,7 +67,7 @@ class HelpPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // 2. Título da Seção FAQ
             const Text(
               'Perguntas Frequentes',
@@ -76,11 +80,23 @@ class HelpPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // 3. Lista de FAQs com ExpansionTile (Estilo Sanfona)
-            _buildFaqTile('Como funciona o investimento em startups?', 'Todas as operações são simuladas...'),
-            _buildFaqTile('Os investimentos são reais?', 'Não, o MesclaInvest é um ambiente pedagógico simulado.'),
-            _buildFaqTile('Como posso vender meus tokens?', 'Você pode colocar ofertas de venda no Balcão...'),
-            _buildFaqTile('Existe taxa de transação?', 'No ambiente simulado, não há taxas reais.'),
-            
+            _buildFaqTile(
+              'Como funciona o investimento em startups?',
+              'Todas as operações são simuladas...',
+            ),
+            _buildFaqTile(
+              'Os investimentos são reais?',
+              'Não, o MesclaInvest é um ambiente pedagógico simulado.',
+            ),
+            _buildFaqTile(
+              'Como posso vender meus tokens?',
+              'Você pode colocar ofertas de venda no Balcão...',
+            ),
+            _buildFaqTile(
+              'Existe taxa de transação?',
+              'No ambiente simulado, não há taxas reais.',
+            ),
+
             const SizedBox(height: 32),
 
             // 4. Card de Horário de Atendimento (Azul)
@@ -90,7 +106,9 @@ class HelpPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF101A3D), // Azul escuro para destaque
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF1E3A8A).withOpacity(0.5)),
+                border: Border.all(
+                  color: const Color(0xFF1E3A8A).withValues(alpha: 0.5),
+                ),
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +124,11 @@ class HelpPage extends StatelessWidget {
                   SizedBox(height: 8),
                   Text(
                     'Segunda a Sexta: 9h às 18h\nSábado: 9h às 13h',
-                    style: TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      height: 1.5,
+                    ),
                   ),
                 ],
               ),
@@ -131,14 +153,18 @@ class HelpPage extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: const Color(0xFF9810FA).withOpacity(0.1),
+          color: const Color(0xFF9810FA).withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: const Color(0xFF9810FA), size: 24),
       ),
       title: Text(
         title,
-        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
       ),
       subtitle: Text(
         subtitle,
@@ -156,7 +182,7 @@ class HelpPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF141E2D),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: ExpansionTile(
         iconColor: const Color(0xFF9810FA),
@@ -184,7 +210,7 @@ class HelpPage extends StatelessWidget {
 
   Widget _divider() {
     return Divider(
-      color: Colors.white.withOpacity(0.05),
+      color: Colors.white.withValues(alpha: 0.05),
       height: 1,
       indent: 20,
       endIndent: 20,

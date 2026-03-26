@@ -14,7 +14,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +70,11 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundColor: Color(0xFF8A3FFF),
               child: Text(
                 'J',
-                style: TextStyle(fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 32,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -106,7 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: BoxDecoration(
         color: const Color(0xFF141E2D),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
@@ -117,7 +120,9 @@ class _ProfilePageState extends State<ProfilePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const PersonalDataPage()),
+                MaterialPageRoute(
+                  builder: (context) => const PersonalDataPage(),
+                ),
               );
             },
           ),
@@ -141,7 +146,9 @@ class _ProfilePageState extends State<ProfilePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NotificationsPage()),
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsPage(),
+                ),
               );
             },
           ),
@@ -175,14 +182,18 @@ class _ProfilePageState extends State<ProfilePage> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.1),
+          color: iconColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: iconColor, size: 22),
       ),
       title: Text(
         title,
-        style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
       ),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
     );
@@ -190,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _divider() {
     return Divider(
-      color: Colors.white.withOpacity(0.05),
+      color: Colors.white.withValues(alpha: 0.05),
       height: 1,
       indent: 20,
       endIndent: 20,
@@ -207,9 +218,11 @@ class _ProfilePageState extends State<ProfilePage> {
         child: OutlinedButton(
           onPressed: () => Navigator.pop(context),
           style: OutlinedButton.styleFrom(
-            backgroundColor: Colors.redAccent.withOpacity(0.05),
+            backgroundColor: Colors.redAccent.withValues(alpha: 0.05),
             side: const BorderSide(color: Colors.redAccent, width: 0.5),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -218,7 +231,11 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(width: 10),
               Text(
                 'Sair da Conta',
-                style: TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -226,9 +243,4 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
-
-
-
-
 }

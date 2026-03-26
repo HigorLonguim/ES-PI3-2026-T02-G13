@@ -25,7 +25,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
-            backgroundColor: Colors.white.withOpacity(0.1),
+            backgroundColor: Colors.white.withValues(alpha: 0.1),
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
               onPressed: () => Navigator.pop(context),
@@ -46,7 +46,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             _buildLabel('Senha Atual'),
             _buildPasswordField(
               obscure: _obscureCurrent,
-              onToggle: () => setState(() => _obscureCurrent = !_obscureCurrent),
+              onToggle: () =>
+                  setState(() => _obscureCurrent = !_obscureCurrent),
             ),
             const SizedBox(height: 20),
 
@@ -62,7 +63,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             _buildLabel('Confirmar Nova Senha'),
             _buildPasswordField(
               obscure: _obscureConfirm,
-              onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
+              onToggle: () =>
+                  setState(() => _obscureConfirm = !_obscureConfirm),
             ),
             const SizedBox(height: 40),
 
@@ -74,7 +76,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF9810FA).withOpacity(0.4),
+                    color: const Color(0xFF9810FA).withValues(alpha: 0.4),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
@@ -88,13 +90,17 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   // Simulação de sucesso
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Senha alterada com sucesso!')),
+                    const SnackBar(
+                      content: Text('Senha alterada com sucesso!'),
+                    ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
                 child: const Text(
                   'Alterar Senha',
@@ -124,23 +130,35 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
   // Widget auxiliar para os campos de input estilizados
-  Widget _buildPasswordField({required bool obscure, required VoidCallback onToggle}) {
+  Widget _buildPasswordField({
+    required bool obscure,
+    required VoidCallback onToggle,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF141E2D),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: TextField(
         obscureText: obscure,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
           border: InputBorder.none,
-          prefixIcon: const Icon(Icons.lock_outline_rounded, color: Colors.grey, size: 20),
+          prefixIcon: const Icon(
+            Icons.lock_outline_rounded,
+            color: Colors.grey,
+            size: 20,
+          ),
           suffixIcon: IconButton(
             icon: Icon(
-              obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+              obscure
+                  ? Icons.visibility_off_outlined
+                  : Icons.visibility_outlined,
               color: Colors.grey,
               size: 20,
             ),
