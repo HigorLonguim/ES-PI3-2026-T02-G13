@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/mescla_colors.dart';
+import '../data/mock_startup_repository.dart';
+import 'models/startup_data.dart';
 
 class StartupPage extends StatefulWidget {
   const StartupPage({super.key});
@@ -14,68 +16,41 @@ class StartupPage extends StatefulWidget {
 class _StartupPageState extends State<StartupPage> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _filterScrollController = ScrollController();
+  final ScrollController _startupsScrollController = ScrollController();
+  final MockStartupRepository _startupRepository = MockStartupRepository();
 
   String _selectedFilter = 'Todas';
+  List<StartupData> _allStartups = const [];
 
-  final List<_StartupData> _startups = const [
-    _StartupData(
-      name: 'TechFlow',
-      description: 'Plataforma de automação para e-commerce',
-      stage: 'Expansão',
-      tokenValue: 'R\$ 125.50',
-      variation: '+12.50%',
-      imageUrl:
-          'https://www.figma.com/api/mcp/asset/6ab3a4a1-55c3-40a1-854b-82fda3a66a82',
-    ),
-    _StartupData(
-      name: 'GreenEnergy',
-      description: 'Soluções em energia solar residencial',
-      stage: 'Operação',
-      tokenValue: 'R\$ 85.30',
-      variation: '+5.20%',
-      imageUrl:
-          'https://www.figma.com/api/mcp/asset/398eb24d-fe8f-4800-bfbf-4f45c5664cf5',
-    ),
-    _StartupData(
-      name: 'HealthAI',
-      description: 'Diagnóstico médico assistido por IA',
-      stage: 'Nova',
-      tokenValue: 'R\$ 50.00',
-      variation: '-2.30%',
-      imageUrl:
-          'https://www.figma.com/api/mcp/asset/da02914f-fcbe-44ad-ad89-4d1b9070b0c8',
-    ),
-    _StartupData(
-      name: 'EduTech Pro',
-      description: 'Ensino online personalizado para empresas',
-      stage: 'Operação',
-      tokenValue: 'R\$ 95.75',
-      variation: '+8.10%',
-      imageUrl:
-          'https://www.figma.com/api/mcp/asset/5bb39f20-9628-4caf-b3de-f2e3ea1c1a7f',
-    ),
-    _StartupData(
-      name: 'FoodChain',
-      description: 'Rastreabilidade blockchain para alimentos',
-      stage: 'Nova',
-      tokenValue: 'R\$ 42.80',
-      variation: '+15.70%',
-      imageUrl:
-          'https://www.figma.com/api/mcp/asset/15655d0b-dfa4-4a5f-a7fe-7c9c1157e7ed',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadStartups();
+  }
+
+  Future<void> _loadStartups() async {
+    final startups = await _startupRepository.fetchStartups();
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _allStartups = startups;
+    });
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     _filterScrollController.dispose();
+    _startupsScrollController.dispose();
     super.dispose();
   }
 
-  List<_StartupData> get _filteredStartups {
+  List<StartupData> get _filteredStartups {
     final query = _searchController.text.trim().toLowerCase();
 
-    return _startups.where((startup) {
+    return _allStartups.where((startup) {
       final matchesFilter =
           _selectedFilter == 'Todas' ||
           startup.stage == _filterToStage(_selectedFilter);
@@ -117,167 +92,177 @@ class _StartupPageState extends State<StartupPage> {
                 decoration: BoxDecoration(gradient: MesclaGradients.headerFade),
               ),
             ),
-            ListView(
+            Padding(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              children: [
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Olá, João',
-                            style: TextStyle(
-                              color: MesclaColors.textPrimary,
-                              fontSize: 24,
-                              height: 1.1,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Explore oportunidades',
-                            style: TextStyle(
-                              color: MesclaColors.textSecondary,
-                              fontSize: 14,
-                              height: 1.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: MesclaGradients.purple,
-                        boxShadow: [
-                          BoxShadow(
-                            color: MesclaColors.purpleGlow,
-                            blurRadius: 15,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'J',
-                        style: TextStyle(
-                          color: MesclaColors.textPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: MesclaColors.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: MesclaColors.border, width: 1.2),
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (_) => setState(() {}),
-                    style: const TextStyle(
-                      color: MesclaColors.textPrimary,
-                      fontSize: 16,
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: MesclaColors.textTertiary,
-                      ),
-                      hintText: 'Buscar startups...',
-                      hintStyle: TextStyle(
-                        color: MesclaColors.textTertiary,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SingleChildScrollView(
-                  controller: _filterScrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: filters.map((filter) {
-                      final isSelected = filter == _selectedFilter;
-
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: GestureDetector(
-                          onTap: () => setState(() => _selectedFilter = filter),
-                          child: Container(
-                            height: 42,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              gradient: isSelected
-                                  ? MesclaGradients.purpleHorizontal
-                                  : null,
-                              color: isSelected ? null : MesclaColors.surface,
-                              border: isSelected
-                                  ? null
-                                  : Border.all(
-                                      color: MesclaColors.border,
-                                      width: 1.2,
-                                    ),
-                              boxShadow: isSelected
-                                  ? const [
-                                      BoxShadow(
-                                        color: MesclaColors.purpleGlow,
-                                        blurRadius: 15,
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              filter,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Olá, João',
                               style: TextStyle(
-                                color: isSelected
-                                    ? MesclaColors.textPrimary
-                                    : MesclaColors.textSecondary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                                color: MesclaColors.textPrimary,
+                                fontSize: 24,
+                                height: 1.1,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Explore oportunidades',
+                              style: TextStyle(
+                                color: MesclaColors.textSecondary,
+                                fontSize: 14,
+                                height: 1.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: MesclaGradients.purple,
+                          boxShadow: [
+                            BoxShadow(
+                              color: MesclaColors.purpleGlow,
+                              blurRadius: 15,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'J',
+                          style: TextStyle(
+                            color: MesclaColors.textPrimary,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      );
-                    }).toList(),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 16),
-                if (startups.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 64),
-                    child: Center(
-                      child: Text(
-                        'Nenhuma startup encontrada',
-                        style: TextStyle(
-                          color: MesclaColors.textSecondary,
+                  const SizedBox(height: 16),
+                  Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: MesclaColors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: MesclaColors.border,
+                        width: 1.2,
+                      ),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (_) => setState(() {}),
+                      style: const TextStyle(
+                        color: MesclaColors.textPrimary,
+                        fontSize: 16,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: MesclaColors.textTertiary,
+                        ),
+                        hintText: 'Buscar startups...',
+                        hintStyle: TextStyle(
+                          color: MesclaColors.textTertiary,
                           fontSize: 16,
                         ),
                       ),
                     ),
-                  )
-                else
-                  ...startups.map(
-                    (startup) => Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: _StartupCard(data: startup),
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    controller: _filterScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: filters.map((filter) {
+                        final isSelected = filter == _selectedFilter;
+
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: GestureDetector(
+                            onTap: () =>
+                                setState(() => _selectedFilter = filter),
+                            child: Container(
+                              height: 42,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                gradient: isSelected
+                                    ? MesclaGradients.purpleHorizontal
+                                    : null,
+                                color: isSelected ? null : MesclaColors.surface,
+                                border: isSelected
+                                    ? null
+                                    : Border.all(
+                                        color: MesclaColors.border,
+                                        width: 1.2,
+                                      ),
+                                boxShadow: isSelected
+                                    ? const [
+                                        BoxShadow(
+                                          color: MesclaColors.purpleGlow,
+                                          blurRadius: 15,
+                                          offset: Offset(0, 4),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                filter,
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? MesclaColors.textPrimary
+                                      : MesclaColors.textSecondary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ),
-              ],
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: startups.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'Nenhuma startup encontrada',
+                              style: TextStyle(
+                                color: MesclaColors.textSecondary,
+                                fontSize: 16,
+                              ),
+                            ),
+                          )
+                        : ListView.separated(
+                            controller: _startupsScrollController,
+                            padding: const EdgeInsets.only(bottom: 8),
+                            itemCount: startups.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(height: 16),
+                            itemBuilder: (context, index) {
+                              return _StartupCard(data: startups[index]);
+                            },
+                          ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -289,7 +274,7 @@ class _StartupPageState extends State<StartupPage> {
 class _StartupCard extends StatelessWidget {
   const _StartupCard({required this.data});
 
-  final _StartupData data;
+  final StartupData data;
 
   @override
   Widget build(BuildContext context) {
@@ -456,24 +441,6 @@ class _StartupCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _StartupData {
-  const _StartupData({
-    required this.name,
-    required this.description,
-    required this.stage,
-    required this.tokenValue,
-    required this.variation,
-    required this.imageUrl,
-  });
-
-  final String name;
-  final String description;
-  final String stage;
-  final String tokenValue;
-  final String variation;
-  final String imageUrl;
 }
 
 class _StageStyle {
