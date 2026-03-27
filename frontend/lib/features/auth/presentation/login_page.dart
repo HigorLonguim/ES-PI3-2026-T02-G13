@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../../../core/widgets/app_status_indicator.dart';
+import '../../../core/auth/auth_session_storage.dart';
 import '../../../core/navigation/app_route.dart';
 import '../data/auth_api_service.dart';
 import 'signup_page.dart';
@@ -19,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
   final AuthApiService _authApiService = AuthApiService();
+  final AuthSessionStorage _authSessionStorage = AuthSessionStorage();
 
   @override
   void dispose() {
@@ -54,6 +56,10 @@ class _LoginPageState extends State<LoginPage> {
     _showMessage(result.message, success: result.success);
 
     if (result.success) {
+      final token = result.token;
+      if (token != null && token.isNotEmpty) {
+        await _authSessionStorage.saveToken(token);
+      }
       Navigator.of(context).pop();
     }
   }

@@ -1,6 +1,9 @@
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 
 import 'package:flutter/material.dart';
+import 'package:frontend/core/auth/auth_session_storage.dart';
+import 'package:frontend/core/navigation/app_route.dart';
+import 'package:frontend/features/auth/presentation/login_page.dart';
 import 'package:frontend/features/home/presentation/help_page.dart';
 import 'package:frontend/features/home/presentation/notifications_page.dart';
 import 'package:frontend/features/home/presentation/personal_data_page.dart';
@@ -14,6 +17,22 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final AuthSessionStorage _authSessionStorage = AuthSessionStorage();
+
+  Future<void> _logout() async {
+    try {
+      await _authSessionStorage.clearToken();
+    } catch (_) {}
+
+    if (!mounted) {
+      return;
+    }
+
+    Navigator.of(
+      context,
+    ).pushAndRemoveUntil(AppRoute(const LoginPage()), (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,7 +235,7 @@ class _ProfilePageState extends State<ProfilePage> {
         width: double.infinity,
         height: 55,
         child: OutlinedButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: _logout,
           style: OutlinedButton.styleFrom(
             backgroundColor: Colors.redAccent.withValues(alpha: 0.05),
             side: const BorderSide(color: Colors.redAccent, width: 0.5),

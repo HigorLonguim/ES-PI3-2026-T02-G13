@@ -10,11 +10,13 @@ class AuthResult {
     required this.success,
     required this.message,
     this.usuario,
+    this.token,
   });
 
   final bool success;
   final String message;
   final Map<String, dynamic>? usuario;
+  final String? token;
 }
 
 class AuthApiService {
@@ -81,6 +83,12 @@ class AuthApiService {
         success: successStatusCodes.contains(response.statusCode),
         message: message,
         usuario: _readMap(body, 'usuario'),
+        token:
+            _readString(body, 'token') ??
+            _readString(
+              _readMap(body, 'usuario') ?? <String, dynamic>{},
+              'token',
+            ),
       );
     } catch (_) {
       return const AuthResult(
