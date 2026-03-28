@@ -1,4 +1,4 @@
-// Autoria: Felipe Sousa - RA: 22018160
+﻿// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
 
@@ -6,29 +6,40 @@ import '../../../core/theme/mescla_colors.dart';
 import '../../../core/widgets/mescla_bottom_navigation_bar.dart';
 import 'profile_page.dart';
 import 'startup_page.dart';
+import 'wallet_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
-  const MainNavigationPage({super.key});
+  const MainNavigationPage({this.initialIndex = 0, super.key});
+
+  final int initialIndex;
 
   @override
   State<MainNavigationPage> createState() => _MainNavigationPageState();
 }
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
-  late final List<Widget> _pages = [
-    const StartupPage(),
-    const _NavigationPlaceholder(label: 'Carteira'),
-    const _NavigationPlaceholder(label: 'Dashboard'),
-    const ProfilePage(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final pages = <Widget>[
+      const StartupPage(),
+      WalletPage(
+        onExploreStartups: () => setState(() => _currentIndex = 0),
+      ),
+      const _NavigationPlaceholder(label: 'Dashboard'),
+      const ProfilePage(),
+    ];
+
     return Scaffold(
       backgroundColor: MesclaColors.background,
-      body: IndexedStack(index: _currentIndex, children: _pages),
+      body: IndexedStack(index: _currentIndex, children: pages),
       bottomNavigationBar: MesclaBottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
@@ -58,3 +69,4 @@ class _NavigationPlaceholder extends StatelessWidget {
     );
   }
 }
+
