@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../../../core/utils/input_formatters.dart';
 import '../../../core/widgets/app_status_indicator.dart';
 import '../data/auth_api_service.dart';
@@ -100,7 +101,7 @@ class _SignUpPageState extends State<SignUpPage> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF0A0A1A), Color(0xFF0C1E1A), Color(0xFF0A0A1A)],
+              colors: [Color(0xFF0A0A1A), Color(0xFF1A0A2E), Color(0xFF0A0A1A)],
             ),
           ),
           child: Stack(
@@ -113,11 +114,11 @@ class _SignUpPageState extends State<SignUpPage> {
                   height: 287.991,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color.fromRGBO(0, 163, 108, 0.18),
+                    color: Color.fromRGBO(79, 57, 246, 0.3),
                     boxShadow: [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 163, 108, 0.18),
-                        blurRadius: 90,
+                        color: Color.fromRGBO(79, 57, 246, 0.3),
+                        blurRadius: 120,
                         spreadRadius: 10,
                       ),
                     ],
@@ -132,11 +133,11 @@ class _SignUpPageState extends State<SignUpPage> {
                   height: 287.991,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color.fromRGBO(68, 209, 122, 0.12),
+                    color: Color.fromRGBO(152, 16, 250, 0.2),
                     boxShadow: [
                       BoxShadow(
-                        color: Color.fromRGBO(68, 209, 122, 0.12),
-                        blurRadius: 90,
+                        color: Color.fromRGBO(152, 16, 250, 0.2),
+                        blurRadius: 120,
                         spreadRadius: 10,
                       ),
                     ],
@@ -144,263 +145,244 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
               ),
               SafeArea(
-                child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(
-                    context,
-                  ).copyWith(overscroll: false),
-                  child: SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 63.984,
-                                height: 63.984,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  gradient: const LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      Color(0xFF00A36C),
-                                      Color(0xFF44D17A),
-                                    ],
-                                  ),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 163, 108, 0.35),
-                                      blurRadius: 15,
-                                      offset: Offset(0, 10),
-                                    ),
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 163, 108, 0.35),
-                                      blurRadius: 6,
-                                      offset: Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.trending_up_rounded,
-                                  color: Colors.white,
-                                  size: 32,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                splashRadius: 20,
-                                icon: const Icon(
-                                  Icons.chevron_left_rounded,
-                                  color: Color(0xFFD1D5DC),
-                                  size: 26,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Criar Conta',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 42,
-                              height: 1,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Comece a investir em startups hoje',
-                            style: TextStyle(
-                              color: Color(0xFF99A1AF),
-                              fontSize: 16,
-                              height: 1.5,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          const _FieldLabel('Nome Completo'),
-                          const SizedBox(height: 8),
-                          _InputField(
-                            hintText: 'João Silva',
-                            controller: _nomeController,
-                            keyboardType: TextInputType.name,
-                          ),
-                          const SizedBox(height: 16),
-                          const _FieldLabel('Email'),
-                          const SizedBox(height: 8),
-                          _InputField(
-                            hintText: 'seu@email.com',
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          const SizedBox(height: 16),
-                          const _FieldLabel('CPF'),
-                          const SizedBox(height: 8),
-                          _InputField(
-                            hintText: '000.000.000-00',
-                            controller: _cpfController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(11),
-                              CpfInputFormatter(),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          const _FieldLabel('Telefone'),
-                          const SizedBox(height: 8),
-                          _InputField(
-                            hintText: '(11) 98765-4321',
-                            controller: _telefoneController,
-                            keyboardType: TextInputType.phone,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(11),
-                              TelefoneInputFormatter(),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          const _FieldLabel('Senha'),
-                          const SizedBox(height: 8),
-                          _InputField(
-                            hintText: '••••••••',
-                            controller: _senhaController,
-                            obscureText: _obscurePassword,
-                            suffix: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                                color: const Color(0xFF9CA3AF),
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const _FieldLabel('Confirmar Senha'),
-                          const SizedBox(height: 8),
-                          _InputField(
-                            hintText: '••••••••',
-                            controller: _confirmarSenhaController,
-                            obscureText: _obscureConfirmPassword,
-                            suffix: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _obscureConfirmPassword =
-                                      !_obscureConfirmPassword;
-                                });
-                              },
-                              icon: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                                color: const Color(0xFF9CA3AF),
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 51.967,
-                            child: DecoratedBox(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 63.984,
+                              height: 63.984,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(16),
                                 gradient: const LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [
-                                    Color(0xFF00A36C),
-                                    Color(0xFF44D17A),
-                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
                                 ),
                                 boxShadow: const [
                                   BoxShadow(
-                                    color: Color.fromRGBO(0, 163, 108, 0.3),
+                                    color: Color.fromRGBO(97, 95, 255, 0.5),
                                     blurRadius: 15,
                                     offset: Offset(0, 10),
                                   ),
                                   BoxShadow(
-                                    color: Color.fromRGBO(0, 163, 108, 0.3),
+                                    color: Color.fromRGBO(97, 95, 255, 0.5),
                                     blurRadius: 6,
                                     offset: Offset(0, 4),
                                   ),
                                 ],
                               ),
-                              child: TextButton(
-                                onPressed: _isLoading ? null : _cadastrar,
-                                style: TextButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: _isLoading
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
-                                              ),
-                                        ),
-                                      )
-                                    : const Text(
-                                        'Criar Conta',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          height: 1.5,
-                                        ),
-                                      ),
+                              child: const Icon(
+                                Icons.trending_up_rounded,
+                                color: Colors.white,
+                                size: 32,
                               ),
                             ),
+                            IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              splashRadius: 20,
+                              icon: const Icon(
+                                Icons.chevron_left_rounded,
+                                color: Color(0xFFD1D5DC),
+                                size: 26,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Criar Conta',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 42,
+                            height: 1,
+                            fontWeight: FontWeight.w700,
                           ),
-                          const SizedBox(height: 24),
-                          Center(
-                            child: Wrap(
-                              children: [
-                                const Text(
-                                  'Já tem uma conta? ',
-                                  style: TextStyle(
-                                    color: Color(0xFF99A1AF),
-                                    fontSize: 16,
-                                    height: 1.5,
-                                  ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Comece a investir em startups hoje',
+                          style: TextStyle(
+                            color: Color(0xFF99A1AF),
+                            fontSize: 16,
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        const _FieldLabel('Nome Completo'),
+                        const SizedBox(height: 8),
+                        _InputField(
+                          hintText: 'João Silva',
+                          controller: _nomeController,
+                          keyboardType: TextInputType.name,
+                        ),
+                        const SizedBox(height: 16),
+                        const _FieldLabel('Email'),
+                        const SizedBox(height: 8),
+                        _InputField(
+                          hintText: 'seu@email.com',
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        const SizedBox(height: 16),
+                        const _FieldLabel('CPF'),
+                        const SizedBox(height: 8),
+                        _InputField(
+                          hintText: '000.000.000-00',
+                          controller: _cpfController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(11),
+                            CpfInputFormatter(),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const _FieldLabel('Telefone'),
+                        const SizedBox(height: 8),
+                        _InputField(
+                          hintText: '(11) 98765-4321',
+                          controller: _telefoneController,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(11),
+                            TelefoneInputFormatter(),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const _FieldLabel('Senha'),
+                        const SizedBox(height: 8),
+                        _InputField(
+                          hintText: '••••••••',
+                          controller: _senhaController,
+                          obscureText: _obscurePassword,
+                          suffix: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: const Color(0xFF9CA3AF),
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const _FieldLabel('Confirmar Senha'),
+                        const SizedBox(height: 8),
+                        _InputField(
+                          hintText: '••••••••',
+                          controller: _confirmarSenhaController,
+                          obscureText: _obscureConfirmPassword,
+                          suffix: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: const Color(0xFF9CA3AF),
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 51.967,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              gradient: const LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
+                              ),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color.fromRGBO(97, 95, 255, 0.3),
+                                  blurRadius: 15,
+                                  offset: Offset(0, 10),
                                 ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text(
-                                    'Entrar',
-                                    style: TextStyle(
-                                      color: Color(0xFF44D17A),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.5,
-                                    ),
-                                  ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(97, 95, 255, 0.3),
+                                  blurRadius: 6,
+                                  offset: Offset(0, 4),
                                 ),
                               ],
                             ),
+                            child: TextButton(
+                              onPressed: _isLoading ? null : _cadastrar,
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Criar Conta',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                            ),
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 24),
+                        Center(
+                          child: Wrap(
+                            children: [
+                              const Text(
+                                'Já tem uma conta? ',
+                                style: TextStyle(
+                                  color: Color(0xFF99A1AF),
+                                  fontSize: 16,
+                                  height: 1.5,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text(
+                                  'Entrar',
+                                  style: TextStyle(
+                                    color: Color(0xFF7C86FF),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

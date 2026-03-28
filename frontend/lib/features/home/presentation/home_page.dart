@@ -1,7 +1,7 @@
-/* Nome: Felipe Sousa de Almeida | RA: 22018160 */
-/* Nome: Luigi Mazzoni Targa | RA: 23010918 */
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
+
 import '../../../core/navigation/app_route.dart';
 import '../../auth/presentation/login_page.dart';
 
@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF0A0A1A), Color(0xFF0C1E1A), Color(0xFF102821)],
+              colors: [Color(0xFF0A0A1A), Color(0xFF1A0A2E), Color(0xFF2A1A4A)],
             ),
           ),
           child: Stack(
@@ -30,12 +30,12 @@ class HomePage extends StatelessWidget {
                   height: 383.994,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color.fromRGBO(0, 163, 108, 0.22),
+                    color: Color.fromRGBO(79, 57, 246, 0.5),
                     boxShadow: [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 163, 108, 0.22),
-                        blurRadius: 110,
-                        spreadRadius: 12,
+                        color: Color.fromRGBO(79, 57, 246, 0.5),
+                        blurRadius: 150,
+                        spreadRadius: 8,
                       ),
                     ],
                   ),
@@ -49,12 +49,12 @@ class HomePage extends StatelessWidget {
                   height: 383.994,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color.fromRGBO(68, 209, 122, 0.16),
+                    color: Color.fromRGBO(152, 16, 250, 0.4),
                     boxShadow: [
                       BoxShadow(
-                        color: Color.fromRGBO(68, 209, 122, 0.16),
-                        blurRadius: 110,
-                        spreadRadius: 12,
+                        color: Color.fromRGBO(152, 16, 250, 0.4),
+                        blurRadius: 150,
+                        spreadRadius: 8,
                       ),
                     ],
                   ),
@@ -69,7 +69,7 @@ class HomePage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
                         children: [
-                          const SizedBox(height: 180),
+                          const SizedBox(height: 255.97),
                           Container(
                             width: 95.985,
                             height: 95.985,
@@ -78,11 +78,11 @@ class HomePage extends StatelessWidget {
                               gradient: const LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [Color(0xFF00A36C), Color(0xFF44D17A)],
+                                colors: [Color(0xFF615FFF), Color(0xFF9810FA)],
                               ),
                               boxShadow: const [
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 163, 108, 0.45),
+                                  color: Color.fromRGBO(97, 95, 255, 0.8),
                                   blurRadius: 50,
                                   offset: Offset(0, 25),
                                 ),
@@ -104,20 +104,18 @@ class HomePage extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
                           const Text(
                             'Invista em startups promissoras com\ntokens digitais',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 18,
-                              height: 1.5,
+                              height: 1.55,
                               color: Color(0xFF99A1AF),
                               fontWeight: FontWeight.w400,
                             ),
                           ),
                           const SizedBox(height: 48),
-
-                          // BOTÃO 1: CONTINUAR (FLUXO LOGIN)
                           SizedBox(
                             width: double.infinity,
                             height: 55.96,
@@ -127,19 +125,16 @@ class HomePage extends StatelessWidget {
                                 gradient: const LinearGradient(
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
-                                  colors: [
-                                    Color(0xFF00A36C),
-                                    Color(0xFF44D17A),
-                                  ],
+                                  colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
                                 ),
                                 boxShadow: const [
                                   BoxShadow(
-                                    color: Color.fromRGBO(0, 163, 108, 0.35),
+                                    color: Color.fromRGBO(97, 95, 255, 0.5),
                                     blurRadius: 15,
                                     offset: Offset(0, 10),
                                   ),
                                   BoxShadow(
-                                    color: Color.fromRGBO(0, 163, 108, 0.35),
+                                    color: Color.fromRGBO(97, 95, 255, 0.5),
                                     blurRadius: 6,
                                     offset: Offset(0, 4),
                                   ),
