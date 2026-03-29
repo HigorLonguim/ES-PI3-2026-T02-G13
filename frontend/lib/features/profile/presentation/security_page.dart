@@ -1,7 +1,8 @@
+// Autoria: Felipe Sousa - RA: 22018160
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 
 import 'package:flutter/material.dart';
-import 'package:frontend/features/home/presentation/change_password_page.dart';
+import 'package:frontend/features/profile/presentation/change_password_page.dart';
 
 class SecurityPage extends StatelessWidget {
   const SecurityPage({super.key});

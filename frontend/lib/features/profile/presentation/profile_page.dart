@@ -1,13 +1,14 @@
+// Autoria: Felipe Sousa - RA: 22018160
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 
 import 'package:flutter/material.dart';
 import 'package:frontend/core/auth/auth_session_storage.dart';
 import 'package:frontend/core/navigation/app_route.dart';
 import 'package:frontend/features/auth/presentation/login_page.dart';
-import 'package:frontend/features/home/presentation/help_page.dart';
-import 'package:frontend/features/home/presentation/notifications_page.dart';
-import 'package:frontend/features/home/presentation/personal_data_page.dart';
-import 'package:frontend/features/home/presentation/security_page.dart';
+import 'package:frontend/features/profile/presentation/help_page.dart';
+import 'package:frontend/features/profile/presentation/notifications_page.dart';
+import 'package:frontend/features/profile/presentation/personal_data_page.dart';
+import 'package:frontend/features/profile/presentation/security_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

@@ -5,10 +5,10 @@ import '../navigation/app_route.dart';
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/auth/presentation/signup_page.dart';
 import '../../features/home/presentation/home_page.dart';
-import '../../features/home/presentation/help_page.dart';
 import '../../features/home/presentation/main_navigation_page.dart';
-import '../../features/home/presentation/profile_page.dart';
 import '../../features/home/presentation/startup_page.dart';
+import '../../features/profile/presentation/help_page.dart';
+import '../../features/profile/presentation/profile_page.dart';
 
 class DebugMenuOverlay extends StatefulWidget {
   final Widget child;

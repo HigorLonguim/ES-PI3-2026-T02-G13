@@ -1,10 +1,10 @@
 ﻿// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
+import 'package:frontend/features/profile/presentation/profile_page.dart';
 
 import '../../../core/theme/mescla_colors.dart';
 import '../../../core/widgets/mescla_bottom_navigation_bar.dart';
-import 'profile_page.dart';
 import 'startup_page.dart';
 import 'wallet_page.dart';
 
