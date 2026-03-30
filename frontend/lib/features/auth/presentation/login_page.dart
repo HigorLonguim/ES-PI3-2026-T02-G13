@@ -6,6 +6,7 @@ import '../../../core/auth/auth_session_storage.dart';
 import '../../../core/navigation/app_route.dart';
 import '../../../core/widgets/app_status_indicator.dart';
 import '../data/auth_api_service.dart';
+import 'recover_password_page.dart';
 import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -231,7 +232,11 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 14),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(
+                            context,
+                          ).push(AppRoute(const RecoverPasswordPage()));
+                        },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: Size.zero,
