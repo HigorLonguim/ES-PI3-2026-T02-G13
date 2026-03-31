@@ -2,29 +2,67 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../core/config/app_config.dart';
+import '../../../core/navigation/app_route.dart';
 import '../../../core/widgets/app_status_indicator.dart';
+import '../data/auth_api_service.dart';
+import 'recover_password_success_page.dart';
 
 class RecoverPasswordPage extends StatefulWidget {
-  const RecoverPasswordPage({super.key});
+  const RecoverPasswordPage({
+    super.key,
+    this.authApiService,
+    this.useMockRecoverPasswordFlow,
+  });
+
+  final AuthApiService? authApiService;
+  final bool? useMockRecoverPasswordFlow;
 
   @override
   State<RecoverPasswordPage> createState() => _RecoverPasswordPageState();
 }
 
 class _RecoverPasswordPageState extends State<RecoverPasswordPage> {
+  static const int _requestCooldownInSeconds = 30;
+
   bool _isLoading = false;
+  bool _ownsAuthApiService = false;
+  DateTime? _lastRecoverRequestAt;
+  late final AuthApiService _authApiService;
+  late final bool _useMockRecoverPasswordFlow;
   final TextEditingController _emailController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _authApiService = widget.authApiService ?? AuthApiService();
+    _ownsAuthApiService = widget.authApiService == null;
+    _useMockRecoverPasswordFlow =
+        widget.useMockRecoverPasswordFlow ?? AppConfig.recoverPasswordUseMock;
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
+    if (_ownsAuthApiService) {
+      _authApiService.dispose();
+    }
     super.dispose();
   }
 
   Future<void> _enviarInstrucoes() async {
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
-      _showMessage('Informe um email válido.', success: false);
+      _showMessage('Informe um email valido.', success: false);
+      return;
+    }
+
+    final remainingCooldown = _remainingCooldown();
+    if (remainingCooldown > 0) {
+      _showMessage(
+        'Aguarde $remainingCooldown segundos para tentar novamente.',
+        success: false,
+      );
       return;
     }
 
@@ -32,7 +70,23 @@ class _RecoverPasswordPageState extends State<RecoverPasswordPage> {
       _isLoading = true;
     });
 
-    await Future<void>.delayed(const Duration(milliseconds: 600));
+    if (_useMockRecoverPasswordFlow) {
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      _lastRecoverRequestAt = DateTime.now();
+      Navigator.of(context).push(AppRoute(const RecoverPasswordSuccessPage()));
+      return;
+    }
+
+    final result = await _authApiService.recoverPassword(email: email);
 
     if (!mounted) {
       return;
@@ -42,10 +96,29 @@ class _RecoverPasswordPageState extends State<RecoverPasswordPage> {
       _isLoading = false;
     });
 
-    _showMessage(
-      'Instruções enviadas para $email. Verifique sua caixa de entrada.',
-      success: true,
-    );
+    if (!result.success) {
+      _showMessage(result.message, success: false);
+      return;
+    }
+
+    _lastRecoverRequestAt = DateTime.now();
+    Navigator.of(context).push(AppRoute(const RecoverPasswordSuccessPage()));
+  }
+
+  int _remainingCooldown() {
+    final lastRecoverRequestAt = _lastRecoverRequestAt;
+    if (lastRecoverRequestAt == null) {
+      return 0;
+    }
+
+    final elapsedSeconds = DateTime.now()
+        .difference(lastRecoverRequestAt)
+        .inSeconds;
+    if (elapsedSeconds >= _requestCooldownInSeconds) {
+      return 0;
+    }
+
+    return _requestCooldownInSeconds - elapsedSeconds;
   }
 
   void _showMessage(String message, {required bool success}) {
@@ -134,7 +207,7 @@ class _RecoverPasswordPageState extends State<RecoverPasswordPage> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Informe seu email para receber as\ninstruções de recuperação',
+                        'Informe seu email para receber as instrucoes de recuperacao',
                         style: TextStyle(
                           color: Color(0xFF99A1AF),
                           fontSize: 16,
@@ -188,7 +261,7 @@ class _RecoverPasswordPageState extends State<RecoverPasswordPage> {
                                     ),
                                   )
                                 : const Text(
-                                    'Enviar Instruções',
+                                    'Enviar Instrucoes',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,

@@ -54,7 +54,17 @@ class AuthApiService {
       endpoint: '/users/register',
       payload: {'nome': nome, 'email': email, 'senha': senha},
       successStatusCodes: {201},
-      fallbackSuccessMessage: 'Usuário cadastrado',
+      fallbackSuccessMessage: 'Usuario cadastrado',
+    );
+  }
+
+  Future<AuthResult> recoverPassword({required String email}) {
+    return _post(
+      endpoint: '/users/recover-password',
+      payload: {'email': email},
+      successStatusCodes: {200, 202},
+      fallbackSuccessMessage:
+          'Se o e-mail estiver cadastrado, enviaremos as instrucoes de recuperacao.',
     );
   }
 
@@ -77,7 +87,7 @@ class AuthApiService {
           _readString(body, 'erro') ??
           (successStatusCodes.contains(response.statusCode)
               ? fallbackSuccessMessage
-              : 'Não foi possível concluir a operação.');
+              : 'Nao foi possivel concluir a operacao.');
 
       return AuthResult(
         success: successStatusCodes.contains(response.statusCode),
@@ -93,7 +103,7 @@ class AuthApiService {
     } catch (_) {
       return const AuthResult(
         success: false,
-        message: 'Falha de conexão com o servidor.',
+        message: 'Falha de conexao com o servidor.',
       );
     }
   }
