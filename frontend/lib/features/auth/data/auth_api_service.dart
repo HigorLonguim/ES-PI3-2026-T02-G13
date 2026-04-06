@@ -24,10 +24,14 @@ class AuthResult {
 class AuthApiService {
   factory AuthApiService({Dio? dio, AuthSessionStorage? sessionStorage}) {
     final resolvedSessionStorage = sessionStorage ?? AuthSessionStorage();
+    final resolvedBaseUrl = _resolveBaseUrl();
+    if (kDebugMode) {
+      debugPrint('[AuthApiService] Base URL resolvida: $resolvedBaseUrl');
+    }
     final resolvedDio =
         dio ??
         createAppDio(
-          baseUrl: _resolveBaseUrl(),
+          baseUrl: resolvedBaseUrl,
           sessionStorage: resolvedSessionStorage,
         );
 
@@ -42,18 +46,13 @@ class AuthApiService {
   final bool _ownsDio;
 
   static String _resolveBaseUrl() {
-    final configuredBaseUrl = AppConfig.authApiBaseUrl.trim();
-    if (configuredBaseUrl.isNotEmpty) {
-      return configuredBaseUrl;
+    final configuredApiUrl = AppConfig.apiUrl.trim();
+    if (configuredApiUrl.isNotEmpty) {
+      return _normalizeApiUrl(configuredApiUrl);
     }
 
     if (kIsWeb) {
-      return 'http://${AppConfig.webHostName}:8080';
-    }
-
-    final deviceHostIp = AppConfig.deviceHostIp.trim();
-    if (deviceHostIp.isNotEmpty) {
-      return 'http://$deviceHostIp:8080';
+      return 'http://localhost:8080';
     }
 
     if (defaultTargetPlatform == TargetPlatform.android) {
@@ -61,6 +60,14 @@ class AuthApiService {
     }
 
     return 'http://localhost:8080';
+  }
+
+  static String _normalizeApiUrl(String rawApiUrl) {
+    if (rawApiUrl.startsWith('http://') || rawApiUrl.startsWith('https://')) {
+      return rawApiUrl;
+    }
+
+    return 'http://$rawApiUrl';
   }
 
   Future<AuthResult> login({required String email, required String senha}) {

@@ -6,18 +6,8 @@ class AppConfig {
     defaultValue: false,
   );
 
-  static const String authApiBaseUrl = String.fromEnvironment(
-    'AUTH_API_BASE_URL',
-    defaultValue: '',
-  );
-
-  static const String webHostName = String.fromEnvironment(
-    'WEB_HOSTNAME',
-    defaultValue: 'localhost',
-  );
-
-  static const String deviceHostIp = String.fromEnvironment(
-    'DEVICE_HOST_IP',
+  static const String apiUrl = String.fromEnvironment(
+    'API_URL',
     defaultValue: '',
   );
 }

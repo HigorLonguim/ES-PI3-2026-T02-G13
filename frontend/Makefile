@@ -6,10 +6,8 @@
 ENV_FILE ?= .env
 INTEGRATION_DEVICE ?= windows
 INTEGRATION_REQUIRED ?= 0
-RUN_ENV_IP_FROM_ENV := $(shell [ -f $(ENV_FILE) ] && sed -n 's/^WEB_HOSTNAME[[:space:]]*=[[:space:]]*//p' $(ENV_FILE) | head -n 1)
-RUN_ENV_IP ?= $(if $(strip $(RUN_ENV_IP_FROM_ENV)),$(strip $(RUN_ENV_IP_FROM_ENV)),127.0.0.1)
-WEB_PORT_FROM_ENV := $(shell [ -f $(ENV_FILE) ] && sed -n 's/^WEB_PORT[[:space:]]*=[[:space:]]*//p' $(ENV_FILE) | head -n 1)
-WEB_PORT ?= $(if $(strip $(WEB_PORT_FROM_ENV)),$(strip $(WEB_PORT_FROM_ENV)),8080)
+API_URL_FROM_ENV := $(shell [ -f $(ENV_FILE) ] && sed -n 's/^API_URL[[:space:]]*=[[:space:]]*//p' $(ENV_FILE) | head -n 1)
+RUN_API_URL ?= $(if $(strip $(API_URL_FROM_ENV)),$(strip $(API_URL_FROM_ENV)),10.0.2.2:8080)
 ANDROID_EMULATOR_IP_FROM_ENV := $(shell [ -f $(ENV_FILE) ] && sed -n 's/^ANDROID_EMULATOR_IP[[:space:]]*=[[:space:]]*//p' $(ENV_FILE) | head -n 1)
 ANDROID_EMULATOR_IP ?= $(if $(strip $(ANDROID_EMULATOR_IP_FROM_ENV)),$(strip $(ANDROID_EMULATOR_IP_FROM_ENV)),10.0.2.2)
 IOS_SIMULATOR_IP_FROM_ENV := $(shell [ -f $(ENV_FILE) ] && sed -n 's/^IOS_SIMULATOR_IP[[:space:]]*=[[:space:]]*//p' $(ENV_FILE) | head -n 1)
@@ -29,15 +27,16 @@ help:
 	@echo ""
 	@echo "[Execucao]"
 	@echo "  make deps             - Instala dependencias (flutter pub get)"
-	@echo "  make run              - Executa o app sem dart-define de arquivo"
-	@echo "  make run-env          - Web server com WEB_HOSTNAME=$(RUN_ENV_IP) e WEB_PORT=$(WEB_PORT)"
+	@echo "  make run              - Executa o app com --dart-define-from-file e API_URL=$(RUN_API_URL)"
+	@echo "                           Override opcional: make run RUN_API_URL=192.168.0.10:8080"
+	@echo "  make run-env          - Web server com API_URL=$(RUN_API_URL)"
 	@echo "  make run-env-web      - Alias de run-env"
-	@echo "  make run-env-edge     - Microsoft Edge com WEB_HOSTNAME=$(RUN_ENV_IP) e WEB_PORT=$(WEB_PORT)"
-	@echo "  make run-env-android-emulator - Android emulador com DEVICE_HOST_IP=$(ANDROID_EMULATOR_IP)"
-	@echo "  make run-env-android-device   - Android celular/dispositivo com DEVICE_HOST_IP=$(DEVICE_IP)"
-	@echo "  make run-env-ios-simulator    - iOS simulador com DEVICE_HOST_IP=$(IOS_SIMULATOR_IP)"
-	@echo "  make run-env-ios-device       - iOS dispositivo com DEVICE_HOST_IP=$(DEVICE_IP)"
-	@echo "  make run-env-macos            - macOS com DEVICE_HOST_IP=$(MACOS_IP)"
+	@echo "  make run-env-edge     - Microsoft Edge com API_URL=$(RUN_API_URL)"
+	@echo "  make run-env-android-emulator - Android emulador com API_URL=$(ANDROID_EMULATOR_IP):8080"
+	@echo "  make run-env-android-device   - Android celular/dispositivo com API_URL=$(DEVICE_IP):8080"
+	@echo "  make run-env-ios-simulator    - iOS simulador com API_URL=$(IOS_SIMULATOR_IP):8080"
+	@echo "  make run-env-ios-device       - iOS dispositivo com API_URL=$(DEVICE_IP):8080"
+	@echo "  make run-env-macos            - macOS com API_URL=$(MACOS_IP):8080"
 	@echo "                           Override opcional: make run-env-android-device DEVICE_IP=192.168.1.20"
 	@echo "  make run-debug        - Alias de run-env"
 	@echo ""
@@ -59,33 +58,33 @@ deps:
 	flutter pub get
 
 run:
-	flutter run
+	flutter run --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(RUN_API_URL)
 
 run-env:
-	flutter run -d web-server --web-hostname=$(RUN_ENV_IP) --web-port=$(WEB_PORT) --dart-define-from-file=$(ENV_FILE)
+	flutter run -d web-server --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(RUN_API_URL)
 
 run-env-web:
-	flutter run -d web-server --web-hostname=$(RUN_ENV_IP) --web-port=$(WEB_PORT) --dart-define-from-file=$(ENV_FILE)
+	flutter run -d web-server --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(RUN_API_URL)
 
 run-env-edge:
-	flutter run -d edge --web-hostname=$(RUN_ENV_IP) --web-port=$(WEB_PORT) --dart-define-from-file=$(ENV_FILE)
+	flutter run -d edge --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(RUN_API_URL)
 
 run-debug: run-env
 
 run-env-android-emulator:
-	flutter run -d android --dart-define-from-file=$(ENV_FILE) --dart-define=DEVICE_HOST_IP=$(ANDROID_EMULATOR_IP)
+	flutter run -d android --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(ANDROID_EMULATOR_IP):8080
 
 run-env-android-device:
-	flutter run -d android --dart-define-from-file=$(ENV_FILE) --dart-define=DEVICE_HOST_IP=$(DEVICE_IP)
+	flutter run -d android --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(DEVICE_IP):8080
 
 run-env-ios-simulator:
-	flutter run -d ios --dart-define-from-file=$(ENV_FILE) --dart-define=DEVICE_HOST_IP=$(IOS_SIMULATOR_IP)
+	flutter run -d ios --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(IOS_SIMULATOR_IP):8080
 
 run-env-ios-device:
-	flutter run -d ios --dart-define-from-file=$(ENV_FILE) --dart-define=DEVICE_HOST_IP=$(DEVICE_IP)
+	flutter run -d ios --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(DEVICE_IP):8080
 
 run-env-macos:
-	flutter run -d macos --dart-define-from-file=$(ENV_FILE) --dart-define=DEVICE_HOST_IP=$(MACOS_IP)
+	flutter run -d macos --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(MACOS_IP):8080
 
 test-widget:
 	flutter test test/widget
