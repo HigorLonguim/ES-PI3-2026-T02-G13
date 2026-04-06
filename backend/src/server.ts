@@ -1,23 +1,33 @@
+import "dotenv/config";
 import express from "express";
 import userRoutes from "./routes/userRoutes";
 
 // Autoria: Felipe Sousa - RA: 22018160
 const app = express();
-const PORT = 8080;
+const parsedPort = Number(process.env.PORT ?? 8080);
+const PORT = Number.isInteger(parsedPort) && parsedPort > 0 ? parsedPort : 8080;
 const isProduction = process.env.NODE_ENV === "production";
+const allowLocalhostInDev =
+  (process.env.CORS_ALLOW_LOCALHOST ?? "true").toLowerCase() !== "false";
+const configuredAllowedOrigins = new Set(
+  (process.env.CORS_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0)
+);
 
 const devLocalhostOriginRegex = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
-const productionAllowedOrigins = new Set<string>([
-  // Adicione aqui os domínios oficiais do frontend em produção.
-  // Exemplo: "https://app.mesclainvest.com.br"
-]);
 
 function isAllowedOrigin(origin: string): boolean {
-  if (!isProduction) {
+  if (configuredAllowedOrigins.has(origin)) {
+    return true;
+  }
+
+  if (!isProduction && allowLocalhostInDev) {
     return devLocalhostOriginRegex.test(origin);
   }
 
-  return productionAllowedOrigins.has(origin);
+  return false;
 }
 
 app.use((req, res, next) => {
@@ -41,7 +51,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("Backend rodando com sucesso!");
 });
 
