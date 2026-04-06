@@ -1,5 +1,7 @@
 import "dotenv/config";
 import express from "express";
+import "./config/firebase";
+import startupRoutes from "./routes/startupRoutes";
 import userRoutes from "./routes/userRoutes";
 
 // Autoria: Felipe Sousa - RA: 22018160
@@ -55,6 +57,7 @@ app.get("/", (_req, res) => {
   res.send("Backend rodando com sucesso!");
 });
 
+app.use("/startups", startupRoutes);
 app.use("/users", userRoutes);
 
 app.listen(PORT, () => {
