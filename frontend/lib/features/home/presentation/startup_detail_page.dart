@@ -28,8 +28,8 @@ class StartupDetailPage extends StatelessWidget {
             Column(
               children: [
                 Container(
-                  height: 74,
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                  height: 73.2,
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 1.2),
                   decoration: const BoxDecoration(
                     color: Color(0xCC1A1A2E),
                     border: Border(
@@ -39,8 +39,8 @@ class StartupDetailPage extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: 39.992,
+                        height: 39.992,
                         decoration: const BoxDecoration(
                           color: MesclaColors.surfaceStrong,
                           shape: BoxShape.circle,
@@ -59,7 +59,7 @@ class StartupDetailPage extends StatelessWidget {
                 ),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 120),
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 120),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -78,25 +78,22 @@ class StartupDetailPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 16),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
-                            Expanded(
-                              child: _InfoStatCard(
-                                title: 'Total de Tokens',
-                                value: startup.totalTokens
-                                    .toString()
-                                    .replaceAllMapped(
-                                      RegExp(r'\B(?=(\d{3})+(?!\d))'),
-                                      (_) => '.',
-                                    ),
+                            _InfoStatCard(
+                              width: 157.2,
+                              title: 'Total de Tokens',
+                              value: startup.totalTokens.toString().replaceAllMapped(
+                                RegExp(r'\B(?=(\d{3})+(?!\d))'),
+                                (_) => '.',
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Expanded(
-                              child: _InfoStatCard(
-                                title: 'Capital Captado',
-                                value: startup.raisedCapital,
-                              ),
+                            _InfoStatCard(
+                              width: 157.2,
+                              title: 'Capital Captado',
+                              value: startup.raisedCapital,
                             ),
                           ],
                         ),
@@ -153,7 +150,7 @@ class StartupDetailPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
                         const Text(
                           'Sumário Executivo',
                           style: TextStyle(
@@ -171,7 +168,7 @@ class StartupDetailPage extends StatelessWidget {
                             height: 1.6,
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
                         const Text(
                           'Estrutura Societária',
                           style: TextStyle(
@@ -257,7 +254,9 @@ class _StartupHeader extends StatelessWidget {
     final stageStyle = _stageStyles[startup.stage] ?? _stageStyles['Nova']!;
     final isPositive = startup.variation.startsWith('+');
 
-    return Row(
+    return SizedBox(
+      height: 116,
+      child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ClipRRect(
@@ -267,6 +266,19 @@ class _StartupHeader extends StatelessWidget {
             width: 80,
             height: 80,
             fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                width: 80,
+                height: 80,
+                color: MesclaColors.surfaceStrong,
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.business_rounded,
+                  color: MesclaColors.textSecondary,
+                  size: 30,
+                ),
+              );
+            },
           ),
         ),
         const SizedBox(width: 16),
@@ -279,6 +291,8 @@ class _StartupHeader extends StatelessWidget {
                   Expanded(
                     child: Text(
                       startup.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: MesclaColors.textPrimary,
                         fontSize: 24,
@@ -309,6 +323,8 @@ class _StartupHeader extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 startup.sector,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: MesclaColors.textSecondary,
                   fontSize: 14,
@@ -317,25 +333,29 @@ class _StartupHeader extends StatelessWidget {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Token',
-                        style: TextStyle(
-                          color: MesclaColors.textTertiary,
-                          fontSize: 12,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Token',
+                          style: TextStyle(
+                            color: MesclaColors.textTertiary,
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
-                      Text(
-                        startup.tokenValue,
-                        style: const TextStyle(
-                          color: MesclaColors.textPrimary,
-                          fontSize: 36 / 1.6,
-                          fontWeight: FontWeight.w700,
+                        Text(
+                          startup.tokenValue,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: MesclaColors.textPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Container(
@@ -380,6 +400,7 @@ class _StartupHeader extends StatelessWidget {
           ),
         ),
       ],
+    ),
     );
   }
 }
@@ -423,7 +444,7 @@ class _ChartLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(color: MesclaColors.textTertiary, fontSize: 12),
+      style: const TextStyle(color: Color(0xFF6A6A7A), fontSize: 10),
     );
   }
 }
@@ -485,15 +506,22 @@ class _TokenLinePainter extends CustomPainter {
 }
 
 class _InfoStatCard extends StatelessWidget {
-  const _InfoStatCard({required this.title, required this.value});
+  const _InfoStatCard({
+    required this.title,
+    required this.value,
+    this.width,
+  });
 
   final String title;
   final String value;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: width,
+      constraints: const BoxConstraints(minHeight: 78.4),
+      padding: const EdgeInsets.fromLTRB(17.2, 17.2, 17.2, 11.2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: MesclaColors.border, width: 1.2),
@@ -512,6 +540,8 @@ class _InfoStatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: MesclaColors.textPrimary,
               fontSize: 16,
@@ -659,4 +689,3 @@ const _stageStyles = <String, _StageStyle>{
     foreground: MesclaColors.stageNew,
   ),
 };
-

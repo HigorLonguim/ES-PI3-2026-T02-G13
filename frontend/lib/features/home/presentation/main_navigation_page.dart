@@ -29,7 +29,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
-      const StartupPage(),
+      StartupPage(
+        onProfileTap: () => setState(() => _currentIndex = 3),
+      ),
       WalletPage(
         onExploreStartups: () => setState(() => _currentIndex = 0),
       ),
@@ -69,4 +71,3 @@ class _NavigationPlaceholder extends StatelessWidget {
     );
   }
 }
-

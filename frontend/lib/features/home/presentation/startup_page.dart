@@ -1,6 +1,7 @@
 ﻿// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
+import 'package:frontend/core/auth/auth_session_storage.dart';
 
 import '../../../core/navigation/app_route.dart';
 import '../../../core/theme/mescla_colors.dart';
@@ -9,7 +10,9 @@ import 'models/startup_data.dart';
 import 'startup_detail_page.dart';
 
 class StartupPage extends StatefulWidget {
-  const StartupPage({super.key});
+  const StartupPage({this.onProfileTap, super.key});
+
+  final VoidCallback? onProfileTap;
 
   @override
   State<StartupPage> createState() => _StartupPageState();
@@ -20,14 +23,17 @@ class _StartupPageState extends State<StartupPage> {
   final ScrollController _filterScrollController = ScrollController();
   final ScrollController _startupsScrollController = ScrollController();
   final MockStartupRepository _startupRepository = MockStartupRepository();
+  final AuthSessionStorage _authSessionStorage = AuthSessionStorage();
 
   String _selectedFilter = 'Todas';
   List<StartupData> _allStartups = const [];
+  String _userName = 'Usuario';
 
   @override
   void initState() {
     super.initState();
     _loadStartups();
+    _loadUserProfile();
   }
 
   Future<void> _loadStartups() async {
@@ -38,6 +44,17 @@ class _StartupPageState extends State<StartupPage> {
 
     setState(() {
       _allStartups = startups;
+    });
+  }
+
+  Future<void> _loadUserProfile() async {
+    final nome = (await _authSessionStorage.getUserName())?.trim();
+    if (!mounted || nome == null || nome.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _userName = nome;
     });
   }
 
@@ -82,6 +99,10 @@ class _StartupPageState extends State<StartupPage> {
   Widget build(BuildContext context) {
     const filters = ['Todas', 'Novas', 'Em Operação', 'Em Expansão'];
     final startups = _filteredStartups;
+    final firstName = _userName.split(' ').first.trim();
+    final avatarLetter = firstName.isNotEmpty
+        ? firstName.substring(0, 1).toUpperCase()
+        : 'U';
 
     return Scaffold(
       backgroundColor: MesclaColors.background,
@@ -100,12 +121,12 @@ class _StartupPageState extends State<StartupPage> {
                 children: [
                   Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Olá, João',
+                              'Olá, $firstName',
                               style: TextStyle(
                                 color: MesclaColors.textPrimary,
                                 fontSize: 24,
@@ -125,27 +146,30 @@ class _StartupPageState extends State<StartupPage> {
                           ],
                         ),
                       ),
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: MesclaGradients.purple,
-                          boxShadow: [
-                            BoxShadow(
-                              color: MesclaColors.purpleGlow,
-                              blurRadius: 15,
-                              offset: Offset(0, 4),
+                      GestureDetector(
+                        onTap: () => widget.onProfileTap?.call(),
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: MesclaGradients.purple,
+                            boxShadow: [
+                              BoxShadow(
+                                color: MesclaColors.purpleGlow,
+                                blurRadius: 15,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            avatarLetter,
+                            style: const TextStyle(
+                              color: MesclaColors.textPrimary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ],
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'J',
-                          style: TextStyle(
-                            color: MesclaColors.textPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -481,4 +505,3 @@ const _stageStyles = <String, _StageStyle>{
     foreground: MesclaColors.stageNew,
   ),
 };
-
