@@ -19,6 +19,32 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final AuthSessionStorage _authSessionStorage = AuthSessionStorage();
+  String _userName = 'Usuario';
+  String _userEmail = 'email@exemplo.com';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    final nome = (await _authSessionStorage.getUserName())?.trim();
+    final email = (await _authSessionStorage.getUserEmail())?.trim();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      if (nome != null && nome.isNotEmpty) {
+        _userName = nome;
+      }
+      if (email != null && email.isNotEmpty) {
+        _userEmail = email;
+      }
+    });
+  }
 
   Future<void> _logout() async {
     try {
@@ -38,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A1A),
-      // Faz o corpo da tela subir até o topo, atrás da barra de status
+      // Faz o corpo da tela subir ate o topo, atras da barra de status
       extendBodyBehindAppBar: true,
       body: SingleChildScrollView(
         child: Column(
@@ -50,7 +76,7 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildLogoutButton(),
             const SizedBox(height: 16),
             const Text(
-              'Versão 1.0.0',
+              'Versao 1.0.0',
               style: TextStyle(color: Colors.grey, fontSize: 12),
             ),
             const SizedBox(height: 40),
@@ -60,8 +86,11 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // 1. Header com Gradiente Roxo e Informações do Usuário
+  // 1. Header com Gradiente Roxo e Informacoes do Usuario
   Widget _buildGradientHeader() {
+    final avatarLetter =
+        _userName.isNotEmpty ? _userName.substring(0, 1).toUpperCase() : 'U';
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 60, 24, 30),
@@ -85,12 +114,12 @@ class _ProfilePageState extends State<ProfilePage> {
               color: Colors.white24,
               shape: BoxShape.circle,
             ),
-            child: const CircleAvatar(
+            child: CircleAvatar(
               radius: 40,
-              backgroundColor: Color(0xFF8A3FFF),
+              backgroundColor: const Color(0xFF8A3FFF),
               child: Text(
-                'J',
-                style: TextStyle(
+                avatarLetter,
+                style: const TextStyle(
                   fontSize: 32,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -100,29 +129,36 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           const SizedBox(width: 20),
           // Nome e Email
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'João Silva',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _userName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Text(
-                'asdasd@mail.com',
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  _userEmail,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  // 2. Card Único que agrupa as opções de menu (Estilo da Imagem)
+  // 2. Card unico que agrupa as opcoes de menu (Estilo da Imagem)
   Widget _buildMenuCard() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -150,7 +186,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildMenuTile(
             icon: Icons.shield_outlined,
             iconColor: Colors.greenAccent,
-            title: 'Segurança',
+            title: 'Seguranca',
             onTap: () {
               Navigator.push(
                 context,
@@ -162,7 +198,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildMenuTile(
             icon: Icons.notifications_none_outlined,
             iconColor: Colors.deepPurpleAccent,
-            title: 'Notificações',
+            title: 'Notificacoes',
             onTap: () {
               Navigator.push(
                 context,
@@ -228,7 +264,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // 3. Botão de Sair Estilizado
+  // 3. Botao de Sair Estilizado
   Widget _buildLogoutButton() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),

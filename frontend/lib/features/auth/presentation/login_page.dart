@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../core/auth/auth_session_storage.dart';
 import '../../../core/navigation/app_route.dart';
 import '../../../core/widgets/app_status_indicator.dart';
+import '../../home/presentation/main_navigation_page.dart';
 import '../data/auth_api_service.dart';
 import 'recover_password_page.dart';
 import 'signup_page.dart';
@@ -58,6 +59,22 @@ class _LoginPageState extends State<LoginPage> {
     _showMessage(result.message, success: result.success);
 
     if (result.success) {
+      final usuario = result.usuario ?? <String, dynamic>{};
+      final userName = (usuario['nome'] as String?)?.trim();
+      final userEmail =
+          (usuario['email'] as String?)?.trim().isNotEmpty == true
+          ? (usuario['email'] as String).trim()
+          : email;
+
+      if (userName != null && userName.isNotEmpty) {
+        await _authSessionStorage.saveUserProfile(nome: userName, email: userEmail);
+      } else {
+        await _authSessionStorage.saveUserProfile(
+          nome: userEmail.split('@').first,
+          email: userEmail,
+        );
+      }
+
       final token = result.token;
       if (token != null && token.isNotEmpty) {
         await _authSessionStorage.saveToken(token);
@@ -65,7 +82,10 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) {
         return;
       }
-      Navigator.of(context).pop();
+      Navigator.of(context).pushAndRemoveUntil(
+        AppRoute(const MainNavigationPage()),
+        (route) => false,
+      );
     }
   }
 
