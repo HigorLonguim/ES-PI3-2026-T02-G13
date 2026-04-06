@@ -150,9 +150,13 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 48, 24, 48),
-                  child: Column(
+                child: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: SingleChildScrollView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+                    child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -319,7 +323,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      const Spacer(),
+                      const SizedBox(height: 32),
                       Center(
                         child: Wrap(
                           children: [
@@ -351,6 +355,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ],
+                    ),
                   ),
                 ),
               ),
