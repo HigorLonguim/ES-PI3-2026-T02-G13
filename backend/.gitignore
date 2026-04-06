@@ -26,6 +26,7 @@ yarn-error.log*
 .env.local
 .env.development
 .env.production
+mescla-invest.json
 
 # Testes
 coverage/
