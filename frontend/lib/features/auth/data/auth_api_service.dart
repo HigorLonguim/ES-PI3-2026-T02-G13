@@ -1,9 +1,11 @@
 // Autoria: Felipe Sousa - RA: 22018160
 
-import 'dart:convert';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+
+import '../../../core/auth/auth_session_storage.dart';
+import '../../../core/config/app_config.dart';
+import '../../../core/network/app_dio.dart';
 
 class AuthResult {
   const AuthResult({
@@ -20,13 +22,38 @@ class AuthResult {
 }
 
 class AuthApiService {
-  AuthApiService({http.Client? client}) : _client = client ?? http.Client();
+  factory AuthApiService({Dio? dio, AuthSessionStorage? sessionStorage}) {
+    final resolvedSessionStorage = sessionStorage ?? AuthSessionStorage();
+    final resolvedDio =
+        dio ??
+        createAppDio(
+          baseUrl: _resolveBaseUrl(),
+          sessionStorage: resolvedSessionStorage,
+        );
 
-  final http.Client _client;
+    return AuthApiService._(dio: resolvedDio, ownsDio: dio == null);
+  }
 
-  String get _baseUrl {
+  AuthApiService._({required Dio dio, required bool ownsDio})
+    : _dio = dio,
+      _ownsDio = ownsDio;
+
+  final Dio _dio;
+  final bool _ownsDio;
+
+  static String _resolveBaseUrl() {
+    final configuredBaseUrl = AppConfig.authApiBaseUrl.trim();
+    if (configuredBaseUrl.isNotEmpty) {
+      return configuredBaseUrl;
+    }
+
     if (kIsWeb) {
-      return 'http://localhost:8080';
+      return 'http://${AppConfig.webHostName}:8080';
+    }
+
+    final deviceHostIp = AppConfig.deviceHostIp.trim();
+    if (deviceHostIp.isNotEmpty) {
+      return 'http://$deviceHostIp:8080';
     }
 
     if (defaultTargetPlatform == TargetPlatform.android) {
@@ -75,13 +102,8 @@ class AuthApiService {
     required String fallbackSuccessMessage,
   }) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$_baseUrl$endpoint'),
-        headers: const {'Content-Type': 'application/json'},
-        body: jsonEncode(payload),
-      );
-
-      final body = _decodeBody(response.body);
+      final response = await _dio.post(endpoint, data: payload);
+      final body = _decodeBody(response.data);
       final message =
           _readString(body, 'mensagem') ??
           _readString(body, 'erro') ??
@@ -100,6 +122,18 @@ class AuthApiService {
               'token',
             ),
       );
+    } on DioException catch (error) {
+      final body = _decodeBody(error.response?.data);
+      final message =
+          _readString(body, 'mensagem') ??
+          _readString(body, 'erro') ??
+          'Falha de conexao com o servidor.';
+
+      return AuthResult(
+        success: false,
+        message: message,
+        usuario: _readMap(body, 'usuario'),
+      );
     } catch (_) {
       return const AuthResult(
         success: false,
@@ -108,14 +142,13 @@ class AuthApiService {
     }
   }
 
-  Map<String, dynamic> _decodeBody(String rawBody) {
-    if (rawBody.isEmpty) {
-      return <String, dynamic>{};
+  Map<String, dynamic> _decodeBody(dynamic rawBody) {
+    if (rawBody is Map<String, dynamic>) {
+      return rawBody;
     }
 
-    final decoded = jsonDecode(rawBody);
-    if (decoded is Map<String, dynamic>) {
-      return decoded;
+    if (rawBody is Map) {
+      return Map<String, dynamic>.from(rawBody);
     }
 
     return <String, dynamic>{};
@@ -128,10 +161,20 @@ class AuthApiService {
 
   Map<String, dynamic>? _readMap(Map<String, dynamic> source, String key) {
     final value = source[key];
-    return value is Map<String, dynamic> ? value : null;
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+
+    if (value is Map) {
+      return Map<String, dynamic>.from(value);
+    }
+
+    return null;
   }
 
   void dispose() {
-    _client.close();
+    if (_ownsDio) {
+      _dio.close();
+    }
   }
 }
