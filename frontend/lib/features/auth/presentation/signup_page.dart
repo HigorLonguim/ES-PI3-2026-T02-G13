@@ -43,11 +43,15 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> _cadastrar() async {
     final nome = _nomeController.text.trim();
     final email = _emailController.text.trim();
+    final cpf = _cpfController.text.trim();
+    final telefone = _telefoneController.text.trim();
     final senha = _senhaController.text;
     final confirmarSenha = _confirmarSenhaController.text;
 
     if (nome.isEmpty ||
         email.isEmpty ||
+        cpf.isEmpty ||
+        telefone.isEmpty ||
         senha.isEmpty ||
         confirmarSenha.isEmpty) {
       _showMessage('Preencha todos os campos obrigatórios.', success: false);
@@ -66,6 +70,8 @@ class _SignUpPageState extends State<SignUpPage> {
     final result = await _authApiService.register(
       nome: nome,
       email: email,
+      cpf: cpf,
+      telefone: telefone,
       senha: senha,
     );
 

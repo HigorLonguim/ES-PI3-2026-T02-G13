@@ -82,11 +82,19 @@ class AuthApiService {
   Future<AuthResult> register({
     required String nome,
     required String email,
+    required String cpf,
+    required String telefone,
     required String senha,
   }) {
     return _post(
       endpoint: '/users/register',
-      payload: {'nome': nome, 'email': email, 'senha': senha},
+      payload: {
+        'nome': nome,
+        'email': email,
+        'cpf': cpf,
+        'telefone': telefone,
+        'senha': senha,
+      },
       successStatusCodes: {201},
       fallbackSuccessMessage: 'Usuario cadastrado',
     );
