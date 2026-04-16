@@ -1,7 +1,7 @@
 // Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
-import '../navigation/app_route.dart';
+
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/auth/presentation/signup_page.dart';
 import '../../features/home/presentation/home_page.dart';
@@ -9,24 +9,30 @@ import '../../features/home/presentation/main_navigation_page.dart';
 import '../../features/home/presentation/startup_page.dart';
 import '../../features/profile/presentation/help_page.dart';
 import '../../features/profile/presentation/profile_page.dart';
+import '../navigation/app_route.dart';
 
 class DebugMenuOverlay extends StatefulWidget {
-  final Widget child;
-
   const DebugMenuOverlay({super.key, required this.child});
+
+  final Widget child;
 
   @override
   State<DebugMenuOverlay> createState() => _DebugMenuOverlayState();
 }
 
 class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
+  static const double _buttonSize = 56;
+  static const double _screenPadding = 16;
+
   Offset _offset = const Offset(20, 100);
 
-  void _showDebugMenu(BuildContext context) {
+  void _showDebugMenu() {
     final navigator = AppRoute.navigatorKey.currentState;
-    if (navigator == null) return;
+    if (navigator == null) {
+      return;
+    }
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: navigator.context,
       backgroundColor: const Color(0xFF1A1A2E),
       isScrollControlled: true,
@@ -41,7 +47,7 @@ class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
           expand: false,
           builder: (context, scrollController) {
             return Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -74,7 +80,7 @@ class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
                     child: ListView(
                       controller: scrollController,
                       children: [
-                        _buildSection('Autenticação'),
+                        _buildSection('Autenticacao'),
                         _buildMenuItem('Login', const LoginPage(), Icons.login),
                         _buildMenuItem(
                           'SignUp',
@@ -84,12 +90,12 @@ class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
                         const SizedBox(height: 16),
                         _buildSection('Principal'),
                         _buildMenuItem(
-                          'Página Inicial (Home)',
+                          'Pagina Inicial (Home)',
                           const HomePage(),
                           Icons.home,
                         ),
                         _buildMenuItem(
-                          'Navegação Principal',
+                          'Navegacao Principal',
                           const MainNavigationPage(),
                           Icons.navigation,
                         ),
@@ -99,7 +105,7 @@ class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
                           Icons.business,
                         ),
                         const SizedBox(height: 16),
-                        _buildSection('Usuário'),
+                        _buildSection('Usuario'),
                         _buildMenuItem(
                           'Perfil',
                           const ProfilePage(),
@@ -124,7 +130,7 @@ class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
 
   Widget _buildSection(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Text(
         title.toUpperCase(),
         style: const TextStyle(
@@ -151,75 +157,82 @@ class _DebugMenuOverlayState extends State<DebugMenuOverlay> {
         trailing: const Icon(Icons.chevron_right, color: Colors.grey),
         onTap: () {
           final navigator = AppRoute.navigatorKey.currentState;
-          if (navigator != null) {
-            navigator.pop(); // Fecha o bottom sheet
-            navigator.push(AppRoute(page)); // Vai para a página
+          if (navigator == null) {
+            return;
           }
+
+          navigator.pop();
+          navigator.push(AppRoute(page));
         },
       ),
     );
   }
+
+  void _updateOffset(DragUpdateDetails details, BoxConstraints constraints) {
+    final nextOffset = _offset + details.delta;
+    final maxX = constraints.maxWidth - _buttonSize - _screenPadding;
+    final maxY = constraints.maxHeight - _buttonSize - _screenPadding;
+
+    setState(() {
+      _offset = Offset(
+        nextOffset.dx.clamp(_screenPadding, maxX),
+        nextOffset.dy.clamp(_screenPadding, maxY),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            Positioned.fill(child: widget.child),
+            Positioned(
+              left: _offset.dx,
+              top: _offset.dy,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onPanUpdate: (details) => _updateOffset(details, constraints),
+                onTap: _showDebugMenu,
+                child: _DebugFloatingButton(size: _buttonSize),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _DebugFloatingButton extends StatelessWidget {
+  const _DebugFloatingButton({required this.size});
+
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: Directionality(
-        textDirection: TextDirection.ltr,
-        child: Overlay(
-          initialEntries: [
-            OverlayEntry(
-              builder: (context) =>
-                  Stack(children: [widget.child, _buildDraggableButton()]),
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            colors: [Color(0xFF00A36C), Color(0xFF44D17A)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF00A36C).withValues(alpha: 0.4),
+              blurRadius: 15,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDraggableButton() {
-    return Positioned(
-      left: _offset.dx,
-      top: _offset.dy,
-      child: Draggable(
-        feedback: _buildFloatingButton(isFeedback: true),
-        childWhenDragging: Container(),
-        onDragEnd: (details) {
-          setState(() {
-            _offset = details.offset;
-          });
-        },
-        child: _buildFloatingButton(),
-      ),
-    );
-  }
-
-  Widget _buildFloatingButton({bool isFeedback = false}) {
-    return Opacity(
-      opacity: isFeedback ? 0.7 : 1.0,
-      child: GestureDetector(
-        onTap: isFeedback ? null : () => _showDebugMenu(context),
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [Color(0xFF00A36C), Color(0xFF44D17A)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF00A36C).withValues(alpha: 0.4),
-                blurRadius: 15,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: const Icon(Icons.bug_report, color: Colors.white, size: 28),
-        ),
+        child: const Icon(Icons.bug_report, color: Colors.white, size: 28),
       ),
     );
   }
