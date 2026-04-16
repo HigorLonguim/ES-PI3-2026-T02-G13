@@ -11,6 +11,7 @@ class _FakeRequestOptions extends Fake implements RequestOptions {}
 
 const _registerFunctionUrl =
     'https://us-central1-pi3-mescla-invest.cloudfunctions.net/registerUser';
+const _firebaseWebApiKey = 'fake-web-api-key';
 
 void main() {
   setUpAll(() {
@@ -26,6 +27,7 @@ void main() {
       service = AuthApiService(
         dio: dio,
         registerFunctionUrl: _registerFunctionUrl,
+        firebaseWebApiKey: '',
       );
     });
 
@@ -85,10 +87,55 @@ void main() {
       expect(result.token, isNull);
     });
 
+    test('realiza login direto no Firebase Auth com sucesso', () async {
+      final serviceUsingFirebaseAuth = AuthApiService(
+        dio: dio,
+        registerFunctionUrl: _registerFunctionUrl,
+        firebaseWebApiKey: _firebaseWebApiKey,
+      );
+
+      const endpoint =
+          'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$_firebaseWebApiKey';
+
+      when(
+        () => dio.post(
+          endpoint,
+          data: {
+            'email': 'teste@mescla.com',
+            'password': '123456',
+            'returnSecureToken': true,
+          },
+        ),
+      ).thenAnswer(
+        (_) async => Response(
+          requestOptions: RequestOptions(path: endpoint),
+          statusCode: 200,
+          data: {
+            'localId': 'uid-123',
+            'email': 'teste@mescla.com',
+            'idToken': 'id-token-123',
+            'refreshToken': 'refresh-token-123',
+          },
+        ),
+      );
+
+      final result = await serviceUsingFirebaseAuth.login(
+        email: 'teste@mescla.com',
+        senha: '123456',
+      );
+
+      expect(result.success, true);
+      expect(result.message, 'Login realizado');
+      expect(result.token, 'id-token-123');
+      expect(result.usuario?['uid'], 'uid-123');
+      expect(result.usuario?['email'], 'teste@mescla.com');
+    });
+
     test('retorna erro quando a URL da function nao foi configurada', () async {
       final serviceWithoutRegisterUrl = AuthApiService(
         dio: dio,
         registerFunctionUrl: '',
+        firebaseWebApiKey: '',
       );
 
       final result = await serviceWithoutRegisterUrl.register(
@@ -224,6 +271,80 @@ void main() {
         'Se o e-mail estiver cadastrado, enviaremos as instrucoes de recuperacao.',
       );
     });
+
+    test('realiza recuperacao de senha direto no Firebase Auth', () async {
+      final serviceUsingFirebaseAuth = AuthApiService(
+        dio: dio,
+        registerFunctionUrl: _registerFunctionUrl,
+        firebaseWebApiKey: _firebaseWebApiKey,
+      );
+
+      const endpoint =
+          'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=$_firebaseWebApiKey';
+
+      when(
+        () => dio.post(
+          endpoint,
+          data: {'requestType': 'PASSWORD_RESET', 'email': 'teste@mescla.com'},
+        ),
+      ).thenAnswer(
+        (_) async => Response(
+          requestOptions: RequestOptions(path: endpoint),
+          statusCode: 200,
+          data: {'email': 'teste@mescla.com'},
+        ),
+      );
+
+      final result = await serviceUsingFirebaseAuth.recoverPassword(
+        email: 'teste@mescla.com',
+      );
+
+      expect(result.success, true);
+      expect(
+        result.message,
+        'Se o e-mail estiver cadastrado, enviaremos as instrucoes de recuperacao.',
+      );
+    });
+
+    test(
+      'normaliza espacos no email antes de enviar recuperacao de senha',
+      () async {
+        final serviceUsingFirebaseAuth = AuthApiService(
+          dio: dio,
+          registerFunctionUrl: _registerFunctionUrl,
+          firebaseWebApiKey: _firebaseWebApiKey,
+        );
+
+        const endpoint =
+            'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=$_firebaseWebApiKey';
+
+        when(
+          () => dio.post(
+            endpoint,
+            data: {
+              'requestType': 'PASSWORD_RESET',
+              'email': 'teste@mescla.com',
+            },
+          ),
+        ).thenAnswer(
+          (_) async => Response(
+            requestOptions: RequestOptions(path: endpoint),
+            statusCode: 200,
+            data: {'email': 'teste@mescla.com'},
+          ),
+        );
+
+        final result = await serviceUsingFirebaseAuth.recoverPassword(
+          email: '  teste@ mescla.com \n',
+        );
+
+        expect(result.success, true);
+        expect(
+          result.message,
+          'Se o e-mail estiver cadastrado, enviaremos as instrucoes de recuperacao.',
+        );
+      },
+    );
 
     test(
       'retorna falha de conexao quando o cadastro nao alcanca a function',
