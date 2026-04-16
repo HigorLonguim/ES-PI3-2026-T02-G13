@@ -25,6 +25,9 @@ MACOS_IP ?= $(if $(strip $(MACOS_IP_FROM_ENV)),$(strip $(MACOS_IP_FROM_ENV)),127
 help:
 	@echo "Comandos disponiveis:"
 	@echo ""
+	@echo "Variaveis de ambiente:"
+	@echo "  $(ENV_FILE) pode definir API_URL, REGISTER_FUNCTION_URL, RECOVER_PASSWORD_USE_MOCK e DEBUG_MODE"
+	@echo ""
 	@echo "[Execucao]"
 	@echo "  make deps             - Instala dependencias (flutter pub get)"
 	@echo "  make run              - Executa o app com --dart-define-from-file e API_URL=$(RUN_API_URL)"

@@ -10,4 +10,9 @@ class AppConfig {
     'API_URL',
     defaultValue: '',
   );
+
+  static const String registerFunctionUrl = String.fromEnvironment(
+    'REGISTER_FUNCTION_URL',
+    defaultValue: '',
+  );
 }

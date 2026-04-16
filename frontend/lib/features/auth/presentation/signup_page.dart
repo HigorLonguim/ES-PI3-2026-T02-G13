@@ -8,7 +8,9 @@ import '../../../core/widgets/app_status_indicator.dart';
 import '../data/auth_api_service.dart';
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+  const SignUpPage({super.key, this.authApiService});
+
+  final AuthApiService? authApiService;
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -26,7 +28,15 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _senhaController = TextEditingController();
   final TextEditingController _confirmarSenhaController =
       TextEditingController();
-  final AuthApiService _authApiService = AuthApiService();
+  late final AuthApiService _authApiService;
+  late final bool _ownsAuthApiService;
+
+  @override
+  void initState() {
+    super.initState();
+    _authApiService = widget.authApiService ?? AuthApiService();
+    _ownsAuthApiService = widget.authApiService == null;
+  }
 
   @override
   void dispose() {
@@ -36,15 +46,17 @@ class _SignUpPageState extends State<SignUpPage> {
     _telefoneController.dispose();
     _senhaController.dispose();
     _confirmarSenhaController.dispose();
-    _authApiService.dispose();
+    if (_ownsAuthApiService) {
+      _authApiService.dispose();
+    }
     super.dispose();
   }
 
   Future<void> _cadastrar() async {
     final nome = _nomeController.text.trim();
     final email = _emailController.text.trim();
-    final cpf = _cpfController.text.trim();
-    final telefone = _telefoneController.text.trim();
+    final cpf = _cpfController.text.replaceAll(RegExp(r'\D'), '');
+    final telefone = _telefoneController.text.replaceAll(RegExp(r'\D'), '');
     final senha = _senhaController.text;
     final confirmarSenha = _confirmarSenhaController.text;
 
@@ -54,12 +66,22 @@ class _SignUpPageState extends State<SignUpPage> {
         telefone.isEmpty ||
         senha.isEmpty ||
         confirmarSenha.isEmpty) {
-      _showMessage('Preencha todos os campos obrigatórios.', success: false);
+      _showMessage('Preencha todos os campos obrigatorios.', success: false);
+      return;
+    }
+
+    if (cpf.length != 11) {
+      _showMessage('Informe um CPF valido.', success: false);
+      return;
+    }
+
+    if (telefone.length < 10 || telefone.length > 11) {
+      _showMessage('Informe um telefone valido.', success: false);
       return;
     }
 
     if (senha != confirmarSenha) {
-      _showMessage('As senhas não conferem.', success: false);
+      _showMessage('As senhas nao conferem.', success: false);
       return;
     }
 
@@ -169,7 +191,10 @@ class _SignUpPageState extends State<SignUpPage> {
                                 gradient: const LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
-                                  colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
+                                  colors: [
+                                    Color(0xFF4F39F6),
+                                    Color(0xFF9810FA),
+                                  ],
                                 ),
                                 boxShadow: const [
                                   BoxShadow(
@@ -226,7 +251,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         const _FieldLabel('Nome Completo'),
                         const SizedBox(height: 8),
                         _InputField(
-                          hintText: 'João Silva',
+                          hintText: 'Joao Silva',
                           controller: _nomeController,
                           keyboardType: TextInputType.name,
                         ),
@@ -268,7 +293,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         const _FieldLabel('Senha'),
                         const SizedBox(height: 8),
                         _InputField(
-                          hintText: '••••••••',
+                          hintText: '********',
                           controller: _senhaController,
                           obscureText: _obscurePassword,
                           suffix: IconButton(
@@ -290,7 +315,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         const _FieldLabel('Confirmar Senha'),
                         const SizedBox(height: 8),
                         _InputField(
-                          hintText: '••••••••',
+                          hintText: '********',
                           controller: _confirmarSenhaController,
                           obscureText: _obscureConfirmPassword,
                           suffix: IconButton(
@@ -364,7 +389,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: Wrap(
                             children: [
                               const Text(
-                                'Já tem uma conta? ',
+                                'Ja tem uma conta? ',
                                 style: TextStyle(
                                   color: Color(0xFF99A1AF),
                                   fontSize: 16,

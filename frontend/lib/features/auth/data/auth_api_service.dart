@@ -1,5 +1,7 @@
 // Autoria: Felipe Sousa - RA: 22018160
 
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -22,11 +24,22 @@ class AuthResult {
 }
 
 class AuthApiService {
-  factory AuthApiService({Dio? dio, AuthSessionStorage? sessionStorage}) {
+  factory AuthApiService({
+    Dio? dio,
+    AuthSessionStorage? sessionStorage,
+    String? registerFunctionUrl,
+  }) {
     final resolvedSessionStorage = sessionStorage ?? AuthSessionStorage();
     final resolvedBaseUrl = _resolveBaseUrl();
+    final resolvedRegisterFunctionUrl = _resolveRegisterFunctionUrl(
+      registerFunctionUrl,
+    );
     if (kDebugMode) {
       debugPrint('[AuthApiService] Base URL resolvida: $resolvedBaseUrl');
+      debugPrint(
+        '[AuthApiService] URL da function de cadastro: '
+        '$resolvedRegisterFunctionUrl',
+      );
     }
     final resolvedDio =
         dio ??
@@ -35,15 +48,24 @@ class AuthApiService {
           sessionStorage: resolvedSessionStorage,
         );
 
-    return AuthApiService._(dio: resolvedDio, ownsDio: dio == null);
+    return AuthApiService._(
+      dio: resolvedDio,
+      ownsDio: dio == null,
+      registerFunctionUrl: resolvedRegisterFunctionUrl,
+    );
   }
 
-  AuthApiService._({required Dio dio, required bool ownsDio})
-    : _dio = dio,
-      _ownsDio = ownsDio;
+  AuthApiService._({
+    required Dio dio,
+    required bool ownsDio,
+    required String registerFunctionUrl,
+  }) : _dio = dio,
+       _ownsDio = ownsDio,
+       _registerFunctionUrl = registerFunctionUrl;
 
   final Dio _dio;
   final bool _ownsDio;
+  final String _registerFunctionUrl;
 
   static String _resolveBaseUrl() {
     final configuredApiUrl = AppConfig.apiUrl.trim();
@@ -70,6 +92,20 @@ class AuthApiService {
     return 'http://$rawApiUrl';
   }
 
+  static String _resolveRegisterFunctionUrl(String? overrideUrl) {
+    final configuredUrl = (overrideUrl ?? AppConfig.registerFunctionUrl).trim();
+    if (configuredUrl.isEmpty) {
+      return '';
+    }
+
+    if (configuredUrl.startsWith('http://') ||
+        configuredUrl.startsWith('https://')) {
+      return configuredUrl;
+    }
+
+    return 'https://$configuredUrl';
+  }
+
   Future<AuthResult> login({required String email, required String senha}) {
     return _post(
       endpoint: '/users/login',
@@ -86,8 +122,17 @@ class AuthApiService {
     required String telefone,
     required String senha,
   }) {
+    if (_registerFunctionUrl.isEmpty) {
+      return Future.value(
+        const AuthResult(
+          success: false,
+          message: 'Cadastro indisponivel. Configure REGISTER_FUNCTION_URL.',
+        ),
+      );
+    }
+
     return _post(
-      endpoint: '/users/register',
+      endpoint: _registerFunctionUrl,
       payload: {
         'nome': nome,
         'email': email,
@@ -95,7 +140,7 @@ class AuthApiService {
         'telefone': telefone,
         'senha': senha,
       },
-      successStatusCodes: {201},
+      successStatusCodes: {200},
       fallbackSuccessMessage: 'Usuario cadastrado',
     );
   }
@@ -120,8 +165,10 @@ class AuthApiService {
       final response = await _dio.post(endpoint, data: payload);
       final body = _decodeBody(response.data);
       final message =
+          _readString(body, 'message') ??
           _readString(body, 'mensagem') ??
           _readString(body, 'erro') ??
+          _readString(body, 'error') ??
           (successStatusCodes.contains(response.statusCode)
               ? fallbackSuccessMessage
               : 'Nao foi possivel concluir a operacao.');
@@ -140,8 +187,10 @@ class AuthApiService {
     } on DioException catch (error) {
       final body = _decodeBody(error.response?.data);
       final message =
+          _readString(body, 'message') ??
           _readString(body, 'mensagem') ??
           _readString(body, 'erro') ??
+          _readString(body, 'error') ??
           'Falha de conexao com o servidor.';
 
       return AuthResult(
@@ -164,6 +213,26 @@ class AuthApiService {
 
     if (rawBody is Map) {
       return Map<String, dynamic>.from(rawBody);
+    }
+
+    if (rawBody is String) {
+      final trimmedBody = rawBody.trim();
+      if (trimmedBody.isEmpty) {
+        return <String, dynamic>{};
+      }
+
+      try {
+        final decoded = jsonDecode(trimmedBody);
+        if (decoded is Map<String, dynamic>) {
+          return decoded;
+        }
+
+        if (decoded is Map) {
+          return Map<String, dynamic>.from(decoded);
+        }
+      } catch (_) {
+        return <String, dynamic>{'message': trimmedBody};
+      }
     }
 
     return <String, dynamic>{};

@@ -1,13 +1,21 @@
 /* Nome: Felipe Sousa de Almeida | RA: 22018160 */
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/features/auth/data/auth_api_service.dart';
 import 'package:frontend/features/auth/presentation/recover_password_page.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
+import 'package:mocktail/mocktail.dart';
+
+class _MockDio extends Mock implements Dio {}
+
+class _FakeRequestOptions extends Fake implements RequestOptions {}
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(_FakeRequestOptions());
+  });
+
   testWidgets('Fluxo: Recuperar senha -> sucesso com endpoint valido', (
     WidgetTester tester,
   ) async {
@@ -15,20 +23,26 @@ void main() {
     tester.view.devicePixelRatio = 2.0;
     addTearDown(tester.view.reset);
 
-    final client = MockClient((request) async {
-      expect(request.url.path, '/users/recover-password');
-      return http.Response(
-        '{"mensagem":"Se o e-mail estiver cadastrado, enviaremos as instrucoes."}',
-        200,
-        headers: {'content-type': 'application/json'},
-      );
-    });
+    final dio = _MockDio();
+    when(
+      () => dio.post(
+        '/users/recover-password',
+        data: {'email': 'felipe@mescla.com'},
+      ),
+    ).thenAnswer(
+      (_) async => Response(
+        requestOptions: RequestOptions(path: '/users/recover-password'),
+        statusCode: 200,
+        data: {
+          'mensagem':
+              'Se o e-mail estiver cadastrado, enviaremos as instrucoes.',
+        },
+      ),
+    );
 
     await tester.pumpWidget(
       MaterialApp(
-        home: RecoverPasswordPage(
-          authApiService: AuthApiService(client: client),
-        ),
+        home: RecoverPasswordPage(authApiService: AuthApiService(dio: dio)),
       ),
     );
 
