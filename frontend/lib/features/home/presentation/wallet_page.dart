@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
 
@@ -29,7 +29,9 @@ class WalletPage extends StatelessWidget {
               children: [
                 const Positioned.fill(
                   child: DecoratedBox(
-                    decoration: BoxDecoration(gradient: MesclaGradients.headerFade),
+                    decoration: BoxDecoration(
+                      gradient: MesclaGradients.headerFade,
+                    ),
                   ),
                 ),
                 Column(
@@ -73,7 +75,9 @@ class WalletPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             if (!store.hasHoldings)
-                              _EmptyPortfolioCard(onExploreStartups: onExploreStartups),
+                              _EmptyPortfolioCard(
+                                onExploreStartups: onExploreStartups,
+                              ),
                             if (store.hasHoldings)
                               ...store.holdings.map(
                                 (holding) => Padding(
@@ -246,13 +250,21 @@ class _InvestmentSummary extends StatelessWidget {
             children: [
               const Text(
                 'Variação Total',
-                style: TextStyle(color: MesclaColors.textTertiary, fontSize: 12),
+                style: TextStyle(
+                  color: MesclaColors.textTertiary,
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: isPositive ? MesclaColors.successSoft : MesclaColors.dangerSoft,
+                  color: isPositive
+                      ? MesclaColors.successSoft
+                      : MesclaColors.dangerSoft,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -262,13 +274,17 @@ class _InvestmentSummary extends StatelessWidget {
                           ? Icons.trending_up_rounded
                           : Icons.trending_down_rounded,
                       size: 16,
-                      color: isPositive ? MesclaColors.success : MesclaColors.danger,
+                      color: isPositive
+                          ? MesclaColors.success
+                          : MesclaColors.danger,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       formatPercent(variation),
                       style: TextStyle(
-                        color: isPositive ? MesclaColors.success : MesclaColors.danger,
+                        color: isPositive
+                            ? MesclaColors.success
+                            : MesclaColors.danger,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
@@ -289,7 +305,10 @@ class _InvestmentSummary extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(color: MesclaColors.textTertiary, fontSize: 12),
+          style: const TextStyle(
+            color: MesclaColors.textTertiary,
+            fontSize: 12,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
@@ -438,7 +457,12 @@ class _HoldingCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            formatPercent((holding.startup.tokenPrice / holding.averagePrice - 1) * 100),
+                            formatPercent(
+                              (holding.startup.tokenPrice /
+                                          holding.averagePrice -
+                                      1) *
+                                  100,
+                            ),
                             style: TextStyle(
                               color: isPositive
                                   ? MesclaColors.success
@@ -529,7 +553,10 @@ class _HoldingCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(color: MesclaColors.textTertiary, fontSize: 12),
+          style: const TextStyle(
+            color: MesclaColors.textTertiary,
+            fontSize: 12,
+          ),
         ),
         const SizedBox(height: 2),
         Text(
@@ -590,4 +617,3 @@ class _ActionHoldingButton extends StatelessWidget {
     );
   }
 }
-

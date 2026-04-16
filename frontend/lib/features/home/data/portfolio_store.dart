@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/foundation.dart';
 
@@ -19,10 +19,7 @@ class PortfolioHolding {
   double get totalValue => quantity * startup.tokenPrice;
   double get profit => totalValue - totalCost;
 
-  PortfolioHolding copyWith({
-    int? quantity,
-    double? averagePrice,
-  }) {
+  PortfolioHolding copyWith({int? quantity, double? averagePrice}) {
     return PortfolioHolding(
       startup: startup,
       quantity: quantity ?? this.quantity,
@@ -41,7 +38,8 @@ class PortfolioStore extends ChangeNotifier {
 
   double get balance => _balance;
 
-  List<PortfolioHolding> get holdings => _holdings.values.toList(growable: false);
+  List<PortfolioHolding> get holdings =>
+      _holdings.values.toList(growable: false);
 
   bool get hasHoldings => _holdings.isNotEmpty;
 
@@ -133,4 +131,3 @@ class PortfolioStore extends ChangeNotifier {
     notifyListeners();
   }
 }
-

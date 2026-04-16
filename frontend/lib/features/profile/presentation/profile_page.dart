@@ -88,8 +88,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // 1. Header com Gradiente Roxo e Informacoes do Usuario
   Widget _buildGradientHeader() {
-    final avatarLetter =
-        _userName.isNotEmpty ? _userName.substring(0, 1).toUpperCase() : 'U';
+    final avatarLetter = _userName.isNotEmpty
+        ? _userName.substring(0, 1).toUpperCase()
+        : 'U';
 
     return Container(
       width: double.infinity,

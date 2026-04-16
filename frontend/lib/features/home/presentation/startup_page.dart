@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
 import 'package:frontend/core/auth/auth_session_storage.dart';
@@ -218,7 +218,8 @@ class _StartupPageState extends State<StartupPage> {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: GestureDetector(
-                            onTap: () => setState(() => _selectedFilter = filter),
+                            onTap: () =>
+                                setState(() => _selectedFilter = filter),
                             child: Container(
                               height: 42,
                               padding: const EdgeInsets.symmetric(
@@ -279,14 +280,17 @@ class _StartupPageState extends State<StartupPage> {
                             controller: _startupsScrollController,
                             padding: const EdgeInsets.only(bottom: 8),
                             itemCount: startups.length,
-                            separatorBuilder: (_, _) => const SizedBox(height: 16),
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(height: 16),
                             itemBuilder: (context, index) {
                               return _StartupCard(
                                 data: startups[index],
                                 onTap: () {
                                   Navigator.of(context).push(
                                     AppRoute(
-                                      StartupDetailPage(startup: startups[index]),
+                                      StartupDetailPage(
+                                        startup: startups[index],
+                                      ),
                                     ),
                                   );
                                 },

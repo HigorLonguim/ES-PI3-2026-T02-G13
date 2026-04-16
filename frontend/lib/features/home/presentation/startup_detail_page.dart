@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
 
@@ -33,7 +33,10 @@ class StartupDetailPage extends StatelessWidget {
                   decoration: const BoxDecoration(
                     color: Color(0xCC1A1A2E),
                     border: Border(
-                      bottom: BorderSide(color: MesclaColors.border, width: 1.2),
+                      bottom: BorderSide(
+                        color: MesclaColors.border,
+                        width: 1.2,
+                      ),
                     ),
                   ),
                   child: Row(
@@ -69,7 +72,10 @@ class StartupDetailPage extends StatelessWidget {
                           height: 226,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: MesclaColors.border, width: 1.2),
+                            border: Border.all(
+                              color: MesclaColors.border,
+                              width: 1.2,
+                            ),
                             gradient: MesclaGradients.startupCard,
                           ),
                           child: const Padding(
@@ -84,10 +90,12 @@ class StartupDetailPage extends StatelessWidget {
                             _InfoStatCard(
                               width: 157.2,
                               title: 'Total de Tokens',
-                              value: startup.totalTokens.toString().replaceAllMapped(
-                                RegExp(r'\B(?=(\d{3})+(?!\d))'),
-                                (_) => '.',
-                              ),
+                              value: startup.totalTokens
+                                  .toString()
+                                  .replaceAllMapped(
+                                    RegExp(r'\B(?=(\d{3})+(?!\d))'),
+                                    (_) => '.',
+                                  ),
                             ),
                             const SizedBox(width: 12),
                             _InfoStatCard(
@@ -219,11 +227,17 @@ class StartupDetailPage extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).push(
                           AppRoute(
-                            TokenTransactionPage(startup: startup, isSell: false),
+                            TokenTransactionPage(
+                              startup: startup,
+                              isSell: false,
+                            ),
                           ),
                         );
                       },
-                      icon: const Icon(Icons.attach_money_rounded, color: Colors.white),
+                      icon: const Icon(
+                        Icons.attach_money_rounded,
+                        color: Colors.white,
+                      ),
                       label: const Text(
                         'Comprar Tokens',
                         style: TextStyle(
@@ -257,150 +271,150 @@ class _StartupHeader extends StatelessWidget {
     return SizedBox(
       height: 116,
       child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Image.network(
-            startup.imageUrl,
-            width: 80,
-            height: 80,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                width: 80,
-                height: 80,
-                color: MesclaColors.surfaceStrong,
-                alignment: Alignment.center,
-                child: const Icon(
-                  Icons.business_rounded,
-                  color: MesclaColors.textSecondary,
-                  size: 30,
-                ),
-              );
-            },
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.network(
+              startup.imageUrl,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  width: 80,
+                  height: 80,
+                  color: MesclaColors.surfaceStrong,
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.business_rounded,
+                    color: MesclaColors.textSecondary,
+                    size: 30,
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      startup.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: MesclaColors.textPrimary,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        startup.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: MesclaColors.textPrimary,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: stageStyle.background,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      startup.stage,
-                      style: TextStyle(
-                        color: stageStyle.foreground,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: stageStyle.background,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        startup.stage,
+                        style: TextStyle(
+                          color: stageStyle.foreground,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                startup.sector,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: MesclaColors.textSecondary,
-                  fontSize: 14,
+                  ],
                 ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Token',
-                          style: TextStyle(
-                            color: MesclaColors.textTertiary,
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          startup.tokenValue,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: MesclaColors.textPrimary,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
+                const SizedBox(height: 4),
+                Text(
+                  startup.sector,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: MesclaColors.textSecondary,
+                    fontSize: 14,
                   ),
-                  const SizedBox(width: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Token',
+                            style: TextStyle(
+                              color: MesclaColors.textTertiary,
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            startup.tokenValue,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: MesclaColors.textPrimary,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: isPositive
-                          ? MesclaColors.successSoft
-                          : MesclaColors.dangerSoft,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          isPositive
-                              ? Icons.trending_up_rounded
-                              : Icons.trending_down_rounded,
-                          size: 16,
-                          color: isPositive
-                              ? MesclaColors.success
-                              : MesclaColors.danger,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          startup.variation,
-                          style: TextStyle(
+                    const SizedBox(width: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isPositive
+                            ? MesclaColors.successSoft
+                            : MesclaColors.dangerSoft,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isPositive
+                                ? Icons.trending_up_rounded
+                                : Icons.trending_down_rounded,
+                            size: 16,
                             color: isPositive
                                 ? MesclaColors.success
                                 : MesclaColors.danger,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          Text(
+                            startup.variation,
+                            style: TextStyle(
+                              color: isPositive
+                                  ? MesclaColors.success
+                                  : MesclaColors.danger,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
+        ],
+      ),
     );
   }
 }
@@ -413,10 +427,7 @@ class _TokenChart extends StatelessWidget {
     return Column(
       children: [
         Expanded(
-          child: CustomPaint(
-            painter: _TokenLinePainter(),
-            child: Container(),
-          ),
+          child: CustomPaint(painter: _TokenLinePainter(), child: Container()),
         ),
         const SizedBox(height: 8),
         const Row(
@@ -484,7 +495,14 @@ class _TokenLinePainter extends CustomPainter {
       final current = points[i];
       final control = Offset((previous.dx + current.dx) / 2, previous.dy);
       final control2 = Offset((previous.dx + current.dx) / 2, current.dy);
-      linePath.cubicTo(control.dx, control.dy, control2.dx, control2.dy, current.dx, current.dy);
+      linePath.cubicTo(
+        control.dx,
+        control.dy,
+        control2.dx,
+        control2.dy,
+        current.dx,
+        current.dy,
+      );
     }
 
     final areaPath = Path.from(linePath)
@@ -506,11 +524,7 @@ class _TokenLinePainter extends CustomPainter {
 }
 
 class _InfoStatCard extends StatelessWidget {
-  const _InfoStatCard({
-    required this.title,
-    required this.value,
-    this.width,
-  });
+  const _InfoStatCard({required this.title, required this.value, this.width});
 
   final String title;
   final String value;
@@ -596,7 +610,10 @@ class _OwnershipCard extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           label,
-          style: const TextStyle(color: MesclaColors.textSecondary, fontSize: 14),
+          style: const TextStyle(
+            color: MesclaColors.textSecondary,
+            fontSize: 14,
+          ),
         ),
         const Spacer(),
         Text(
@@ -623,9 +640,7 @@ class _PieChartPainter extends CustomPainter {
       ..shader = const RadialGradient(
         colors: [Color(0x335F5BFF), Color(0x00242438)],
         stops: [0.0, 1.0],
-      ).createShader(
-        Rect.fromCircle(center: center, radius: radius * 1.35),
-      );
+      ).createShader(Rect.fromCircle(center: center, radius: radius * 1.35));
     canvas.drawCircle(center, radius * 1.35, glowPaint);
 
     const slices = [
@@ -640,13 +655,7 @@ class _PieChartPainter extends CustomPainter {
       final paint = Paint()
         ..color = slice.color
         ..style = PaintingStyle.fill;
-      canvas.drawArc(
-        rect,
-        start,
-        sweep,
-        true,
-        paint,
-      );
+      canvas.drawArc(rect, start, sweep, true, paint);
 
       final separator = Paint()
         ..color = const Color(0xFF242438)

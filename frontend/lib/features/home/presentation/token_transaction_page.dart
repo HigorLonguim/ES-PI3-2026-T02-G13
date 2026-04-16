@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
 
@@ -70,9 +70,9 @@ class _TokenTransactionPageState extends State<TokenTransactionPage> {
       return;
     }
 
-    Navigator.of(context).push(
-      AppRoute(TransactionSuccessPage(isSell: widget.isSell)),
-    );
+    Navigator.of(
+      context,
+    ).push(AppRoute(TransactionSuccessPage(isSell: widget.isSell)));
   }
 
   @override
@@ -201,8 +201,18 @@ class _TokenTransactionPageState extends State<TokenTransactionPage> {
                                   boxShadow: [
                                     BoxShadow(
                                       color: isSell
-                                          ? const Color.fromRGBO(251, 44, 54, 0.3)
-                                          : const Color.fromRGBO(0, 201, 80, 0.3),
+                                          ? const Color.fromRGBO(
+                                              251,
+                                              44,
+                                              54,
+                                              0.3,
+                                            )
+                                          : const Color.fromRGBO(
+                                              0,
+                                              201,
+                                              80,
+                                              0.3,
+                                            ),
                                       blurRadius: 15,
                                       offset: const Offset(0, 8),
                                     ),
@@ -250,7 +260,9 @@ class _TransactionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
       decoration: const BoxDecoration(
         color: Color(0xCC1A1A2E),
-        border: Border(bottom: BorderSide(color: MesclaColors.border, width: 1.2)),
+        border: Border(
+          bottom: BorderSide(color: MesclaColors.border, width: 1.2),
+        ),
       ),
       child: Row(
         children: [
@@ -386,7 +398,10 @@ class _SummaryCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _SummaryRow(label: 'Preço unitário', value: formatCurrency(unitPrice)),
+          _SummaryRow(
+            label: 'Preço unitário',
+            value: formatCurrency(unitPrice),
+          ),
           const SizedBox(height: 8),
           _SummaryRow(label: 'Quantidade', value: '$quantity tokens'),
           const SizedBox(height: 12),
@@ -422,7 +437,9 @@ class _SummaryRow extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: emphasis ? MesclaColors.textPrimary : MesclaColors.textSecondary,
+            color: emphasis
+                ? MesclaColors.textPrimary
+                : MesclaColors.textSecondary,
             fontSize: emphasis ? 32 / 2 : 16,
             fontWeight: emphasis ? FontWeight.w600 : FontWeight.w400,
           ),
@@ -460,7 +477,11 @@ class _BalanceCard extends StatelessWidget {
         children: [
           const Row(
             children: [
-              Icon(Icons.account_balance_wallet_outlined, color: MesclaColors.navActive, size: 16),
+              Icon(
+                Icons.account_balance_wallet_outlined,
+                color: MesclaColors.navActive,
+                size: 16,
+              ),
               SizedBox(width: 8),
               Text(
                 'Saldo disponível',
@@ -486,4 +507,3 @@ class _BalanceCard extends StatelessWidget {
     );
   }
 }
-

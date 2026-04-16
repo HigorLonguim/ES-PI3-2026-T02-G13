@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
 import 'package:frontend/features/profile/presentation/profile_page.dart';
@@ -29,12 +29,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
-      StartupPage(
-        onProfileTap: () => setState(() => _currentIndex = 3),
-      ),
-      WalletPage(
-        onExploreStartups: () => setState(() => _currentIndex = 0),
-      ),
+      StartupPage(onProfileTap: () => setState(() => _currentIndex = 3)),
+      WalletPage(onExploreStartups: () => setState(() => _currentIndex = 0)),
       const _NavigationPlaceholder(label: 'Dashboard'),
       const ProfilePage(),
     ];

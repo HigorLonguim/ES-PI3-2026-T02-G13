@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 
 import '../presentation/models/startup_data.dart';
 
@@ -12,8 +12,7 @@ class MockStartupRepository {
         tokenValue: 'R\$ 125.50',
         tokenPrice: 125.50,
         variation: '+12.50%',
-        imageUrl:
-            'https://picsum.photos/seed/techflow/400/400',
+        imageUrl: 'https://picsum.photos/seed/techflow/400/400',
         sector: 'Tecnologia',
         totalTokens: 1000000,
         raisedCapital: 'R\$ 5.0M',
@@ -27,8 +26,7 @@ class MockStartupRepository {
         tokenValue: 'R\$ 85.30',
         tokenPrice: 85.30,
         variation: '+5.20%',
-        imageUrl:
-            'https://picsum.photos/seed/greenenergy/400/400',
+        imageUrl: 'https://picsum.photos/seed/greenenergy/400/400',
         sector: 'Energia',
         totalTokens: 750000,
         raisedCapital: 'R\$ 3.8M',
@@ -42,8 +40,7 @@ class MockStartupRepository {
         tokenValue: 'R\$ 50.00',
         tokenPrice: 50.00,
         variation: '-2.30%',
-        imageUrl:
-            'https://picsum.photos/seed/healthai/400/400',
+        imageUrl: 'https://picsum.photos/seed/healthai/400/400',
         sector: 'Saúde',
         totalTokens: 500000,
         raisedCapital: 'R\$ 1.5M',
@@ -57,8 +54,7 @@ class MockStartupRepository {
         tokenValue: 'R\$ 95.75',
         tokenPrice: 95.75,
         variation: '+8.10%',
-        imageUrl:
-            'https://picsum.photos/seed/edutechpro/400/400',
+        imageUrl: 'https://picsum.photos/seed/edutechpro/400/400',
         sector: 'Educação',
         totalTokens: 640000,
         raisedCapital: 'R\$ 2.7M',
@@ -72,8 +68,7 @@ class MockStartupRepository {
         tokenValue: 'R\$ 42.80',
         tokenPrice: 42.80,
         variation: '+15.70%',
-        imageUrl:
-            'https://picsum.photos/seed/foodchain/400/400',
+        imageUrl: 'https://picsum.photos/seed/foodchain/400/400',
         sector: 'Alimentos',
         totalTokens: 450000,
         raisedCapital: 'R\$ 1.1M',

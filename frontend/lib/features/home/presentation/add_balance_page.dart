@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
 
@@ -86,7 +86,10 @@ class _AddBalancePageState extends State<AddBalancePage> {
                   decoration: const BoxDecoration(
                     color: Color(0xCC1A1A2E),
                     border: Border(
-                      bottom: BorderSide(color: MesclaColors.border, width: 1.2),
+                      bottom: BorderSide(
+                        color: MesclaColors.border,
+                        width: 1.2,
+                      ),
                     ),
                   ),
                   child: Row(
@@ -176,7 +179,10 @@ class _AddBalancePageState extends State<AddBalancePage> {
                           decoration: BoxDecoration(
                             color: MesclaColors.surface,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: MesclaColors.border, width: 1.2),
+                            border: Border.all(
+                              color: MesclaColors.border,
+                              width: 1.2,
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -187,9 +193,10 @@ class _AddBalancePageState extends State<AddBalancePage> {
                               Expanded(
                                 child: TextField(
                                   controller: _controller,
-                                  keyboardType: const TextInputType.numberWithOptions(
-                                    decimal: true,
-                                  ),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
                                   onChanged: _onInputChanged,
                                   style: const TextStyle(
                                     color: MesclaColors.textPrimary,
@@ -233,7 +240,8 @@ class _AddBalancePageState extends State<AddBalancePage> {
                           runSpacing: 12,
                           children: [100, 500, 1000, 5000].map((value) {
                             return SizedBox(
-                              width: (MediaQuery.sizeOf(context).width - 60) / 2,
+                              width:
+                                  (MediaQuery.sizeOf(context).width - 60) / 2,
                               height: 50,
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
@@ -245,7 +253,8 @@ class _AddBalancePageState extends State<AddBalancePage> {
                                   ),
                                 ),
                                 child: TextButton(
-                                  onPressed: () => _onQuickValue(value.toDouble()),
+                                  onPressed: () =>
+                                      _onQuickValue(value.toDouble()),
                                   child: Text(
                                     'R\$ $value',
                                     style: const TextStyle(
@@ -266,7 +275,10 @@ class _AddBalancePageState extends State<AddBalancePage> {
                           decoration: BoxDecoration(
                             color: const Color(0x1A2B7FFF),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0x332B7FFF), width: 1.2),
+                            border: Border.all(
+                              color: const Color(0x332B7FFF),
+                              width: 1.2,
+                            ),
                           ),
                           child: const Text(
                             'Simulação: Este é um saldo fictício para demonstração da plataforma.',
@@ -301,7 +313,9 @@ class _AddBalancePageState extends State<AddBalancePage> {
                               onPressed: _amount > 0 ? _submit : null,
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.white,
-                                disabledForegroundColor: const Color(0x8021A260),
+                                disabledForegroundColor: const Color(
+                                  0x8021A260,
+                                ),
                               ),
                               child: Text(
                                 'Adicionar ${formatCurrency(_amount)}',
@@ -325,4 +339,3 @@ class _AddBalancePageState extends State<AddBalancePage> {
     );
   }
 }
-

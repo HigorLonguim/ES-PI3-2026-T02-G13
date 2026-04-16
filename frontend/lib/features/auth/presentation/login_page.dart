@@ -61,13 +61,15 @@ class _LoginPageState extends State<LoginPage> {
     if (result.success) {
       final usuario = result.usuario ?? <String, dynamic>{};
       final userName = (usuario['nome'] as String?)?.trim();
-      final userEmail =
-          (usuario['email'] as String?)?.trim().isNotEmpty == true
+      final userEmail = (usuario['email'] as String?)?.trim().isNotEmpty == true
           ? (usuario['email'] as String).trim()
           : email;
 
       if (userName != null && userName.isNotEmpty) {
-        await _authSessionStorage.saveUserProfile(nome: userName, email: userEmail);
+        await _authSessionStorage.saveUserProfile(
+          nome: userName,
+          email: userEmail,
+        );
       } else {
         await _authSessionStorage.saveUserProfile(
           nome: userEmail.split('@').first,
@@ -157,204 +159,208 @@ class _LoginPageState extends State<LoginPage> {
                         ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
                     child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 63.984,
-                            height: 63.984,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 63.984,
+                              height: 63.984,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                gradient: const LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF4F39F6),
+                                    Color(0xFF9810FA),
+                                  ],
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color.fromRGBO(97, 95, 255, 0.5),
+                                    blurRadius: 15,
+                                    offset: Offset(0, 10),
+                                  ),
+                                  BoxShadow(
+                                    color: Color.fromRGBO(97, 95, 255, 0.5),
+                                    blurRadius: 6,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.trending_up_rounded,
+                                color: Colors.white,
+                                size: 32,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              splashRadius: 20,
+                              icon: const Icon(
+                                Icons.chevron_left_rounded,
+                                color: Color(0xFFD1D5DC),
+                                size: 26,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Bem-vindo de volta',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 42,
+                            height: 1,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Por favor, digite suas credenciais',
+                          style: TextStyle(
+                            color: Color(0xFF99A1AF),
+                            fontSize: 16,
+                            height: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+                        const _FieldLabel('Email'),
+                        const SizedBox(height: 8),
+                        _InputField(
+                          hintText: 'seu@email.com',
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        const SizedBox(height: 16),
+                        const _FieldLabel('Senha'),
+                        const SizedBox(height: 8),
+                        _InputField(
+                          hintText: '••••••••',
+                          controller: _senhaController,
+                          obscureText: _obscurePassword,
+                          suffix: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: const Color(0xFF9CA3AF),
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(
+                              context,
+                            ).push(AppRoute(const RecoverPasswordPage()));
+                          },
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            'Esqueceu a senha?',
+                            style: TextStyle(
+                              color: Color(0xFF7C86FF),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 51.967,
+                          child: DecoratedBox(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(12),
                               gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
                                 colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
                               ),
                               boxShadow: const [
                                 BoxShadow(
-                                  color: Color.fromRGBO(97, 95, 255, 0.5),
+                                  color: Color.fromRGBO(97, 95, 255, 0.3),
                                   blurRadius: 15,
                                   offset: Offset(0, 10),
                                 ),
                                 BoxShadow(
-                                  color: Color.fromRGBO(97, 95, 255, 0.5),
+                                  color: Color.fromRGBO(97, 95, 255, 0.3),
                                   blurRadius: 6,
                                   offset: Offset(0, 4),
                                 ),
                               ],
                             ),
-                            child: const Icon(
-                              Icons.trending_up_rounded,
-                              color: Colors.white,
-                              size: 32,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            splashRadius: 20,
-                            icon: const Icon(
-                              Icons.chevron_left_rounded,
-                              color: Color(0xFFD1D5DC),
-                              size: 26,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Bem-vindo de volta',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 42,
-                          height: 1,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Por favor, digite suas credenciais',
-                        style: TextStyle(
-                          color: Color(0xFF99A1AF),
-                          fontSize: 16,
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 48),
-                      const _FieldLabel('Email'),
-                      const SizedBox(height: 8),
-                      _InputField(
-                        hintText: 'seu@email.com',
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(height: 16),
-                      const _FieldLabel('Senha'),
-                      const SizedBox(height: 8),
-                      _InputField(
-                        hintText: '••••••••',
-                        controller: _senhaController,
-                        obscureText: _obscurePassword,
-                        suffix: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            color: const Color(0xFF9CA3AF),
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(
-                            context,
-                          ).push(AppRoute(const RecoverPasswordPage()));
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: const Text(
-                          'Esqueceu a senha?',
-                          style: TextStyle(
-                            color: Color(0xFF7C86FF),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 51.967,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            gradient: const LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
-                            ),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color.fromRGBO(97, 95, 255, 0.3),
-                                blurRadius: 15,
-                                offset: Offset(0, 10),
-                              ),
-                              BoxShadow(
-                                color: Color.fromRGBO(97, 95, 255, 0.3),
-                                blurRadius: 6,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: TextButton(
-                            onPressed: _isLoading ? null : _entrar,
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
+                            child: TextButton(
+                              onPressed: _isLoading ? null : _entrar,
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Entrar',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                  )
-                                : const Text(
-                                    'Entrar',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 32),
-                      Center(
-                        child: Wrap(
-                          children: [
-                            const Text(
-                              'Não tem uma conta? ',
-                              style: TextStyle(
-                                color: Color(0xFF99A1AF),
-                                fontSize: 16,
-                                height: 1.5,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(
-                                  context,
-                                ).push(AppRoute(const SignUpPage()));
-                              },
-                              child: const Text(
-                                'Cadastre-se',
+                        const SizedBox(height: 32),
+                        Center(
+                          child: Wrap(
+                            children: [
+                              const Text(
+                                'Não tem uma conta? ',
                                 style: TextStyle(
-                                  color: Color(0xFF7C86FF),
+                                  color: Color(0xFF99A1AF),
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w600,
                                   height: 1.5,
                                 ),
                               ),
-                            ),
-                          ],
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(
+                                    context,
+                                  ).push(AppRoute(const SignUpPage()));
+                                },
+                                child: const Text(
+                                  'Cadastre-se',
+                                  style: TextStyle(
+                                    color: Color(0xFF7C86FF),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
                     ),
                   ),
                 ),

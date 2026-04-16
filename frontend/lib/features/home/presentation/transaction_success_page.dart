@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
 
@@ -191,4 +191,3 @@ class _ActionButton extends StatelessWidget {
     );
   }
 }
-

@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 
 String formatCurrency(double value) {
   final isNegative = value < 0;
@@ -33,4 +33,3 @@ String formatPercent(double value) {
   final signal = value >= 0 ? '+' : '';
   return '$signal${value.toStringAsFixed(2)}%';
 }
-

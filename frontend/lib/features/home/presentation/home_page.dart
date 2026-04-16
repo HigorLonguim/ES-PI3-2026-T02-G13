@@ -125,7 +125,10 @@ class HomePage extends StatelessWidget {
                                 gradient: const LinearGradient(
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
-                                  colors: [Color(0xFF4F39F6), Color(0xFF9810FA)],
+                                  colors: [
+                                    Color(0xFF4F39F6),
+                                    Color(0xFF9810FA),
+                                  ],
                                 ),
                                 boxShadow: const [
                                   BoxShadow(
