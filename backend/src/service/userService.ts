@@ -1,4 +1,6 @@
 import { db } from "../config/firebase";
+import { Router } from "express";
+import * as userController from "../controller/userController";
 
 interface Usuario {
   id: string;
@@ -116,3 +118,43 @@ export async function loginUser(email: string, senha: string) {
     usuario,
   };
 }
+
+export async function recoverPassword(email: string) {
+  if (!isValidString(email)) {
+    return { erro: "Email é obrigatório" };
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  console.log("[userService.recoverPassword] solicitacao recebida", { email: normalizedEmail });
+
+  try {
+    const snapshot = await db.collection("users").where("email", "==", normalizedEmail).limit(1).get();
+    const userExists = !snapshot.empty;
+
+    if (userExists) {
+      console.log("[userService.recoverPassword] usuario encontrado", { email: normalizedEmail });
+      return {
+        mensagem: "Se o e-mail estiver cadastrado, enviaremos as instruções de recuperação.",
+        status: 202,
+      };
+    }
+
+    console.log("[userService.recoverPassword] usuario nao encontrado", { email: normalizedEmail });
+    return {
+      mensagem: "Se o e-mail estiver cadastrado, enviaremos as instruções de recuperação.",
+      status: 200,
+    };
+  } catch (error) {
+    console.error("[userService.recoverPassword] erro ao buscar usuario", error);
+    return { erro: "Erro ao processar recuperação de senha." };
+  }
+}
+
+const router = Router();
+
+router.post("/register", userController.register);
+router.post("/login", userController.login);
+router.post("/recover-password", userController.recoverPassword);
+
+export default router;
