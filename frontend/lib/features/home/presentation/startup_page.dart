@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/auth/auth_session_storage.dart';
 
+import '../../../core/config/app_config.dart';
 import '../../../core/navigation/app_route.dart';
 import '../../../core/theme/mescla_colors.dart';
 import '../data/mock_startup_repository.dart';
@@ -28,6 +29,8 @@ class _StartupPageState extends State<StartupPage> {
   String _selectedFilter = 'Todas';
   List<StartupData> _allStartups = const [];
   String _userName = 'Usuario';
+  bool _isLoadingStartups = true;
+  String _startupsFeedbackMessage = 'Nenhuma startup encontrada';
 
   @override
   void initState() {
@@ -37,14 +40,34 @@ class _StartupPageState extends State<StartupPage> {
   }
 
   Future<void> _loadStartups() async {
-    final startups = await _startupRepository.fetchStartups();
-    if (!mounted) {
-      return;
-    }
+    try {
+      final startups = await _startupRepository.fetchStartups(
+        useMockFallback: false,
+      );
+      if (!mounted) {
+        return;
+      }
 
-    setState(() {
-      _allStartups = startups;
-    });
+      final hasRemoteConfig = AppConfig.startupsFunctionUrl.trim().isNotEmpty;
+      setState(() {
+        _allStartups = startups;
+        _isLoadingStartups = false;
+        _startupsFeedbackMessage = startups.isEmpty && hasRemoteConfig
+            ? 'Nao foi possivel carregar startups no momento'
+            : 'Nenhuma startup encontrada';
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _allStartups = const [];
+        _isLoadingStartups = false;
+        _startupsFeedbackMessage =
+            'Nao foi possivel carregar startups no momento';
+      });
+    }
   }
 
   Future<void> _loadUserProfile() async {
@@ -266,11 +289,14 @@ class _StartupPageState extends State<StartupPage> {
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: startups.isEmpty
-                        ? const Center(
+                    child: _isLoadingStartups
+                        ? const _StartupLoadingState()
+                        : startups.isEmpty
+                        ? Center(
                             child: Text(
-                              'Nenhuma startup encontrada',
-                              style: TextStyle(
+                              _startupsFeedbackMessage,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
                                 color: MesclaColors.textSecondary,
                                 fontSize: 16,
                               ),
@@ -303,6 +329,66 @@ class _StartupPageState extends State<StartupPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StartupLoadingState extends StatefulWidget {
+  const _StartupLoadingState();
+
+  @override
+  State<_StartupLoadingState> createState() => _StartupLoadingStateState();
+}
+
+class _StartupLoadingStateState extends State<_StartupLoadingState>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          RotationTransition(
+            turns: _controller,
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: MesclaColors.border, width: 1.2),
+                gradient: MesclaGradients.purpleHorizontal,
+              ),
+              child: const Icon(
+                Icons.autorenew_rounded,
+                color: MesclaColors.textPrimary,
+                size: 28,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Carregando startups...',
+            style: TextStyle(color: MesclaColors.textSecondary, fontSize: 16),
+          ),
+        ],
       ),
     );
   }
@@ -509,4 +595,3 @@ const _stageStyles = <String, _StageStyle>{
     foreground: MesclaColors.stageNew,
   ),
 };
-

@@ -13,6 +13,10 @@ class StartupData {
     required this.totalTokens,
     required this.raisedCapital,
     required this.executiveSummary,
+    required this.founders,
+    required this.ownershipStructure,
+    required this.mentorsCouncil,
+    required this.demoVideoUrl,
   });
 
   final String name;
@@ -26,6 +30,10 @@ class StartupData {
   final int totalTokens;
   final String raisedCapital;
   final String executiveSummary;
+  final String founders;
+  final String ownershipStructure;
+  final String mentorsCouncil;
+  final String demoVideoUrl;
 
   factory StartupData.fromApi(Map<String, dynamic> source) {
     final name = _readString(source, 'name') ?? 'Startup sem nome';
@@ -45,10 +53,12 @@ class StartupData {
       imageUrl: _readString(source, 'imageUrl') ?? '',
       sector: _readString(source, 'sector') ?? 'Nao informado',
       totalTokens: _readInt(source, 'totalTokens'),
-      raisedCapital:
-          _readString(source, 'raisedCapital') ?? _formatCurrency(0),
-      executiveSummary:
-          _readString(source, 'executiveSummary') ?? description,
+      raisedCapital: _readString(source, 'raisedCapital') ?? _formatCurrency(0),
+      executiveSummary: _readString(source, 'executiveSummary') ?? description,
+      founders: _readString(source, 'founders') ?? '',
+      ownershipStructure: _readString(source, 'ownershipStructure') ?? '',
+      mentorsCouncil: _readString(source, 'mentorsCouncil') ?? '',
+      demoVideoUrl: _readString(source, 'demoVideoUrl') ?? '',
     );
   }
 

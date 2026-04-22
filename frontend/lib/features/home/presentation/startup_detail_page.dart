@@ -1,5 +1,7 @@
 // Autoria: Felipe Sousa - RA: 22018160
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../core/navigation/app_route.dart';
@@ -14,6 +16,16 @@ class StartupDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final founderEntries = _parseFounderEntries(
+      startup.founders,
+      startup.ownershipStructure,
+    );
+    final mentors = _parseSimpleList(startup.mentorsCouncil);
+    final ownershipSlices = _buildOwnershipSlices(
+      startup.ownershipStructure,
+      founderEntries,
+    );
+
     return Scaffold(
       backgroundColor: MesclaColors.background,
       body: SafeArea(
@@ -84,7 +96,6 @@ class StartupDetailPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const SizedBox(height: 4),
                         Row(
                           children: [
                             _InfoStatCard(
@@ -160,7 +171,7 @@ class StartupDetailPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
                         const Text(
-                          'Sumário Executivo',
+                          'Sumario Executivo',
                           style: TextStyle(
                             color: MesclaColors.textPrimary,
                             fontSize: 16,
@@ -177,8 +188,28 @@ class StartupDetailPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 24),
+                        const _SectionTitle(title: 'Video Demonstrativo'),
+                        const SizedBox(height: 10),
+                        _VideoDemoCard(videoUrl: startup.demoVideoUrl),
+                        const SizedBox(height: 24),
+                        const _SectionTitle(
+                          title: 'Socios Fundadores',
+                          icon: Icons.groups_rounded,
+                        ),
+                        const SizedBox(height: 10),
+                        _FoundersCard(entries: founderEntries),
+                        const SizedBox(height: 24),
+                        const _SectionTitle(
+                          title: 'Mentoria e Conselho',
+                          icon: Icons.school_rounded,
+                        ),
+                        const SizedBox(height: 10),
+                        _MentorsCard(mentors: mentors),
+                        const SizedBox(height: 16),
+                        _PitchDemoLink(videoUrl: startup.demoVideoUrl),
+                        const SizedBox(height: 24),
                         const Text(
-                          'Estrutura Societária',
+                          'Estrutura Societaria',
                           style: TextStyle(
                             color: MesclaColors.textPrimary,
                             fontSize: 16,
@@ -186,7 +217,7 @@ class StartupDetailPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        const _OwnershipCard(),
+                        _OwnershipCard(slices: ownershipSlices),
                       ],
                     ),
                   ),
@@ -252,6 +283,271 @@ class StartupDetailPage extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({required this.title, this.icon});
+
+  final String title;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        if (icon != null)
+          Icon(icon, size: 16, color: MesclaColors.textSecondary),
+        if (icon != null) const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            color: MesclaColors.textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VideoDemoCard extends StatelessWidget {
+  const _VideoDemoCard({required this.videoUrl});
+
+  final String videoUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 184,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MesclaColors.border, width: 1.2),
+        gradient: MesclaGradients.startupCard,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: MesclaGradients.purpleHorizontal,
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x33000000),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.play_arrow_rounded,
+              color: MesclaColors.textPrimary,
+              size: 30,
+            ),
+          ),
+          if (videoUrl.trim().isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                videoUrl,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: MesclaColors.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _FoundersCard extends StatelessWidget {
+  const _FoundersCard({required this.entries});
+
+  final List<_FounderEntry> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MesclaColors.border, width: 1.2),
+        gradient: MesclaGradients.startupCard,
+      ),
+      child: Column(
+        children: entries
+            .asMap()
+            .entries
+            .map((entry) {
+              final index = entry.key;
+              final founder = entry.value;
+              final hasDivider = index < entries.length - 1;
+
+              return Container(
+                height: 56,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: hasDivider
+                    ? const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: MesclaColors.border,
+                            width: 1.2,
+                          ),
+                        ),
+                      )
+                    : null,
+                child: Row(
+                  children: [
+                    _InitialAvatar(text: founder.name),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        founder.name,
+                        style: const TextStyle(
+                          color: Color(0xFFD1D5DC),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      founder.percentage,
+                      style: const TextStyle(
+                        color: Color(0xFF7C86FF),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            })
+            .toList(growable: false),
+      ),
+    );
+  }
+}
+
+class _MentorsCard extends StatelessWidget {
+  const _MentorsCard({required this.mentors});
+
+  final List<String> mentors;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MesclaColors.border, width: 1.2),
+        gradient: MesclaGradients.startupCard,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: mentors
+            .map(
+              (mentor) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  mentor,
+                  style: const TextStyle(
+                    color: Color(0xFFD1D5DC),
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            )
+            .toList(growable: false),
+      ),
+    );
+  }
+}
+
+class _PitchDemoLink extends StatelessWidget {
+  const _PitchDemoLink({required this.videoUrl});
+
+  final String videoUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 46,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0x1A615FFF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0x66615FFF), width: 1.2),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.open_in_new_rounded,
+            color: Color(0xFF7C86FF),
+            size: 16,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              videoUrl.trim().isEmpty ? 'Ver Pitch / Demo' : videoUrl,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Color(0xFF7C86FF),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InitialAvatar extends StatelessWidget {
+  const _InitialAvatar({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final cleanText = text.trim();
+    final initial = cleanText.isEmpty
+        ? '?'
+        : cleanText.substring(0, 1).toUpperCase();
+
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: MesclaGradients.purpleHorizontal,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: const TextStyle(
+          color: MesclaColors.textPrimary,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -481,12 +777,12 @@ class _TokenLinePainter extends CustomPainter {
 
     final points = [
       Offset(size.width * 0.02, size.height * 0.68),
-      Offset(size.width * 0.17, size.height * 0.52),
-      Offset(size.width * 0.3, size.height * 0.84),
-      Offset(size.width * 0.48, size.height * 0.58),
-      Offset(size.width * 0.66, size.height * 0.44),
-      Offset(size.width * 0.83, size.height * 0.12),
-      Offset(size.width * 0.98, size.height * 0.24),
+      Offset(size.width * 0.17, size.height * 0.66),
+      Offset(size.width * 0.3, size.height * 0.72),
+      Offset(size.width * 0.48, size.height * 0.67),
+      Offset(size.width * 0.66, size.height * 0.64),
+      Offset(size.width * 0.83, size.height * 0.58),
+      Offset(size.width * 0.98, size.height * 0.60),
     ];
 
     final linePath = Path()..moveTo(points.first.dx, points.first.dy);
@@ -569,7 +865,9 @@ class _InfoStatCard extends StatelessWidget {
 }
 
 class _OwnershipCard extends StatelessWidget {
-  const _OwnershipCard();
+  const _OwnershipCard({required this.slices});
+
+  final List<_OwnershipSlice> slices;
 
   @override
   Widget build(BuildContext context) {
@@ -586,14 +884,19 @@ class _OwnershipCard extends StatelessWidget {
           SizedBox(
             height: 192,
             width: double.infinity,
-            child: CustomPaint(painter: _PieChartPainter()),
+            child: CustomPaint(painter: _PieChartPainter(slices: slices)),
           ),
           const SizedBox(height: 12),
-          _legendRow('Fundadores', '60%', const Color(0xFF6366F1)),
-          const SizedBox(height: 8),
-          _legendRow('Investidores', '25%', const Color(0xFF10B981)),
-          const SizedBox(height: 8),
-          _legendRow('Disponível', '15%', const Color(0xFF374151)),
+          ...slices.map(
+            (slice) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _legendRow(
+                slice.label,
+                '${slice.percentage}%',
+                slice.color,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -630,6 +933,10 @@ class _OwnershipCard extends StatelessWidget {
 }
 
 class _PieChartPainter extends CustomPainter {
+  const _PieChartPainter({required this.slices});
+
+  final List<_OwnershipSlice> slices;
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -643,15 +950,9 @@ class _PieChartPainter extends CustomPainter {
       ).createShader(Rect.fromCircle(center: center, radius: radius * 1.35));
     canvas.drawCircle(center, radius * 1.35, glowPaint);
 
-    const slices = [
-      _Slice(0.60, Color(0xFF6366F1)),
-      _Slice(0.25, Color(0xFF10B981)),
-      _Slice(0.15, Color(0xFF374151)),
-    ];
-
-    var start = -1.57079632679;
+    var start = -math.pi / 2;
     for (final slice in slices) {
-      final sweep = 6.28318530718 * slice.fraction;
+      final sweep = 2 * math.pi * (slice.percentage / 100);
       final paint = Paint()
         ..color = slice.color
         ..style = PaintingStyle.fill;
@@ -667,14 +968,203 @@ class _PieChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _PieChartPainter oldDelegate) {
+    return oldDelegate.slices != slices;
+  }
 }
 
-class _Slice {
-  const _Slice(this.fraction, this.color);
+class _FounderEntry {
+  const _FounderEntry({required this.name, required this.percentageValue});
 
-  final double fraction;
+  final String name;
+  final double? percentageValue;
+
+  String get percentage {
+    if (percentageValue == null) {
+      return '--';
+    }
+
+    final rounded = percentageValue!.round();
+    return '$rounded%';
+  }
+}
+
+class _OwnershipSlice {
+  const _OwnershipSlice({
+    required this.label,
+    required this.percentage,
+    required this.color,
+  });
+
+  final String label;
+  final int percentage;
   final Color color;
+}
+
+List<_FounderEntry> _parseFounderEntries(
+  String foundersRaw,
+  String ownershipRaw,
+) {
+  final founders = _parseSimpleList(foundersRaw);
+  if (founders.isEmpty) {
+    return const [_FounderEntry(name: 'Nao informado', percentageValue: null)];
+  }
+
+  final explicitPercents = _extractPercentagesByName(ownershipRaw);
+  final orderedPercents = _extractOrderedPercentages(ownershipRaw);
+
+  return founders
+      .asMap()
+      .entries
+      .map((entry) {
+        final founderName = entry.value;
+        final mapped = explicitPercents[founderName.toLowerCase()];
+        final fallback = entry.key < orderedPercents.length
+            ? orderedPercents[entry.key]
+            : null;
+
+        return _FounderEntry(
+          name: founderName,
+          percentageValue: mapped ?? fallback,
+        );
+      })
+      .toList(growable: false);
+}
+
+List<String> _parseSimpleList(String raw) {
+  final clean = raw.trim();
+  if (clean.isEmpty) {
+    return const ['Nao informado'];
+  }
+
+  final split = clean
+      .split(RegExp(r'[;\n,|]'))
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
+
+  if (split.isEmpty) {
+    return const ['Nao informado'];
+  }
+
+  return split;
+}
+
+Map<String, double> _extractPercentagesByName(String raw) {
+  final matches = RegExp(
+    r'([^:;|\n]+)\s*[:=-]\s*(\d{1,3}(?:[\.,]\d+)?)\s*%?',
+  ).allMatches(raw);
+
+  final map = <String, double>{};
+  for (final match in matches) {
+    final name = (match.group(1) ?? '').trim().toLowerCase();
+    final percentageText = (match.group(2) ?? '').replaceAll(',', '.');
+    final percentage = double.tryParse(percentageText);
+    if (name.isEmpty || percentage == null) {
+      continue;
+    }
+    map[name] = percentage;
+  }
+
+  return map;
+}
+
+List<double> _extractOrderedPercentages(String raw) {
+  final matches = RegExp(r'(\d{1,3}(?:[\.,]\d+)?)\s*%').allMatches(raw);
+
+  return matches
+      .map((match) => (match.group(1) ?? '').replaceAll(',', '.'))
+      .map(double.tryParse)
+      .whereType<double>()
+      .toList(growable: false);
+}
+
+List<_OwnershipSlice> _buildOwnershipSlices(
+  String ownershipRaw,
+  List<_FounderEntry> founders,
+) {
+  final founderTotal = founders
+      .map((entry) => entry.percentageValue ?? 0)
+      .fold<double>(0, (left, right) => left + right);
+  final investors = _findCategoryPercentage(ownershipRaw, ['investidor']);
+  final available = _findCategoryPercentage(ownershipRaw, [
+    'disponivel',
+    'disponível',
+    'treasury',
+  ]);
+
+  final safeFounder = founderTotal > 0 ? founderTotal : 75;
+  final safeInvestors = investors > 0 ? investors : 5;
+  var safeAvailable = available > 0
+      ? available
+      : (100 - safeFounder - safeInvestors);
+
+  if (safeAvailable < 0) {
+    safeAvailable = 20;
+  }
+
+  final total = safeFounder + safeInvestors + safeAvailable;
+
+  if (total <= 0) {
+    return const [
+      _OwnershipSlice(
+        label: 'Fundadores',
+        percentage: 75,
+        color: Color(0xFF6366F1),
+      ),
+      _OwnershipSlice(
+        label: 'Investidores',
+        percentage: 5,
+        color: Color(0xFF10B981),
+      ),
+      _OwnershipSlice(
+        label: 'Disponivel',
+        percentage: 20,
+        color: Color(0xFF374151),
+      ),
+    ];
+  }
+
+  final founderNormalized = ((safeFounder / total) * 100).round();
+  final investorsNormalized = ((safeInvestors / total) * 100).round();
+  final availableNormalized = 100 - founderNormalized - investorsNormalized;
+
+  return [
+    _OwnershipSlice(
+      label: 'Fundadores',
+      percentage: founderNormalized,
+      color: const Color(0xFF6366F1),
+    ),
+    _OwnershipSlice(
+      label: 'Investidores',
+      percentage: investorsNormalized,
+      color: const Color(0xFF10B981),
+    ),
+    _OwnershipSlice(
+      label: 'Disponivel',
+      percentage: availableNormalized,
+      color: const Color(0xFF374151),
+    ),
+  ];
+}
+
+double _findCategoryPercentage(String text, List<String> aliases) {
+  final lower = text.toLowerCase();
+
+  for (final alias in aliases) {
+    final regex = RegExp('$alias[^0-9]{0,8}(\\d{1,3}(?:[\\.,]\\d+)?)\\s*%?');
+    final match = regex.firstMatch(lower);
+    if (match != null) {
+      final parsed = double.tryParse(
+        (match.group(1) ?? '').replaceAll(',', '.'),
+      );
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+  }
+
+  return 0;
 }
 
 class _StageStyle {
@@ -698,4 +1188,3 @@ const _stageStyles = <String, _StageStyle>{
     foreground: MesclaColors.stageNew,
   ),
 };
-

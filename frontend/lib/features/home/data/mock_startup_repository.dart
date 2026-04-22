@@ -12,10 +12,10 @@ class StartupRepository {
 
   final Dio _dio;
 
-  Future<List<StartupData>> fetchStartups() async {
+  Future<List<StartupData>> fetchStartups({bool useMockFallback = true}) async {
     final functionUrl = AppConfig.startupsFunctionUrl.trim();
     if (functionUrl.isEmpty) {
-      return _mockStartups;
+      return useMockFallback ? _mockStartups : const <StartupData>[];
     }
 
     try {
@@ -23,7 +23,7 @@ class StartupRepository {
       final body = _decodeBody(response.data);
       final items = body['items'];
       if (items is! List) {
-        return _mockStartups;
+        return useMockFallback ? _mockStartups : const <StartupData>[];
       }
 
       final startups = items
@@ -31,15 +31,11 @@ class StartupRepository {
           .map((item) => StartupData.fromApi(Map<String, dynamic>.from(item)))
           .toList(growable: false);
 
-      if (startups.isEmpty) {
-        return _mockStartups;
-      }
-
-      return startups;
+      return startups.isEmpty && useMockFallback ? _mockStartups : startups;
     } on DioException {
-      return _mockStartups;
+      return useMockFallback ? _mockStartups : const <StartupData>[];
     } catch (_) {
-      return _mockStartups;
+      return useMockFallback ? _mockStartups : const <StartupData>[];
     }
   }
 
@@ -85,6 +81,10 @@ const List<StartupData> _mockStartups = [
     raisedCapital: 'R\$ 5.0M',
     executiveSummary:
         'A TechFlow esta revolucionando o mercado de e-commerce com tecnologia de ponta em automacao de processos. Nossa plataforma permite que lojistas automatizem toda a jornada do cliente.',
+    founders: 'Ana Silva, Roberto Costa',
+    ownershipStructure: 'Ana Silva: 60%; Roberto Costa: 40%',
+    mentorsCouncil: 'Dr. Marcos Neves',
+    demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   ),
   StartupData(
     name: 'GreenEnergy',
@@ -99,6 +99,10 @@ const List<StartupData> _mockStartups = [
     raisedCapital: 'R\$ 3.8M',
     executiveSummary:
         'A GreenEnergy oferece solucoes de energia solar residencial com foco em eficiencia e sustentabilidade, conectando tecnologia e reducao de custos para familias.',
+    founders: 'Carla Mendes, Bruno Ribeiro',
+    ownershipStructure: 'Carla Mendes: 55%; Bruno Ribeiro: 45%',
+    mentorsCouncil: 'Paula Freitas, Eduardo Lima',
+    demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   ),
   StartupData(
     name: 'HealthAI',
@@ -113,6 +117,10 @@ const List<StartupData> _mockStartups = [
     raisedCapital: 'R\$ 1.5M',
     executiveSummary:
         'A HealthAI desenvolve diagnostico medico assistido por inteligencia artificial, aumentando a precisao clinica e acelerando a triagem de pacientes.',
+    founders: 'Marina Rocha, Lucas Prado',
+    ownershipStructure: 'Marina Rocha: 70%; Lucas Prado: 30%',
+    mentorsCouncil: 'Dra. Helena Castro',
+    demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   ),
   StartupData(
     name: 'EduTech Pro',
@@ -127,6 +135,10 @@ const List<StartupData> _mockStartups = [
     raisedCapital: 'R\$ 2.7M',
     executiveSummary:
         'A EduTech Pro fornece trilhas de ensino corporativo personalizadas e analiticas de aprendizagem para melhorar a performance de equipes.',
+    founders: 'Fernanda Pires, Tiago Alves',
+    ownershipStructure: 'Fernanda Pires: 50%; Tiago Alves: 50%',
+    mentorsCouncil: 'Renata Silva',
+    demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   ),
   StartupData(
     name: 'FoodChain',
@@ -141,5 +153,9 @@ const List<StartupData> _mockStartups = [
     raisedCapital: 'R\$ 1.1M',
     executiveSummary:
         'A FoodChain aplica blockchain para rastreabilidade de alimentos, aumentando transparencia e seguranca da cadeia de suprimentos.',
+    founders: 'Juliana Costa, Pedro Rocha',
+    ownershipStructure: 'Juliana Costa: 65%; Pedro Rocha: 35%',
+    mentorsCouncil: 'Andre Nogueira',
+    demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   ),
 ];
