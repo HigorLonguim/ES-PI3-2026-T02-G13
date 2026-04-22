@@ -20,4 +20,9 @@ class AppConfig {
     'FIREBASE_WEB_API_KEY',
     defaultValue: '',
   );
+
+  static const String startupsFunctionUrl = String.fromEnvironment(
+    'STARTUPS_FUNCTION_URL',
+    defaultValue: '',
+  );
 }

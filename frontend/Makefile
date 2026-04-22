@@ -26,7 +26,7 @@ help:
 	@echo "Comandos disponiveis:"
 	@echo ""
 	@echo "Variaveis de ambiente:"
-	@echo "  $(ENV_FILE) pode definir API_URL, REGISTER_FUNCTION_URL, FIREBASE_WEB_API_KEY, RECOVER_PASSWORD_USE_MOCK e DEBUG_MODE"
+	@echo "  $(ENV_FILE) pode definir API_URL, REGISTER_FUNCTION_URL, STARTUPS_FUNCTION_URL, FIREBASE_WEB_API_KEY, RECOVER_PASSWORD_USE_MOCK e DEBUG_MODE"
 	@echo ""
 	@echo "[Execucao]"
 	@echo "  make deps             - Instala dependencias (flutter pub get)"

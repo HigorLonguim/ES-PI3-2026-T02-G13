@@ -685,11 +685,11 @@ class _StageStyle {
 }
 
 const _stageStyles = <String, _StageStyle>{
-  'Expansão': _StageStyle(
+  'Expansao': _StageStyle(
     background: MesclaColors.stageExpansionSoft,
     foreground: MesclaColors.stageExpansion,
   ),
-  'Operação': _StageStyle(
+  'Operacao': _StageStyle(
     background: MesclaColors.successSoft,
     foreground: MesclaColors.success,
   ),
@@ -698,3 +698,4 @@ const _stageStyles = <String, _StageStyle>{
     foreground: MesclaColors.stageNew,
   ),
 };
+

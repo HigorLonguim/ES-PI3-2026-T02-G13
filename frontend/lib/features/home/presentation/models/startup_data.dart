@@ -26,4 +26,73 @@ class StartupData {
   final int totalTokens;
   final String raisedCapital;
   final String executiveSummary;
+
+  factory StartupData.fromApi(Map<String, dynamic> source) {
+    final name = _readString(source, 'name') ?? 'Startup sem nome';
+    final description =
+        _readString(source, 'description') ?? 'Sem descricao disponivel.';
+    final stage = _normalizeStage(_readString(source, 'stage'));
+    final tokenPrice = _readDouble(source, 'tokenPrice');
+
+    return StartupData(
+      name: name,
+      description: description,
+      stage: stage,
+      tokenValue:
+          _readString(source, 'tokenValue') ?? _formatCurrency(tokenPrice),
+      tokenPrice: tokenPrice,
+      variation: _readString(source, 'variation') ?? '+0.00%',
+      imageUrl: _readString(source, 'imageUrl') ?? '',
+      sector: _readString(source, 'sector') ?? 'Nao informado',
+      totalTokens: _readInt(source, 'totalTokens'),
+      raisedCapital:
+          _readString(source, 'raisedCapital') ?? _formatCurrency(0),
+      executiveSummary:
+          _readString(source, 'executiveSummary') ?? description,
+    );
+  }
+
+  static String? _readString(Map<String, dynamic> source, String key) {
+    final value = source[key];
+    return value is String ? value.trim() : null;
+  }
+
+  static double _readDouble(Map<String, dynamic> source, String key) {
+    final value = source[key];
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    return 0;
+  }
+
+  static int _readInt(Map<String, dynamic> source, String key) {
+    final value = source[key];
+    if (value is int) {
+      return value;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+
+    return 0;
+  }
+
+  static String _normalizeStage(String? stage) {
+    switch ((stage ?? '').toLowerCase()) {
+      case 'operacao':
+      case 'operação':
+        return 'Operacao';
+      case 'expansao':
+      case 'expansão':
+        return 'Expansao';
+      default:
+        return 'Nova';
+    }
+  }
+
+  static String _formatCurrency(double value) {
+    final fixed = value.toStringAsFixed(2).replaceAll('.', ',');
+    return 'R\$ $fixed';
+  }
 }

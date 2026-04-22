@@ -22,7 +22,7 @@ class _StartupPageState extends State<StartupPage> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _filterScrollController = ScrollController();
   final ScrollController _startupsScrollController = ScrollController();
-  final MockStartupRepository _startupRepository = MockStartupRepository();
+  final StartupRepository _startupRepository = StartupRepository();
   final AuthSessionStorage _authSessionStorage = AuthSessionStorage();
 
   String _selectedFilter = 'Todas';
@@ -86,10 +86,10 @@ class _StartupPageState extends State<StartupPage> {
     switch (filter) {
       case 'Novas':
         return 'Nova';
-      case 'Em Operação':
-        return 'Operação';
-      case 'Em Expansão':
-        return 'Expansão';
+      case 'Em Operacao':
+        return 'Operacao';
+      case 'Em Expansao':
+        return 'Expansao';
       default:
         return filter;
     }
@@ -97,7 +97,7 @@ class _StartupPageState extends State<StartupPage> {
 
   @override
   Widget build(BuildContext context) {
-    const filters = ['Todas', 'Novas', 'Em Operação', 'Em Expansão'];
+    const filters = ['Todas', 'Novas', 'Em Operacao', 'Em Expansao'];
     final startups = _filteredStartups;
     final firstName = _userName.split(' ').first.trim();
     final avatarLetter = firstName.isNotEmpty
@@ -496,11 +496,11 @@ class _StageStyle {
 }
 
 const _stageStyles = <String, _StageStyle>{
-  'Expansão': _StageStyle(
+  'Expansao': _StageStyle(
     background: MesclaColors.stageExpansionSoft,
     foreground: MesclaColors.stageExpansion,
   ),
-  'Operação': _StageStyle(
+  'Operacao': _StageStyle(
     background: MesclaColors.successSoft,
     foreground: MesclaColors.success,
   ),
@@ -509,3 +509,4 @@ const _stageStyles = <String, _StageStyle>{
     foreground: MesclaColors.stageNew,
   ),
 };
+
