@@ -115,6 +115,10 @@ type StartupFirestore = {
   nome_startup?: unknown;
   capital_aportado?: unknown;
   tokens_emitidos?: unknown;
+  socios?: unknown;
+  participacao_societaria?: unknown;
+  mentores_conselho?: unknown;
+  video_demo?: unknown;
 };
 
 type StartupItem = {
@@ -130,6 +134,10 @@ type StartupItem = {
   totalTokens: number;
   raisedCapital: string;
   executiveSummary: string;
+  founders: string;
+  ownershipStructure: string;
+  mentorsCouncil: string;
+  demoVideoUrl: string;
 };
 
 function toOptionalString(value: unknown): string | null {
@@ -169,6 +177,10 @@ function buildStartupItem(
   const totalTokens = toPositiveNumber(payload.tokens_emitidos);
   const raisedCapitalValue = toPositiveNumber(payload.capital_aportado);
   const tokenPrice = totalTokens > 0 ? raisedCapitalValue / totalTokens : 0;
+  const founders = toOptionalString(payload.socios) ?? "";
+  const ownershipStructure = toOptionalString(payload.participacao_societaria) ?? "";
+  const mentorsCouncil = toOptionalString(payload.mentores_conselho) ?? "";
+  const demoVideoUrl = toOptionalString(payload.video_demo) ?? "";
 
   return {
     id,
@@ -183,6 +195,10 @@ function buildStartupItem(
     totalTokens: Math.trunc(totalTokens),
     raisedCapital: currencyFormatter.format(raisedCapitalValue),
     executiveSummary: description,
+    founders,
+    ownershipStructure,
+    mentorsCouncil,
+    demoVideoUrl,
   };
 }
 
