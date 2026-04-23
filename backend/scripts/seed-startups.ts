@@ -13,6 +13,7 @@ type Startup = {
   participacao_societaria: string;
   mentores_conselho: string;
   video_demo: string;
+  perguntas_publicas: { question: string; answer: string }[];
   status: "Ativa" | "Inativa";
 };
 
@@ -29,6 +30,16 @@ const startupsSeed: Startup[] = [
     participacao_societaria: "60%; 40%",
     mentores_conselho: "Dr. Marcos Neves",
     video_demo: "https://youtu.be/ecoloop",
+    perguntas_publicas: [
+      {
+        question: "Qual o foco do uso do capital nesta rodada?",
+        answer: "Escalar operacao e reforcar produto para novos condominios.",
+      },
+      {
+        question: "Ja existem clientes ativos?",
+        answer: "Sim, com contratos recorrentes em operacoes piloto.",
+      },
+    ],
     status: "Ativa",
   },
   {
@@ -43,6 +54,12 @@ const startupsSeed: Startup[] = [
     participacao_societaria: "50%; 50%",
     mentores_conselho: "Prof. Elena Souza",
     video_demo: "https://youtu.be/eduvibe",
+    perguntas_publicas: [
+      {
+        question: "Qual e o principal diferencial de aprendizagem?",
+        answer: "Gamificacao com trilhas personalizadas por desempenho.",
+      },
+    ],
     status: "Ativa",
   },
   {
@@ -57,6 +74,12 @@ const startupsSeed: Startup[] = [
     participacao_societaria: "70%; 30%",
     mentores_conselho: "Dr. Jorge Amado",
     video_demo: "https://youtu.be/vitaltrack",
+    perguntas_publicas: [
+      {
+        question: "Como funciona a validacao com profissionais de saude?",
+        answer: "Protocolos com clinicas parceiras e acompanhamento medico.",
+      },
+    ],
     status: "Ativa",
   },
   {
@@ -71,6 +94,12 @@ const startupsSeed: Startup[] = [
     participacao_societaria: "55%; 45%",
     mentores_conselho: "Ingrid Ferreira",
     video_demo: "https://youtu.be/agrosense",
+    perguntas_publicas: [
+      {
+        question: "A solucao ja foi testada em campo?",
+        answer: "Sim, em fazendas parceiras com melhoria de produtividade.",
+      },
+    ],
     status: "Ativa",
   },
   {
@@ -85,6 +114,12 @@ const startupsSeed: Startup[] = [
     participacao_societaria: "80%; 20%",
     mentores_conselho: "Samuel Prado",
     video_demo: "https://youtu.be/safepay",
+    perguntas_publicas: [
+      {
+        question: "Como e tratada a seguranca das transacoes?",
+        answer: "Criptografia ponta a ponta e monitoramento antifraude.",
+      },
+    ],
     status: "Ativa",
   },
 ];

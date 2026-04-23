@@ -13,7 +13,13 @@ export interface Startup {
   participacao_societaria: string;
   mentores_conselho: string;
   video_demo: string;
+  perguntas_publicas: StartupPublicQaItem[];
   status: "Ativa" | "Inativa";
+}
+
+export interface StartupPublicQaItem {
+  question: string;
+  answer: string;
 }
 
 function toNumber(value: unknown): number {
@@ -35,6 +41,20 @@ function toString(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
+function toPublicQaItems(value: unknown): StartupPublicQaItem[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+    .map((item) => ({
+      question: toString(item.question).trim(),
+      answer: toString(item.answer).trim(),
+    }))
+    .filter((item) => item.question.length > 0 || item.answer.length > 0);
+}
+
 export async function listStartups(): Promise<Startup[]> {
   const snapshot = await db.collection("startups").orderBy("id_startup", "asc").get();
 
@@ -53,6 +73,7 @@ export async function listStartups(): Promise<Startup[]> {
       participacao_societaria: toString(data.participacao_societaria),
       mentores_conselho: toString(data.mentores_conselho),
       video_demo: toString(data.video_demo),
+      perguntas_publicas: toPublicQaItems(data.perguntas_publicas),
       status: toString(data.status) as Startup["status"],
     };
   });
