@@ -22,6 +22,16 @@ void main() {
         'ownershipStructure': 'Ana Silva: 60%; Roberto Costa: 40%',
         'mentorsCouncil': 'Dr. Marcos Neves',
         'demoVideoUrl': 'https://demo.example/video',
+        'publicQaItems': [
+          {
+            'question': 'Como a startup monetiza?',
+            'answer': 'Via assinaturas B2B.',
+          },
+          {
+            'question': 'Ja possui clientes?',
+            'answer': 'Sim, com contratos ativos.',
+          },
+        ],
       });
 
       expect(startup.name, 'EcoLoop');
@@ -29,6 +39,9 @@ void main() {
       expect(startup.ownershipStructure, 'Ana Silva: 60%; Roberto Costa: 40%');
       expect(startup.mentorsCouncil, 'Dr. Marcos Neves');
       expect(startup.demoVideoUrl, 'https://demo.example/video');
+      expect(startup.publicQaItems.length, 2);
+      expect(startup.publicQaItems.first.question, 'Como a startup monetiza?');
+      expect(startup.publicQaItems.first.answer, 'Via assinaturas B2B.');
     });
 
     test('aplica defaults dos novos campos quando ausentes', () {
@@ -41,6 +54,7 @@ void main() {
       expect(startup.ownershipStructure, isEmpty);
       expect(startup.mentorsCouncil, isEmpty);
       expect(startup.demoVideoUrl, isEmpty);
+      expect(startup.publicQaItems, isEmpty);
     });
   });
 }
