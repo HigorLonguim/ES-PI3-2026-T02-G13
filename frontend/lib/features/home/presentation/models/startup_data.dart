@@ -17,6 +17,7 @@ class StartupData {
     required this.ownershipStructure,
     required this.mentorsCouncil,
     required this.demoVideoUrl,
+    this.publicQaItems = const <PublicQaItem>[],
   });
 
   final String name;
@@ -34,6 +35,7 @@ class StartupData {
   final String ownershipStructure;
   final String mentorsCouncil;
   final String demoVideoUrl;
+  final List<PublicQaItem> publicQaItems;
 
   factory StartupData.fromApi(Map<String, dynamic> source) {
     final name = _readString(source, 'name') ?? 'Startup sem nome';
@@ -59,7 +61,26 @@ class StartupData {
       ownershipStructure: _readString(source, 'ownershipStructure') ?? '',
       mentorsCouncil: _readString(source, 'mentorsCouncil') ?? '',
       demoVideoUrl: _readString(source, 'demoVideoUrl') ?? '',
+      publicQaItems: _readPublicQaItems(source),
     );
+  }
+
+  static List<PublicQaItem> _readPublicQaItems(Map<String, dynamic> source) {
+    final dynamic values =
+        source['publicQaItems'] ??
+        source['publicQuestions'] ??
+        source['publicFaqs'];
+
+    if (values is! List) {
+      return const <PublicQaItem>[];
+    }
+
+    return values
+        .whereType<Map>()
+        .map((value) => Map<String, dynamic>.from(value))
+        .map(PublicQaItem.fromApi)
+        .where((item) => item.question.isNotEmpty || item.answer.isNotEmpty)
+        .toList(growable: false);
   }
 
   static String? _readString(Map<String, dynamic> source, String key) {
@@ -104,5 +125,24 @@ class StartupData {
   static String _formatCurrency(double value) {
     final fixed = value.toStringAsFixed(2).replaceAll('.', ',');
     return 'R\$ $fixed';
+  }
+}
+
+class PublicQaItem {
+  const PublicQaItem({required this.question, required this.answer});
+
+  final String question;
+  final String answer;
+
+  factory PublicQaItem.fromApi(Map<String, dynamic> source) {
+    final question = _readString(source, 'question') ?? '';
+    final answer = _readString(source, 'answer') ?? '';
+
+    return PublicQaItem(question: question, answer: answer);
+  }
+
+  static String? _readString(Map<String, dynamic> source, String key) {
+    final value = source[key];
+    return value is String ? value.trim() : null;
   }
 }

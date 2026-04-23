@@ -11,9 +11,16 @@ import 'models/startup_data.dart';
 import 'startup_detail_page.dart';
 
 class StartupPage extends StatefulWidget {
-  const StartupPage({this.onProfileTap, super.key});
+  const StartupPage({
+    this.onProfileTap,
+    this.startupRepository,
+    this.authSessionStorage,
+    super.key,
+  });
 
   final VoidCallback? onProfileTap;
+  final StartupRepository? startupRepository;
+  final AuthSessionStorage? authSessionStorage;
 
   @override
   State<StartupPage> createState() => _StartupPageState();
@@ -23,8 +30,8 @@ class _StartupPageState extends State<StartupPage> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _filterScrollController = ScrollController();
   final ScrollController _startupsScrollController = ScrollController();
-  final StartupRepository _startupRepository = StartupRepository();
-  final AuthSessionStorage _authSessionStorage = AuthSessionStorage();
+  late final StartupRepository _startupRepository;
+  late final AuthSessionStorage _authSessionStorage;
 
   String _selectedFilter = 'Todas';
   List<StartupData> _allStartups = const [];
@@ -35,6 +42,8 @@ class _StartupPageState extends State<StartupPage> {
   @override
   void initState() {
     super.initState();
+    _startupRepository = widget.startupRepository ?? StartupRepository();
+    _authSessionStorage = widget.authSessionStorage ?? AuthSessionStorage();
     _loadStartups();
     _loadUserProfile();
   }
@@ -42,7 +51,7 @@ class _StartupPageState extends State<StartupPage> {
   Future<void> _loadStartups() async {
     try {
       final startups = await _startupRepository.fetchStartups(
-        useMockFallback: false,
+        useMockFallback: true,
       );
       if (!mounted) {
         return;

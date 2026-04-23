@@ -9,22 +9,30 @@ import '../../../core/theme/mescla_colors.dart';
 import 'models/startup_data.dart';
 import 'token_transaction_page.dart';
 
-class StartupDetailPage extends StatelessWidget {
+class StartupDetailPage extends StatefulWidget {
   const StartupDetailPage({required this.startup, super.key});
 
   final StartupData startup;
 
   @override
+  State<StartupDetailPage> createState() => _StartupDetailPageState();
+}
+
+class _StartupDetailPageState extends State<StartupDetailPage> {
+  bool _showPublicQuestions = false;
+
+  @override
   Widget build(BuildContext context) {
     final founderEntries = _parseFounderEntries(
-      startup.founders,
-      startup.ownershipStructure,
+      widget.startup.founders,
+      widget.startup.ownershipStructure,
     );
-    final mentors = _parseSimpleList(startup.mentorsCouncil);
+    final mentors = _parseSimpleList(widget.startup.mentorsCouncil);
     final ownershipSlices = _buildOwnershipSlices(
-      startup.ownershipStructure,
+      widget.startup.ownershipStructure,
       founderEntries,
     );
+    final publicQaItems = widget.startup.publicQaItems;
 
     return Scaffold(
       backgroundColor: MesclaColors.background,
@@ -78,7 +86,7 @@ class StartupDetailPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _StartupHeader(startup: startup),
+                        _StartupHeader(startup: widget.startup),
                         const SizedBox(height: 16),
                         Container(
                           height: 226,
@@ -101,7 +109,7 @@ class StartupDetailPage extends StatelessWidget {
                             _InfoStatCard(
                               width: 157.2,
                               title: 'Total de Tokens',
-                              value: startup.totalTokens
+                              value: widget.startup.totalTokens
                                   .toString()
                                   .replaceAllMapped(
                                     RegExp(r'\B(?=(\d{3})+(?!\d))'),
@@ -112,7 +120,7 @@ class StartupDetailPage extends StatelessWidget {
                             _InfoStatCard(
                               width: 157.2,
                               title: 'Capital Captado',
-                              value: startup.raisedCapital,
+                              value: widget.startup.raisedCapital,
                             ),
                           ],
                         ),
@@ -120,49 +128,96 @@ class StartupDetailPage extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Container(
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  gradient: MesclaGradients.purpleHorizontal,
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: MesclaColors.purpleGlow,
-                                      blurRadius: 15,
-                                      offset: Offset(0, 4),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _showPublicQuestions = false;
+                                  });
+                                },
+                                child: Container(
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    gradient: !_showPublicQuestions
+                                        ? MesclaGradients.purpleHorizontal
+                                        : null,
+                                    color: !_showPublicQuestions
+                                        ? null
+                                        : MesclaColors.surface,
+                                    border: _showPublicQuestions
+                                        ? Border.all(
+                                            color: MesclaColors.border,
+                                            width: 1.2,
+                                          )
+                                        : null,
+                                    boxShadow: !_showPublicQuestions
+                                        ? const [
+                                            BoxShadow(
+                                              color: MesclaColors.purpleGlow,
+                                              blurRadius: 15,
+                                              offset: Offset(0, 4),
+                                            ),
+                                          ]
+                                        : null,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Sobre',
+                                    style: TextStyle(
+                                      color: !_showPublicQuestions
+                                          ? MesclaColors.textPrimary
+                                          : MesclaColors.textSecondary,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                  ],
-                                ),
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  'Sobre',
-                                  style: TextStyle(
-                                    color: MesclaColors.textPrimary,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: Container(
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: MesclaColors.surface,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: MesclaColors.border,
-                                    width: 1.2,
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _showPublicQuestions = true;
+                                  });
+                                },
+                                child: Container(
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    gradient: _showPublicQuestions
+                                        ? MesclaGradients.purpleHorizontal
+                                        : null,
+                                    color: _showPublicQuestions
+                                        ? null
+                                        : MesclaColors.surface,
+                                    border: !_showPublicQuestions
+                                        ? Border.all(
+                                            color: MesclaColors.border,
+                                            width: 1.2,
+                                          )
+                                        : null,
+                                    boxShadow: _showPublicQuestions
+                                        ? const [
+                                            BoxShadow(
+                                              color: MesclaColors.purpleGlow,
+                                              blurRadius: 15,
+                                              offset: Offset(0, 4),
+                                            ),
+                                          ]
+                                        : null,
                                   ),
-                                ),
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  'Perguntas (0)',
-                                  style: TextStyle(
-                                    color: MesclaColors.textSecondary,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Perguntas (${publicQaItems.length})',
+                                    style: TextStyle(
+                                      color: _showPublicQuestions
+                                          ? MesclaColors.textPrimary
+                                          : MesclaColors.textSecondary,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -170,54 +225,64 @@ class StartupDetailPage extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        const Text(
-                          'Sumario Executivo',
-                          style: TextStyle(
-                            color: MesclaColors.textPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                        if (!_showPublicQuestions) ...[
+                          const Text(
+                            'Sumario Executivo',
+                            style: TextStyle(
+                              color: MesclaColors.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          startup.executiveSummary,
-                          style: const TextStyle(
-                            color: MesclaColors.textSecondary,
-                            fontSize: 16,
-                            height: 1.6,
+                          const SizedBox(height: 8),
+                          Text(
+                            widget.startup.executiveSummary,
+                            style: const TextStyle(
+                              color: MesclaColors.textSecondary,
+                              fontSize: 16,
+                              height: 1.6,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        const _SectionTitle(title: 'Video Demonstrativo'),
-                        const SizedBox(height: 10),
-                        _VideoDemoCard(videoUrl: startup.demoVideoUrl),
-                        const SizedBox(height: 24),
-                        const _SectionTitle(
-                          title: 'Socios Fundadores',
-                          icon: Icons.groups_rounded,
-                        ),
-                        const SizedBox(height: 10),
-                        _FoundersCard(entries: founderEntries),
-                        const SizedBox(height: 24),
-                        const _SectionTitle(
-                          title: 'Mentoria e Conselho',
-                          icon: Icons.school_rounded,
-                        ),
-                        const SizedBox(height: 10),
-                        _MentorsCard(mentors: mentors),
-                        const SizedBox(height: 16),
-                        _PitchDemoLink(videoUrl: startup.demoVideoUrl),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'Estrutura Societaria',
-                          style: TextStyle(
-                            color: MesclaColors.textPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                          const SizedBox(height: 24),
+                          const _SectionTitle(title: 'Video Demonstrativo'),
+                          const SizedBox(height: 10),
+                          _VideoDemoCard(videoUrl: widget.startup.demoVideoUrl),
+                          const SizedBox(height: 24),
+                          const _SectionTitle(
+                            title: 'Socios Fundadores',
+                            icon: Icons.groups_rounded,
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        _OwnershipCard(slices: ownershipSlices),
+                          const SizedBox(height: 10),
+                          _FoundersCard(entries: founderEntries),
+                          const SizedBox(height: 24),
+                          const _SectionTitle(
+                            title: 'Mentoria e Conselho',
+                            icon: Icons.school_rounded,
+                          ),
+                          const SizedBox(height: 10),
+                          _MentorsCard(mentors: mentors),
+                          const SizedBox(height: 16),
+                          _PitchDemoLink(videoUrl: widget.startup.demoVideoUrl),
+                          const SizedBox(height: 24),
+                          const Text(
+                            'Estrutura Societaria',
+                            style: TextStyle(
+                              color: MesclaColors.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          _OwnershipCard(slices: ownershipSlices),
+                        ],
+                        if (_showPublicQuestions) ...[
+                          const _SectionTitle(
+                            title: 'Perguntas e Respostas Publicas',
+                            icon: Icons.forum_rounded,
+                          ),
+                          const SizedBox(height: 10),
+                          _PublicQaCard(items: publicQaItems),
+                        ],
                       ],
                     ),
                   ),
@@ -259,7 +324,7 @@ class StartupDetailPage extends StatelessWidget {
                         Navigator.of(context).push(
                           AppRoute(
                             TokenTransactionPage(
-                              startup: startup,
+                              startup: widget.startup,
                               isSell: false,
                             ),
                           ),
@@ -289,6 +354,93 @@ class StartupDetailPage extends StatelessWidget {
   }
 }
 
+class _PublicQaCard extends StatelessWidget {
+  const _PublicQaCard({required this.items});
+
+  final List<PublicQaItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: MesclaColors.border, width: 1.2),
+          gradient: MesclaGradients.startupCard,
+        ),
+        child: const Text(
+          'Ainda nao ha perguntas publicas cadastradas para esta startup.',
+          style: TextStyle(
+            color: MesclaColors.textSecondary,
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MesclaColors.border, width: 1.2),
+        gradient: MesclaGradients.startupCard,
+      ),
+      child: Column(
+        children: items
+            .asMap()
+            .entries
+            .map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              final hasDivider = index < items.length - 1;
+
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                decoration: hasDivider
+                    ? const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: MesclaColors.border,
+                            width: 1.2,
+                          ),
+                        ),
+                      )
+                    : null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'P: ${item.question}',
+                      style: const TextStyle(
+                        color: MesclaColors.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'R: ${item.answer}',
+                      style: const TextStyle(
+                        color: MesclaColors.textSecondary,
+                        fontSize: 14,
+                        height: 1.45,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            })
+            .toList(growable: false),
+      ),
+    );
+  }
+}
+
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle({required this.title, this.icon});
 
@@ -302,12 +454,14 @@ class _SectionTitle extends StatelessWidget {
         if (icon != null)
           Icon(icon, size: 16, color: MesclaColors.textSecondary),
         if (icon != null) const SizedBox(width: 8),
-        Text(
-          title,
-          style: const TextStyle(
-            color: MesclaColors.textPrimary,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: MesclaColors.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],

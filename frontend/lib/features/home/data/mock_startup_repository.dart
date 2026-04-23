@@ -12,8 +12,12 @@ class StartupRepository {
 
   final Dio _dio;
 
-  Future<List<StartupData>> fetchStartups({bool useMockFallback = true}) async {
-    final functionUrl = AppConfig.startupsFunctionUrl.trim();
+  Future<List<StartupData>> fetchStartups({
+    bool useMockFallback = true,
+    String? functionUrlOverride,
+  }) async {
+    final functionUrl = (functionUrlOverride ?? AppConfig.startupsFunctionUrl)
+        .trim();
     if (functionUrl.isEmpty) {
       return useMockFallback ? _mockStartups : const <StartupData>[];
     }
@@ -21,15 +25,7 @@ class StartupRepository {
     try {
       final response = await _dio.get(functionUrl);
       final body = _decodeBody(response.data);
-      final items = body['items'];
-      if (items is! List) {
-        return useMockFallback ? _mockStartups : const <StartupData>[];
-      }
-
-      final startups = items
-          .whereType<Map>()
-          .map((item) => StartupData.fromApi(Map<String, dynamic>.from(item)))
-          .toList(growable: false);
+      final startups = _extractStartups(body);
 
       return startups.isEmpty && useMockFallback ? _mockStartups : startups;
     } on DioException {
@@ -65,6 +61,99 @@ class StartupRepository {
     }
     return <String, dynamic>{};
   }
+
+  List<StartupData> _extractStartups(Map<String, dynamic> body) {
+    final dynamic items = body['items'];
+    if (items is List) {
+      return items
+          .whereType<Map>()
+          .map((item) => StartupData.fromApi(Map<String, dynamic>.from(item)))
+          .toList(growable: false);
+    }
+
+    final dynamic startups = body['startups'];
+    if (startups is! List) {
+      return const <StartupData>[];
+    }
+
+    return startups
+        .whereType<Map>()
+        .map((item) => _mapLegacyStartup(Map<String, dynamic>.from(item)))
+        .map(StartupData.fromApi)
+        .toList(growable: false);
+  }
+
+  Map<String, dynamic> _mapLegacyStartup(Map<String, dynamic> source) {
+    final totalTokens = _readInt(source['tokens_emitidos']);
+    final raisedCapitalValue = _readDouble(source['capital_aportado']);
+    final tokenPrice = totalTokens > 0 ? raisedCapitalValue / totalTokens : 0.0;
+    final stage = _normalizeStage(source['estagio'] as String?);
+
+    return <String, dynamic>{
+      'name': source['nome_startup'] ?? source['name'] ?? 'Startup sem nome',
+      'description': source['descricao'] ?? source['description'] ?? '',
+      'stage': stage,
+      'tokenPrice': tokenPrice,
+      'tokenValue': _formatCurrency(tokenPrice),
+      'variation': source['variation'] ?? '+0.00%',
+      'imageUrl': source['imageUrl'] ?? '',
+      'sector': source['setor'] ?? source['sector'] ?? 'Nao informado',
+      'totalTokens': totalTokens,
+      'raisedCapital': _formatCurrency(raisedCapitalValue),
+      'executiveSummary':
+          source['descricao'] ?? source['executiveSummary'] ?? '',
+      'founders': source['socios'] ?? source['founders'] ?? '',
+      'ownershipStructure':
+          source['participacao_societaria'] ??
+          source['ownershipStructure'] ??
+          '',
+      'mentorsCouncil':
+          source['mentores_conselho'] ?? source['mentorsCouncil'] ?? '',
+      'demoVideoUrl': source['video_demo'] ?? source['demoVideoUrl'] ?? '',
+      'publicQaItems': source['perguntas_publicas'] ?? source['publicQaItems'],
+    };
+  }
+
+  int _readInt(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+    return 0;
+  }
+
+  double _readDouble(dynamic value) {
+    if (value is num) {
+      return value.toDouble();
+    }
+    if (value is String) {
+      final parsed = double.tryParse(value);
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+    return 0;
+  }
+
+  String _normalizeStage(String? stage) {
+    switch ((stage ?? '').toLowerCase()) {
+      case 'operacao':
+      case 'operação':
+        return 'Operacao';
+      case 'expansao':
+      case 'expansão':
+        return 'Expansao';
+      default:
+        return 'Nova';
+    }
+  }
+
+  String _formatCurrency(double value) {
+    final fixed = value.toStringAsFixed(2).replaceAll('.', ',');
+    return 'R\$ $fixed';
+  }
 }
 
 const List<StartupData> _mockStartups = [
@@ -85,6 +174,16 @@ const List<StartupData> _mockStartups = [
     ownershipStructure: 'Ana Silva: 60%; Roberto Costa: 40%',
     mentorsCouncil: 'Dr. Marcos Neves',
     demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    publicQaItems: [
+      PublicQaItem(
+        question: 'Como sera usado o capital captado?',
+        answer: 'Expansao de produto e contratacao do time comercial.',
+      ),
+      PublicQaItem(
+        question: 'Ja existe tracao validada?',
+        answer: 'Sim, temos clientes pagantes e crescimento recorrente.',
+      ),
+    ],
   ),
   StartupData(
     name: 'GreenEnergy',
@@ -103,6 +202,12 @@ const List<StartupData> _mockStartups = [
     ownershipStructure: 'Carla Mendes: 55%; Bruno Ribeiro: 45%',
     mentorsCouncil: 'Paula Freitas, Eduardo Lima',
     demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    publicQaItems: [
+      PublicQaItem(
+        question: 'Qual e o mercado-alvo inicial?',
+        answer: 'Residencias unifamiliares em capitais do Sudeste.',
+      ),
+    ],
   ),
   StartupData(
     name: 'HealthAI',
@@ -121,6 +226,12 @@ const List<StartupData> _mockStartups = [
     ownershipStructure: 'Marina Rocha: 70%; Lucas Prado: 30%',
     mentorsCouncil: 'Dra. Helena Castro',
     demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    publicQaItems: [
+      PublicQaItem(
+        question: 'Como funciona a validacao clinica?',
+        answer: 'Parcerias com clinicas para testes supervisionados.',
+      ),
+    ],
   ),
   StartupData(
     name: 'EduTech Pro',
@@ -139,6 +250,12 @@ const List<StartupData> _mockStartups = [
     ownershipStructure: 'Fernanda Pires: 50%; Tiago Alves: 50%',
     mentorsCouncil: 'Renata Silva',
     demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    publicQaItems: [
+      PublicQaItem(
+        question: 'Qual e o diferencial frente aos concorrentes?',
+        answer: 'Personalizacao automatica por trilha e por equipe.',
+      ),
+    ],
   ),
   StartupData(
     name: 'FoodChain',
@@ -157,5 +274,11 @@ const List<StartupData> _mockStartups = [
     ownershipStructure: 'Juliana Costa: 65%; Pedro Rocha: 35%',
     mentorsCouncil: 'Andre Nogueira',
     demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    publicQaItems: [
+      PublicQaItem(
+        question: 'Como a solucao gera receita?',
+        answer: 'Assinatura B2B por lote de produtores e distribuidores.',
+      ),
+    ],
   ),
 ];
