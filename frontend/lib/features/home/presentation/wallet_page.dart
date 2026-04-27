@@ -7,6 +7,7 @@ import '../../../core/theme/mescla_colors.dart';
 import '../data/portfolio_store.dart';
 import 'add_balance_page.dart';
 import 'models/money_formatters.dart';
+import 'wallet_history_page.dart';
 import 'token_transaction_page.dart';
 
 class WalletPage extends StatelessWidget {
@@ -57,7 +58,11 @@ class WalletPage extends StatelessWidget {
                                 ),
                                 const Spacer(),
                                 TextButton.icon(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.of(
+                                      context,
+                                    ).push(AppRoute(const WalletHistoryPage()));
+                                  },
                                   icon: const Icon(
                                     Icons.history,
                                     color: MesclaColors.navActive,

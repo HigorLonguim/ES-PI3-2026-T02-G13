@@ -18,6 +18,7 @@ class _AddBalancePageState extends State<AddBalancePage> {
   final TextEditingController _controller = TextEditingController();
 
   double _amount = 0;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -40,18 +41,35 @@ class _AddBalancePageState extends State<AddBalancePage> {
     });
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_amount <= 0) {
       return;
     }
+    if (_isSubmitting) {
+      return;
+    }
 
-    PortfolioStore.instance.addBalance(_amount);
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final result = await PortfolioStore.instance.addBalance(_amount);
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = false;
+    });
+
     showAppStatusSnackBar(
       context: context,
-      message: 'Saldo adicionado com sucesso!',
-      type: AppStatusType.success,
+      message: result.message,
+      type: result.success ? AppStatusType.success : AppStatusType.error,
     );
-    Navigator.of(context).pop();
+    if (result.success && mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -310,20 +328,34 @@ class _AddBalancePageState extends State<AddBalancePage> {
                               ],
                             ),
                             child: TextButton(
-                              onPressed: _amount > 0 ? _submit : null,
+                              onPressed: (_amount > 0 && !_isSubmitting)
+                                  ? _submit
+                                  : null,
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.white,
                                 disabledForegroundColor: const Color(
                                   0x8021A260,
                                 ),
                               ),
-                              child: Text(
-                                'Adicionar ${formatCurrency(_amount)}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                              child: _isSubmitting
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                      ),
+                                    )
+                                  : Text(
+                                      'Adicionar ${formatCurrency(_amount)}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                             ),
                           ),
                         ),

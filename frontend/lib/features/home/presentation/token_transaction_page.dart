@@ -26,11 +26,12 @@ class TokenTransactionPage extends StatefulWidget {
 
 class _TokenTransactionPageState extends State<TokenTransactionPage> {
   int _quantity = 1;
+  bool _isSubmitting = false;
 
   PortfolioStore get _store => PortfolioStore.instance;
 
   int get _maxSellQuantity {
-    final holding = _store.holdingFor(widget.startup.name);
+    final holding = _store.holdingFor(widget.startup);
     return holding?.quantity ?? 0;
   }
 
@@ -50,17 +51,28 @@ class _TokenTransactionPageState extends State<TokenTransactionPage> {
   }
 
   Future<void> _confirm() async {
-    final success = widget.isSell
-        ? _store.sellTokens(widget.startup, _quantity)
-        : _store.buyTokens(widget.startup, _quantity);
+    if (_isSubmitting) {
+      return;
+    }
 
-    if (!success) {
-      final message = widget.isSell
-          ? 'Quantidade indisponível para venda.'
-          : 'Saldo insuficiente para concluir a compra.';
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final action = await (widget.isSell
+        ? _store.sellTokens(widget.startup, _quantity)
+        : _store.buyTokens(widget.startup, _quantity));
+    if (!mounted) {
+      return;
+    }
+
+    if (!action.success) {
+      setState(() {
+        _isSubmitting = false;
+      });
       showAppStatusSnackBar(
         context: context,
-        message: message,
+        message: action.message,
         type: AppStatusType.error,
       );
       return;
@@ -69,6 +81,10 @@ class _TokenTransactionPageState extends State<TokenTransactionPage> {
     if (!mounted) {
       return;
     }
+
+    setState(() {
+      _isSubmitting = false;
+    });
 
     Navigator.of(
       context,
@@ -219,17 +235,29 @@ class _TokenTransactionPageState extends State<TokenTransactionPage> {
                                   ],
                                 ),
                                 child: TextButton(
-                                  onPressed: _confirm,
-                                  child: Text(
-                                    isSell
-                                        ? 'Confirmar Venda'
-                                        : 'Confirmar Compra',
-                                    style: const TextStyle(
-                                      color: MesclaColors.textPrimary,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                                  onPressed: _isSubmitting ? null : _confirm,
+                                  child: _isSubmitting
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  MesclaColors.textPrimary,
+                                                ),
+                                          ),
+                                        )
+                                      : Text(
+                                          isSell
+                                              ? 'Confirmar Venda'
+                                              : 'Confirmar Compra',
+                                          style: const TextStyle(
+                                            color: MesclaColors.textPrimary,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                 ),
                               ),
                             ),

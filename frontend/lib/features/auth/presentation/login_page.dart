@@ -60,6 +60,9 @@ class _LoginPageState extends State<LoginPage> {
 
     if (result.success) {
       final usuario = result.usuario ?? <String, dynamic>{};
+      final userId = (usuario['id'] as String?)?.trim().isNotEmpty == true
+          ? (usuario['id'] as String).trim()
+          : (usuario['uid'] as String?)?.trim();
       final userName = (usuario['nome'] as String?)?.trim();
       final userEmail = (usuario['email'] as String?)?.trim().isNotEmpty == true
           ? (usuario['email'] as String).trim()
@@ -69,11 +72,13 @@ class _LoginPageState extends State<LoginPage> {
         await _authSessionStorage.saveUserProfile(
           nome: userName,
           email: userEmail,
+          userId: userId,
         );
       } else {
         await _authSessionStorage.saveUserProfile(
           nome: userEmail.split('@').first,
           email: userEmail,
+          userId: userId,
         );
       }
 

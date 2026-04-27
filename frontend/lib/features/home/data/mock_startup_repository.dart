@@ -90,6 +90,10 @@ class StartupRepository {
     final stage = _normalizeStage(source['estagio'] as String?);
 
     return <String, dynamic>{
+      'id':
+          source['id']?.toString() ??
+          source['id_startup']?.toString() ??
+          source['name']?.toString(),
       'name': source['nome_startup'] ?? source['name'] ?? 'Startup sem nome',
       'description': source['descricao'] ?? source['description'] ?? '',
       'stage': stage,

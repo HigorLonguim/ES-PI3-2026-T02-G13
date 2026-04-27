@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/navigation/app_route.dart';
 import '../../../core/theme/mescla_colors.dart';
+import '../../../core/widgets/app_status_indicator.dart';
+import '../data/portfolio_store.dart';
 import 'models/startup_data.dart';
 import 'token_transaction_page.dart';
 
@@ -20,6 +22,41 @@ class StartupDetailPage extends StatefulWidget {
 
 class _StartupDetailPageState extends State<StartupDetailPage> {
   bool _showPublicQuestions = false;
+  final TextEditingController _privateQuestionController =
+      TextEditingController();
+  PortfolioStore get _portfolioStore => PortfolioStore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _portfolioStore.hydrate();
+  }
+
+  @override
+  void dispose() {
+    _privateQuestionController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendPrivateQuestion() async {
+    final result = await _portfolioStore.sendPrivateQuestion(
+      startup: widget.startup,
+      question: _privateQuestionController.text,
+    );
+    if (!mounted) {
+      return;
+    }
+
+    showAppStatusSnackBar(
+      context: context,
+      message: result.message,
+      type: result.success ? AppStatusType.success : AppStatusType.error,
+    );
+
+    if (result.success) {
+      _privateQuestionController.clear();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -275,14 +312,31 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                           const SizedBox(height: 10),
                           _OwnershipCard(slices: ownershipSlices),
                         ],
-                        if (_showPublicQuestions) ...[
-                          const _SectionTitle(
-                            title: 'Perguntas e Respostas Publicas',
-                            icon: Icons.forum_rounded,
+                        if (_showPublicQuestions)
+                          AnimatedBuilder(
+                            animation: _portfolioStore,
+                            builder: (context, _) {
+                              final isInvestor = _portfolioStore
+                                  .isInvestorForStartup(widget.startup);
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const _SectionTitle(
+                                    title: 'Perguntas e Respostas Publicas',
+                                    icon: Icons.forum_rounded,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  _PublicQaCard(items: publicQaItems),
+                                  const SizedBox(height: 16),
+                                  _PrivateQuestionCard(
+                                    controller: _privateQuestionController,
+                                    canSend: isInvestor,
+                                    onSend: _sendPrivateQuestion,
+                                  ),
+                                ],
+                              );
+                            },
                           ),
-                          const SizedBox(height: 10),
-                          _PublicQaCard(items: publicQaItems),
-                        ],
                       ],
                     ),
                   ),
@@ -436,6 +490,100 @@ class _PublicQaCard extends StatelessWidget {
               );
             })
             .toList(growable: false),
+      ),
+    );
+  }
+}
+
+class _PrivateQuestionCard extends StatelessWidget {
+  const _PrivateQuestionCard({
+    required this.controller,
+    required this.canSend,
+    required this.onSend,
+  });
+
+  final TextEditingController controller;
+  final bool canSend;
+  final Future<void> Function() onSend;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MesclaColors.border, width: 1.2),
+        gradient: MesclaGradients.startupCard,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.lock_outline_rounded, color: MesclaColors.navActive),
+              SizedBox(width: 8),
+              Text(
+                'Pergunta Privada',
+                style: TextStyle(
+                  color: MesclaColors.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            canSend
+                ? 'Envie uma pergunta exclusiva para esta startup.'
+                : 'Disponivel apenas para usuarios que ja investiram nesta startup.',
+            style: const TextStyle(
+              color: MesclaColors.textSecondary,
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: controller,
+            maxLines: 3,
+            enabled: canSend,
+            style: const TextStyle(color: MesclaColors.textPrimary),
+            decoration: InputDecoration(
+              hintText: 'Digite sua pergunta privada',
+              hintStyle: const TextStyle(color: MesclaColors.textTertiary),
+              filled: true,
+              fillColor: MesclaColors.surface,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: MesclaColors.border),
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: MesclaColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: MesclaColors.navActive),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: canSend ? onSend : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: MesclaColors.navActive,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: MesclaColors.surfaceStrong,
+              ),
+              icon: const Icon(Icons.send_rounded),
+              label: const Text('Enviar pergunta privada'),
+            ),
+          ),
+        ],
       ),
     );
   }

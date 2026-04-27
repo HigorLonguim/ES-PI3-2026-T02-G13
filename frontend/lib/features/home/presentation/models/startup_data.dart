@@ -2,6 +2,7 @@
 
 class StartupData {
   const StartupData({
+    this.id = '',
     required this.name,
     required this.description,
     required this.stage,
@@ -20,6 +21,7 @@ class StartupData {
     this.publicQaItems = const <PublicQaItem>[],
   });
 
+  final String id;
   final String name;
   final String description;
   final String stage;
@@ -45,6 +47,7 @@ class StartupData {
     final tokenPrice = _readDouble(source, 'tokenPrice');
 
     return StartupData(
+      id: _readString(source, 'id') ?? _slugFromName(name),
       name: name,
       description: description,
       stage: stage,
@@ -125,6 +128,14 @@ class StartupData {
   static String _formatCurrency(double value) {
     final fixed = value.toStringAsFixed(2).replaceAll('.', ',');
     return 'R\$ $fixed';
+  }
+
+  static String _slugFromName(String value) {
+    final slug = value
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-+|-+$'), '');
+    return slug.isEmpty ? 'startup' : slug;
   }
 }
 

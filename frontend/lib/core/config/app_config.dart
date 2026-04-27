@@ -25,4 +25,34 @@ class AppConfig {
     'STARTUPS_FUNCTION_URL',
     defaultValue: '',
   );
+
+  static const String walletFunctionUrl = String.fromEnvironment(
+    'WALLET_FUNCTION_URL',
+    defaultValue: '',
+  );
+
+  static const String creditWalletFunctionUrl = String.fromEnvironment(
+    'CREDIT_WALLET_FUNCTION_URL',
+    defaultValue: '',
+  );
+
+  static const String buyTokensFunctionUrl = String.fromEnvironment(
+    'BUY_TOKENS_FUNCTION_URL',
+    defaultValue: '',
+  );
+
+  static const String sellTokensFunctionUrl = String.fromEnvironment(
+    'SELL_TOKENS_FUNCTION_URL',
+    defaultValue: '',
+  );
+
+  static const String transactionsFunctionUrl = String.fromEnvironment(
+    'TRANSACTIONS_FUNCTION_URL',
+    defaultValue: '',
+  );
+
+  static const String privateQuestionFunctionUrl = String.fromEnvironment(
+    'PRIVATE_QUESTION_FUNCTION_URL',
+    defaultValue: '',
+  );
 }

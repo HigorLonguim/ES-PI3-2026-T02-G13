@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/features/profile/presentation/profile_page.dart';
 
 import '../../../core/theme/mescla_colors.dart';
+import '../data/portfolio_store.dart';
 import 'dashboard_page.dart';
 import '../../../core/widgets/mescla_bottom_navigation_bar.dart';
 import 'startup_page.dart';
@@ -25,6 +26,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    PortfolioStore.instance.hydrate();
   }
 
   @override

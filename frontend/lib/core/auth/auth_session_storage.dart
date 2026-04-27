@@ -61,6 +61,7 @@ class AuthSessionStorage {
   static const String _tokenKey = 'auth_token';
   static const String _userNameKey = 'auth_user_name';
   static const String _userEmailKey = 'auth_user_email';
+  static const String _userIdKey = 'auth_user_id';
 
   final AuthStorageBackend _backend;
 
@@ -75,9 +76,13 @@ class AuthSessionStorage {
   Future<void> saveUserProfile({
     required String nome,
     required String email,
+    String? userId,
   }) async {
     await _backend.write(key: _userNameKey, value: nome);
     await _backend.write(key: _userEmailKey, value: email);
+    if (userId != null && userId.trim().isNotEmpty) {
+      await _backend.write(key: _userIdKey, value: userId.trim());
+    }
   }
 
   Future<String?> getUserName() {
@@ -88,9 +93,18 @@ class AuthSessionStorage {
     return _backend.read(key: _userEmailKey);
   }
 
+  Future<void> saveUserId(String userId) {
+    return _backend.write(key: _userIdKey, value: userId);
+  }
+
+  Future<String?> getUserId() {
+    return _backend.read(key: _userIdKey);
+  }
+
   Future<void> clearToken() async {
     await _backend.delete(key: _tokenKey);
     await _backend.delete(key: _userNameKey);
     await _backend.delete(key: _userEmailKey);
+    await _backend.delete(key: _userIdKey);
   }
 }
