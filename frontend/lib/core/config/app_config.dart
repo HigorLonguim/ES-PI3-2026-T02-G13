@@ -55,4 +55,29 @@ class AppConfig {
     'PRIVATE_QUESTION_FUNCTION_URL',
     defaultValue: '',
   );
+
+  static const String marketOffersFunctionUrl = String.fromEnvironment(
+    'MARKET_OFFERS_FUNCTION_URL',
+    defaultValue: '',
+  );
+
+  static const String myOffersFunctionUrl = String.fromEnvironment(
+    'MY_OFFERS_FUNCTION_URL',
+    defaultValue: '',
+  );
+
+  static const String createOfferFunctionUrl = String.fromEnvironment(
+    'CREATE_OFFER_FUNCTION_URL',
+    defaultValue: '',
+  );
+
+  static const String cancelOfferFunctionUrl = String.fromEnvironment(
+    'CANCEL_OFFER_FUNCTION_URL',
+    defaultValue: '',
+  );
+
+  static const String acceptOfferFunctionUrl = String.fromEnvironment(
+    'ACCEPT_OFFER_FUNCTION_URL',
+    defaultValue: '',
+  );
 }
