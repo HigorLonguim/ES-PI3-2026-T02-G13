@@ -9,3 +9,10 @@ export {
   sellTokens,
   submitPrivateQuestion,
 } from "./wallet/trading";
+export {
+  acceptMarketOffer,
+  cancelMarketOffer,
+  createMarketOffer,
+  listMarketOffers,
+  listMyOffers,
+} from "./wallet/tradingDesk";
