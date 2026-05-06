@@ -28,6 +28,11 @@ class MesclaBottomNavigationBar extends StatelessWidget {
         inactiveIcon: Icons.account_balance_wallet_outlined,
       ),
       _NavBarItemData(
+        label: 'Balcão',
+        activeIcon: Icons.swap_horiz_rounded,
+        inactiveIcon: Icons.swap_horiz_rounded,
+      ),
+      _NavBarItemData(
         label: 'Dashboard',
         activeIcon: Icons.show_chart_rounded,
         inactiveIcon: Icons.show_chart_rounded,
