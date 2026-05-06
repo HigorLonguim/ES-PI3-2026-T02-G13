@@ -7,7 +7,7 @@ import 'package:frontend/features/home/presentation/main_navigation_page.dart';
 void main() {
   testWidgets('renderiza dashboard no fluxo principal', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: MainNavigationPage(initialIndex: 2)),
+      const MaterialApp(home: MainNavigationPage(initialIndex: 3)),
     );
 
     await tester.pumpAndSettle();
