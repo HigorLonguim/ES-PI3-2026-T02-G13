@@ -1,0 +1,10 @@
+{
+  "name": "mescla-invest-firebase",
+  "private": true,
+  "scripts": {
+    "build:functions": "npm --prefix functions run build",
+    "lint:functions": "npm --prefix functions run lint",
+    "emulators": "firebase --config firebase.json emulators:start",
+    "deploy:functions": "firebase --config firebase.json deploy --only functions"
+  }
+}

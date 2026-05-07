@@ -1,6 +1,7 @@
-/* Nome: Felipe Sousa de Almeida | RA: 22018160 */
+// Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
+
 import '../../../core/navigation/app_route.dart';
 import '../../auth/presentation/login_page.dart';
 
@@ -34,7 +35,7 @@ class HomePage extends StatelessWidget {
                       BoxShadow(
                         color: Color.fromRGBO(79, 57, 246, 0.5),
                         blurRadius: 150,
-                        spreadRadius: 24,
+                        spreadRadius: 8,
                       ),
                     ],
                   ),
@@ -53,7 +54,7 @@ class HomePage extends StatelessWidget {
                       BoxShadow(
                         color: Color.fromRGBO(152, 16, 250, 0.4),
                         blurRadius: 150,
-                        spreadRadius: 24,
+                        spreadRadius: 8,
                       ),
                     ],
                   ),
@@ -68,7 +69,7 @@ class HomePage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
                         children: [
-                          const SizedBox(height: 180),
+                          const SizedBox(height: 255.97),
                           Container(
                             width: 95.985,
                             height: 95.985,
@@ -103,18 +104,15 @@ class HomePage extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          const SizedBox(
-                            width: 290,
-                            child: Text(
-                              'Invista em startups promissoras com\ntokens digitais',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 18,
-                                height: 1.5,
-                                color: Color(0xFF99A1AF),
-                                fontWeight: FontWeight.w400,
-                              ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Invista em startups promissoras com\ntokens digitais',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              height: 1.55,
+                              color: Color(0xFF99A1AF),
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                           const SizedBox(height: 48),
