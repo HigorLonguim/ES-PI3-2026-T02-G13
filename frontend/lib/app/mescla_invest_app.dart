@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/auth/auth_gate_page.dart';
 import '../core/theme/mescla_colors.dart';
-import '../features/home/presentation/home_page.dart';
 import '../core/navigation/app_route.dart';
 import '../core/widgets/debug_menu_overlay.dart';
 
@@ -35,7 +35,7 @@ class MesclaInvestApp extends StatelessWidget {
           }
           return child ?? const SizedBox.shrink();
         },
-        home: const HomePage(),
+        home: const AuthGatePage(),
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import '../../../core/auth/auth_session_storage.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/network/app_dio.dart';
+import '../../../core/network/auth_error_mapper.dart';
 
 class TradingDeskApiService {
   factory TradingDeskApiService({
@@ -109,9 +110,10 @@ class TradingDeskApiService {
     final body = _decodeBody(error.response?.data);
     final fromError = _readString(body['error']);
     if (fromError != null) {
-      return fromError;
+      return mapAuthErrorMessage(fromError) ?? fromError;
     }
-    return _readString(body['message']);
+    final fromMessage = _readString(body['message']);
+    return mapAuthErrorMessage(fromMessage) ?? fromMessage;
   }
 
   void dispose() {

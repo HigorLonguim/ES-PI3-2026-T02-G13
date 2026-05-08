@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/auth/auth_session_storage.dart';
 import '../../../core/config/app_config.dart';
+import '../../../core/network/auth_error_mapper.dart';
 import '../../../core/network/app_dio.dart';
 
 class AuthResult {
@@ -292,7 +293,8 @@ class AuthApiService {
       return null;
     }
 
-    return _mapFirebaseAuthError(firebaseErrorCode);
+    final mapped = _mapFirebaseAuthError(firebaseErrorCode);
+    return mapAuthErrorMessage(mapped) ?? mapped;
   }
 
   String _mapFirebaseAuthError(String errorCode) {
