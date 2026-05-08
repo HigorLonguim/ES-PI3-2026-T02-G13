@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import '../../../core/auth/auth_session_storage.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/network/app_dio.dart';
+import '../../../core/network/auth_error_mapper.dart';
 
 class TradingApiService {
   factory TradingApiService({Dio? dio, AuthSessionStorage? sessionStorage}) {
@@ -105,7 +106,8 @@ class TradingApiService {
 
   Future<String?> extractErrorMessage(DioException error) async {
     final body = _decodeBody(error.response?.data);
-    return _readString(body, 'error') ?? _readString(body, 'message');
+    final raw = _readString(body, 'error') ?? _readString(body, 'message');
+    return mapAuthErrorMessage(raw) ?? raw;
   }
 
   void dispose() {
