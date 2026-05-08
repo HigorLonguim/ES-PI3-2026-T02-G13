@@ -1038,7 +1038,9 @@ class _OfferConfirmDialog extends StatelessWidget {
         ? const [Color(0xFF009966), Color(0xFF00BC7D)]
         : const [Color(0xFFEC003F), Color(0xFFFF2056)];
     final iconBg = isBuying ? const Color(0x3300BC7D) : const Color(0x33FF2056);
-    final icon = isBuying ? Icons.call_made_rounded : Icons.call_received_rounded;
+    final icon = isBuying
+        ? Icons.call_made_rounded
+        : Icons.call_received_rounded;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -1089,7 +1091,10 @@ class _OfferConfirmDialog extends StatelessWidget {
             const SizedBox(height: 16),
             _ConfirmRow(label: 'Startup', value: offer.startupName),
             _ConfirmRow(label: 'Quantidade', value: '${offer.quantity} tokens'),
-            _ConfirmRow(label: 'Preço/token', value: formatCurrency(offer.pricePerToken)),
+            _ConfirmRow(
+              label: 'Preço/token',
+              value: formatCurrency(offer.pricePerToken),
+            ),
             _ConfirmRow(
               label: 'Total',
               value: formatCurrency(offer.quantity * offer.pricePerToken),
@@ -1104,7 +1109,10 @@ class _OfferConfirmDialog extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(false),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0x1AFFFFFF), width: 1.2),
+                        side: const BorderSide(
+                          color: Color(0x1AFFFFFF),
+                          width: 1.2,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
