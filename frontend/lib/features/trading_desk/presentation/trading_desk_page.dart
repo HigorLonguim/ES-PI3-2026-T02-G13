@@ -131,33 +131,32 @@ class _TradingDeskPageState extends State<TradingDeskPage> {
       return;
     }
 
-    final result = await showModalBottomSheet<_CreateOfferPayload>(
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (dialogContext) => _CreateOfferDialog(
         options: options,
         walletHoldingsByStartup: _walletHoldingsByStartup,
+        onSubmit: _submitOffer,
       ),
     );
+  }
 
-    if (result == null) {
-      return;
-    }
-
+  Future<bool> _submitOffer(_CreateOfferPayload payload) async {
     try {
       await _service.createOffer(
-        startupId: result.startupId,
-        type: result.type,
-        quantity: result.quantity,
-        pricePerToken: result.pricePerToken,
+        startupId: payload.startupId,
+        type: payload.type,
+        quantity: payload.quantity,
+        pricePerToken: payload.pricePerToken,
       );
       if (!mounted) {
-        return;
+        return false;
       }
       await _loadOffers();
       if (!mounted) {
-        return;
+        return false;
       }
       setState(() => _tab = _DeskTab.myOffers);
       showAppStatusSnackBar(
@@ -165,15 +164,17 @@ class _TradingDeskPageState extends State<TradingDeskPage> {
         message: 'Oferta criada com sucesso',
         type: AppStatusType.success,
       );
+      return true;
     } catch (_) {
       if (!mounted) {
-        return;
+        return false;
       }
       showAppStatusSnackBar(
         context: context,
         message: 'Falha ao criar oferta',
         type: AppStatusType.error,
       );
+      return false;
     }
   }
 
@@ -798,6 +799,9 @@ class _OfferCard extends StatelessWidget {
     final buttonGradient = isBuyingAction
         ? const LinearGradient(colors: [Color(0xFF009966), Color(0xFF00BC7D)])
         : const LinearGradient(colors: [Color(0xFFEC003F), Color(0xFFFF2056)]);
+    const cancelGradient = LinearGradient(
+      colors: [Color(0xFFEC003F), Color(0xFFFF2056)],
+    );
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -914,49 +918,51 @@ class _OfferCard extends StatelessWidget {
           SizedBox(
             height: offer.isMine ? 42 : 40,
             width: double.infinity,
-            child: ElevatedButton.icon(
+            child: ElevatedButton(
               onPressed: onAction,
-              icon: Icon(
-                offer.isMine
-                    ? Icons.close_rounded
-                    : isBuy
-                    ? Icons.call_made_rounded
-                    : Icons.call_received_rounded,
-                size: 16,
-              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: offer.isMine ? const Color(0x0DFFFFFF) : null,
+                backgroundColor: null,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: offer.isMine
-                      ? const BorderSide(color: Color(0x1AFFFFFF), width: 1.2)
-                      : BorderSide.none,
+                  side: BorderSide.none,
                 ),
                 padding: EdgeInsets.zero,
               ),
-              label: Ink(
-                decoration: offer.isMine
-                    ? null
-                    : BoxDecoration(
-                        gradient: buttonGradient,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+              child: Ink(
+                decoration: BoxDecoration(
+                  gradient: offer.isMine ? cancelGradient : buttonGradient,
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Container(
                   alignment: Alignment.center,
-                  child: Text(
-                    offer.isMine
-                        ? 'Cancelar oferta'
-                        : isBuy
-                        ? 'Vender para este usuario'
-                        : 'Comprar deste usuario',
-                    style: TextStyle(
-                      color: offer.isMine
-                          ? MesclaColors.textSecondary
-                          : Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        offer.isMine
+                            ? Icons.close_rounded
+                            : isBuy
+                            ? Icons.call_made_rounded
+                            : Icons.call_received_rounded,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        offer.isMine
+                            ? 'Cancelar oferta'
+                            : isBuy
+                            ? 'Vender para este usuario'
+                            : 'Comprar deste usuario',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -1273,10 +1279,12 @@ class _CreateOfferDialog extends StatefulWidget {
   const _CreateOfferDialog({
     required this.options,
     required this.walletHoldingsByStartup,
+    required this.onSubmit,
   });
 
   final List<_StartupOption> options;
   final Map<String, int> walletHoldingsByStartup;
+  final Future<bool> Function(_CreateOfferPayload payload) onSubmit;
 
   @override
   State<_CreateOfferDialog> createState() => _CreateOfferDialogState();
@@ -1285,6 +1293,7 @@ class _CreateOfferDialog extends StatefulWidget {
 class _CreateOfferDialogState extends State<_CreateOfferDialog> {
   late String _startupId;
   String _type = 'BUY';
+  bool _isPublishing = false;
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
 
@@ -1507,28 +1516,39 @@ class _CreateOfferDialogState extends State<_CreateOfferDialog> {
                 width: double.infinity,
                 height: 52,
                 child: Opacity(
-                  opacity: canPublish ? 1 : 0.3,
+                  opacity: (canPublish || _isPublishing) ? 1 : 0.3,
                   child: ElevatedButton(
-                    onPressed: canPublish
-                        ? () {
-                            Navigator.of(context).pop(
-                              _CreateOfferPayload(
-                                startupId: _startupId,
-                                type: _type,
-                                quantity: quantity,
-                                pricePerToken: price,
-                              ),
+                    onPressed: _isPublishing
+                        ? null
+                        : () async {
+                            if (!canPublish) {
+                              final message = exceedsSellLimit
+                                  ? 'Quantidade para venda excede seus tokens disponiveis'
+                                  : 'Preencha quantidade e preco validos';
+                              showAppStatusSnackBar(
+                                context: context,
+                                message: message,
+                                type: AppStatusType.warning,
+                              );
+                              return;
+                            }
+
+                            setState(() => _isPublishing = true);
+                            final payload = _CreateOfferPayload(
+                              startupId: _startupId,
+                              type: _type,
+                              quantity: quantity,
+                              pricePerToken: price,
                             );
-                          }
-                        : () {
-                            final message = exceedsSellLimit
-                                ? 'Quantidade para venda excede seus tokens disponiveis'
-                                : 'Preencha quantidade e preco validos';
-                            showAppStatusSnackBar(
-                              context: context,
-                              message: message,
-                              type: AppStatusType.warning,
-                            );
+                            final published = await widget.onSubmit(payload);
+                            if (!mounted) {
+                              return;
+                            }
+
+                            setState(() => _isPublishing = false);
+                            if (published) {
+                              Navigator.of(this.context).pop();
+                            }
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
@@ -1550,27 +1570,38 @@ class _CreateOfferDialogState extends State<_CreateOfferDialog> {
                               ),
                       ),
                       child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.call_made_rounded,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              buyMode
-                                  ? 'Publicar oferta de compra'
-                                  : 'Publicar oferta de venda',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                        child: _isPublishing
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.call_made_rounded,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    buyMode
+                                        ? 'Publicar oferta de compra'
+                                        : 'Publicar oferta de venda',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                   ),
