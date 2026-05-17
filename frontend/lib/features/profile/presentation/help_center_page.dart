@@ -12,27 +12,27 @@ class HelpCenterPage extends StatefulWidget {
 class _HelpCenterPageState extends State<HelpCenterPage> {
   final TextEditingController _searchController = TextEditingController();
 
-  // Dados das categorias de ajuda
-  final List<Map<String, dynamic>> _categories = [
+  // Dúvidas de suporte técnico e usabilidade do sistema
+  final List<Map<String, dynamic>> _supportItems = [
     {
-      'icon': Icons.account_balance_wallet_outlined,
-      'title': 'Conta e Carteira',
-      'description': 'Problemas com saldo fictício, login ou dados.',
+      'question': 'Esqueci minha senha de acesso, como posso recuperar?',
+      'answer': 'Na tela de login, clique em "Esqueci minha senha". Insira o e-mail cadastrado e você receberá um link simulado para redefinir suas credenciais de acesso com segurança.',
     },
     {
-      'icon': Icons.toll_outlined,
-      'title': 'Tokens e Negociações',
-      'description': 'Como comprar, vender ou entender as oscilações.',
+      'question': 'Meu saldo fictício sumiu ou não atualizou, o que fazer?',
+      'answer': 'Isso pode ocorrer devido à latência da API simulada. Vá até o painel principal, puxe a tela para baixo para forçar o "Pull-to-Refresh" ou faça logout e login novamente para sincronizar a carteira.',
     },
     {
-      'icon': Icons.security_outlined,
-      'title': 'Segurança e 2FA',
-      'description': 'Gerenciamento de senhas e autenticação de dois fatores.',
+      'question': 'Como faço para alterar meus dados cadastrais?',
+      'answer': 'Acesse a aba "Perfil" no menu inferior e clique na opção "Dados Pessoais". Lá você conseguirá editar suas informações cadastrais e atualizar sua foto de perfil.',
     },
     {
-      'icon': Icons.business_outlined,
-      'title': 'Avaliação de Startups',
-      'description': 'Como ler as métricas e entender as captações.',
+      'question': 'O aplicativo está travando ou fechando sozinho, como reportar?',
+      'answer': 'Como este é um ambiente em desenvolvimento (Beta), pedimos que limpe o cache do navegador ou app. Caso persista, tire um print do erro e envie para o e-mail do suporte com o log técnico.',
+    },
+    {
+      'question': 'Por que minha ordem no Balcão de Negócios está "Pendente"?',
+      'answer': 'Uma ordem fica pendente até encontrar outro usuário com uma intenção de negociação equivalente (preço e quantidade). Se preferir, você pode cancelar a ordem a qualquer momento no seu histórico.',
     },
   ];
 
@@ -64,7 +64,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Campo de busca por texto
+            // Campo de busca superior
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
@@ -86,7 +86,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             const SizedBox(height: 32),
 
             const Text(
-              'Navegue por tópicos',
+              'Suporte Técnico e Conta',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -95,17 +95,16 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             ),
             const SizedBox(height: 16),
 
-            // Listagem dos cards de tópicos
+            // Listagem com as novas dúvidas técnicas resolvidas
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: _categories.length,
+              itemCount: _supportItems.length,
               itemBuilder: (context, index) {
-                final category = _categories[index];
-                return _buildCategoryCard(
-                  icon: category['icon'],
-                  title: category['title'],
-                  description: category['description'],
+                final item = _supportItems[index];
+                return _buildSupportBox(
+                  question: item['question'],
+                  answer: item['answer'],
                 );
               },
             ),
@@ -115,52 +114,41 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
     );
   }
 
-  // Card para cada categoria de suporte
-  Widget _buildCategoryCard({
-    required IconData icon,
-    required String title,
-    required String description,
+  // Caixa expansível para os itens de suporte técnico
+  Widget _buildSupportBox({
+    required String question,
+    required String answer,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF141E2D),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
-      child: Row(
+      child: ExpansionTile(
+        iconColor: const Color(0xFF9810FA),
+        collapsedIconColor: Colors.grey,
+        title: Text(
+          question,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF9810FA).withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: const Color(0xFF9810FA), size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: const TextStyle(color: Colors.grey, fontSize: 13),
-                ),
-              ],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Text(
+              answer,
+              style: const TextStyle(
+                color: Color(0xFF99A1AF),
+                fontSize: 14,
+                height: 1.5,
+              ),
             ),
           ),
-          const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
         ],
       ),
     );
