@@ -13,7 +13,33 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
   final TextEditingController _codeController = TextEditingController();
   bool _isMfaEnabled = false;
 
-  void _toggleMfa() {}
+  void _toggleMfa() {
+    if (_codeController.text.length == 6) {
+      setState(() {
+        _isMfaEnabled = !_isMfaEnabled;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            _isMfaEnabled 
+                ? 'Autenticação de Dois Fatores ativada com sucesso!' 
+                : 'MFA desativado.',
+          ),
+          backgroundColor: _isMfaEnabled ? Colors.green : Colors.redAccent,
+        ),
+      );
+      
+      _codeController.clear();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Insira o código de 6 dígitos gerado pelo seu autenticador.'),
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,14 +70,17 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            // Ícone de segurança destacado
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: const Color(0xFF9810FA).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.security, color: Color(0xFF9810FA), size: 64),
+              child: const Icon(
+                Icons.security,
+                color: Color(0xFF9810FA),
+                size: 64,
+              ),
             ),
             const SizedBox(height: 32),
             const Text(
@@ -60,30 +89,92 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Camada extra de segurança para o sistema.',
+              'A autenticação de dois fatores (MFA) adiciona uma camada extra de segurança para validar suas ordens de compra e venda simuladas.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Color(0xFF99A1AF), fontSize: 14, height: 1.5),
             ),
             const SizedBox(height: 32),
-            // Botão de ativação
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF141E2D),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildStepRow('1', 'Abra o Google Authenticator ou similar no seu celular.'),
+                  const SizedBox(height: 16),
+                  _buildStepRow('2', 'Insira a chave manual temporária do ambiente de testes: MESCLATEST2026'),
+                  const SizedBox(height: 16),
+                  _buildStepRow('3', 'Digite o código de 6 dígitos gerado abaixo para confirmar.'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            // Input do código simulado de 6 dígitos
+            TextField(
+              controller: _codeController,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              style: const TextStyle(color: Colors.white, fontSize: 24, letterSpacing: 8),
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                hintText: '000000',
+                hintStyle: const TextStyle(color: Colors.grey, letterSpacing: 8),
+                counterStyle: const TextStyle(color: Colors.grey),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFF9810FA)),
+                ),
+                filled: true,
+                fillColor: const Color(0xFF141E2D),
+              ),
+            ),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
                 onPressed: _toggleMfa,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF9810FA),
+                  backgroundColor: _isMfaEnabled ? Colors.redAccent : const Color(0xFF9810FA),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text(
-                  'Ativar Autenticação',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                child: Text(
+                  _isMfaEnabled ? 'Desativar Autenticação' : 'Ativar Autenticação',
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStepRow(String number, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 12,
+          backgroundColor: const Color(0xFF9810FA),
+          child: Text(number, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(color: Color(0xFF99A1AF), fontSize: 13, height: 1.4),
+          ),
+        ),
+      ],
     );
   }
 }
