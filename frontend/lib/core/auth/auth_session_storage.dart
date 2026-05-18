@@ -1,5 +1,7 @@
 // Autoria: Felipe Sousa - RA: 22018160
 
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,6 +65,53 @@ class AuthSessionStorage {
       _backend.write(key: _tokenKey, value: token);
 
   Future<String?> getToken() => _backend.read(key: _tokenKey);
+
+  DateTime? getTokenExpiration(String token) {
+    final segments = token.split('.');
+    if (segments.length != 3) {
+      return null;
+    }
+
+    try {
+      final normalizedPayload = base64Url.normalize(segments[1]);
+      final payloadBytes = base64Url.decode(normalizedPayload);
+      final payloadJson = utf8.decode(payloadBytes);
+      final payload = jsonDecode(payloadJson);
+      if (payload is! Map<String, dynamic>) {
+        return null;
+      }
+
+      final expValue = payload['exp'];
+      final expSeconds = expValue is int
+          ? expValue
+          : int.tryParse(expValue?.toString() ?? '');
+      if (expSeconds == null) {
+        return null;
+      }
+
+      return DateTime.fromMillisecondsSinceEpoch(
+        expSeconds * 1000,
+        isUtc: true,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  bool isTokenExpired(
+    String token, {
+    DateTime? nowUtc,
+    Duration clockSkew = const Duration(seconds: 30),
+  }) {
+    final expirationUtc = getTokenExpiration(token);
+    if (expirationUtc == null) {
+      return true;
+    }
+
+    final currentTimeUtc = (nowUtc ?? DateTime.now().toUtc());
+    final safeExpirationUtc = expirationUtc.subtract(clockSkew);
+    return !currentTimeUtc.isBefore(safeExpirationUtc);
+  }
 
   Future<void> saveUserProfile({
     required String nome,

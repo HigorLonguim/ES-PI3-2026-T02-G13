@@ -2,6 +2,7 @@
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 
 import 'package:flutter/material.dart';
+import 'package:frontend/core/auth/auth_session_manager.dart';
 import 'package:frontend/core/auth/auth_session_storage.dart';
 import 'package:frontend/core/navigation/app_route.dart';
 import 'package:frontend/features/auth/presentation/login_page.dart';
@@ -47,6 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _logout() async {
+    AuthSessionManager.instance.stopSessionMonitoring();
     try {
       await _authSessionStorage.clearToken();
     } catch (_) {}

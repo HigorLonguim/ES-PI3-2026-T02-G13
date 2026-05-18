@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../core/auth/auth_session_manager.dart';
 import '../../../core/auth/auth_session_storage.dart';
 import '../../../core/navigation/app_route.dart';
 import '../../../core/widgets/app_status_indicator.dart';
@@ -85,6 +86,7 @@ class _LoginPageState extends State<LoginPage> {
       final token = result.token;
       if (token != null && token.isNotEmpty) {
         await _authSessionStorage.saveToken(token);
+        await AuthSessionManager.instance.startSessionMonitoring(token: token);
       }
       if (!mounted) {
         return;
