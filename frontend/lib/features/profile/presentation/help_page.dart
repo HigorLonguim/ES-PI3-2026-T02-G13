@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:frontend/features/profile/presentation/terms_page.dart';
 import 'package:frontend/features/profile/presentation/help_center_page.dart';
+import 'package:frontend/features/profile/presentation/contact_support_page.dart'; // Import da tela de suporte
 
 class HelpPage extends StatelessWidget {
   const HelpPage({super.key});
@@ -60,11 +61,17 @@ class HelpPage extends StatelessWidget {
                     },
                   ),
                   _divider(),
+                  // BOTÃO SUPORTE: Abre o formulário de abertura de chamados simulados
                   _buildActionTile(
                     icon: Icons.email_outlined,
                     title: 'Contatar Suporte',
                     subtitle: 'Fale diretamente com nossa equipe',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ContactSupportPage()),
+                      );
+                    },
                   ),
                   _divider(),
                   _buildActionTile(
