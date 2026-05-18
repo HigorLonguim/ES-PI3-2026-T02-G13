@@ -1,6 +1,9 @@
-// Autoria: Felipe Sousa - RA: 22018160
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 import 'package:flutter/material.dart';
+
+import 'package:frontend/features/profile/presentation/terms_page.dart';
+import 'package:frontend/features/profile/presentation/help_center_page.dart';
+import 'package:frontend/features/profile/presentation/contact_support_page.dart'; // Import da tela de suporte
 
 class HelpPage extends StatelessWidget {
   const HelpPage({super.key});
@@ -8,8 +11,7 @@ class HelpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A1A), // Fundo padrão do app
-      // AppBar transparente com botão voltar estilizado
+      backgroundColor: const Color(0xFF0A0A1A),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -38,7 +40,7 @@ class HelpPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Card de Ações Principais (Central, Contato, Termos)
+            // Menu de ações principais (Central, Contato e Termos)
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFF141E2D),
@@ -51,25 +53,45 @@ class HelpPage extends StatelessWidget {
                     icon: Icons.forum_outlined,
                     title: 'Central de Ajuda',
                     subtitle: 'Encontre respostas para suas dúvidas',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HelpCenterPage()),
+                      );
+                    },
                   ),
                   _divider(),
+                  // BOTÃO SUPORTE: Abre o formulário de abertura de chamados simulados
                   _buildActionTile(
                     icon: Icons.email_outlined,
                     title: 'Contatar Suporte',
                     subtitle: 'Fale diretamente com nossa equipe',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ContactSupportPage()),
+                      );
+                    },
                   ),
                   _divider(),
                   _buildActionTile(
                     icon: Icons.description_outlined,
                     title: 'Termos e Políticas',
                     subtitle: 'Leia nossos termos de uso e privacidade',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TermsPage(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 32),
-
-            // 2. Título da Seção FAQ
+            
             const Text(
               'Perguntas Frequentes',
               style: TextStyle(
@@ -79,10 +101,10 @@ class HelpPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-
-            // 3. Lista de FAQs com ExpansionTile (Estilo Sanfona)
+            
+            // Listagem do FAQ (Acordeon)
             _buildFaqTile(
-              'Como funciona o investimento em startups?',
+              'Como funciona o investment em startups?',
               'Todas as operações são simuladas...',
             ),
             _buildFaqTile(
@@ -97,15 +119,14 @@ class HelpPage extends StatelessWidget {
               'Existe taxa de transação?',
               'No ambiente simulado, não há taxas reais.',
             ),
-
             const SizedBox(height: 32),
-
-            // 4. Card de Horário de Atendimento (Azul)
+            
+            // Card informativo com horários de atendimento
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF101A3D), // Azul escuro para destaque
+                color: const Color(0xFF101A3D),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: const Color(0xFF1E3A8A).withValues(alpha: 0.5),
@@ -117,7 +138,7 @@ class HelpPage extends StatelessWidget {
                   Text(
                     'Horário de Atendimento:',
                     style: TextStyle(
-                      color: Color(0xFF60A5FA), // Azul claro
+                      color: Color(0xFF60A5FA),
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
                     ),
@@ -141,15 +162,15 @@ class HelpPage extends StatelessWidget {
     );
   }
 
-  // --- Widgets Auxiliares ---
-
-  // Constrói os itens do primeiro card (Central, Contato, Termos)
+  // Componente reutilizável para as linhas de menu de ação
   Widget _buildActionTile({
     required IconData icon,
     required String title,
     required String subtitle,
+    required VoidCallback onTap, 
   }) {
     return ListTile(
+      onTap: onTap, 
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(10),
@@ -172,11 +193,10 @@ class HelpPage extends StatelessWidget {
         style: const TextStyle(color: Colors.grey, fontSize: 12),
       ),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey, size: 20),
-      onTap: () {}, // Adicionar navegação depois
     );
   }
 
-  // Constrói as perguntas frequentes com estilo sanfona
+  // Componente expansível para perguntas do FAQ
   Widget _buildFaqTile(String question, String answer) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -209,6 +229,7 @@ class HelpPage extends StatelessWidget {
     );
   }
 
+  // Divisor de linhas do menu
   Widget _divider() {
     return Divider(
       color: Colors.white.withValues(alpha: 0.05),

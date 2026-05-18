@@ -4,10 +4,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/features/home/data/portfolio_store.dart';
+import 'package:frontend/features/home/presentation/models/money_formatters.dart';
 
 import '../../../core/theme/mescla_colors.dart';
-import '../data/portfolio_store.dart';
-import 'models/money_formatters.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});

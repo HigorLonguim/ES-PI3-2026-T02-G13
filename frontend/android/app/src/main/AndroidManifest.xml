@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Autoria: Felipe Sousa - RA: 22018160 -->
     <application
-        android:label="frontend"
+        android:label="Mescla Invest"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -69,3 +69,5 @@ Pods/
 
 # Ambientes e Segredos
 .env
+.env.json
+.env.*.json

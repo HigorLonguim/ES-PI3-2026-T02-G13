@@ -17,7 +17,7 @@ DEVICE_IP ?= $(if $(strip $(DEVICE_IP_FROM_ENV)),$(strip $(DEVICE_IP_FROM_ENV)),
 MACOS_IP_FROM_ENV := $(shell [ -f $(ENV_FILE) ] && sed -n 's/^MACOS_IP[[:space:]]*=[[:space:]]*//p' $(ENV_FILE) | head -n 1)
 MACOS_IP ?= $(if $(strip $(MACOS_IP_FROM_ENV)),$(strip $(MACOS_IP_FROM_ENV)),127.0.0.1)
 
-.PHONY: help deps run run-env run-env-web run-env-edge run-debug \
+.PHONY: help deps run run-env run-env-web run-env-edge run-debug build-release \
 	run-env-android-emulator run-env-android-device run-env-ios-simulator run-env-ios-device run-env-macos \
 	test-widget test-flow test-integration test-all test-coverage \
 	format analyze quality coverage-path
@@ -42,6 +42,7 @@ help:
 	@echo "  make run-env-macos            - macOS com API_URL=$(MACOS_IP):8080"
 	@echo "                           Override opcional: make run-env-android-device DEVICE_IP=192.168.1.20"
 	@echo "  make run-debug        - Alias de run-env"
+	@echo "  make build-release    - Gera APK release com --dart-define-from-file=$(ENV_FILE)"
 	@echo ""
 	@echo "[Testes]"
 	@echo "  make test-widget      - Roda testes de widget (test/widget)"
@@ -73,6 +74,9 @@ run-env-edge:
 	flutter run -d edge --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(RUN_API_URL)
 
 run-debug: run-env
+
+build-release:
+	flutter build apk --release --dart-define-from-file=$(ENV_FILE)
 
 run-env-android-emulator:
 	flutter run -d android --dart-define-from-file=$(ENV_FILE) --dart-define=API_URL=$(ANDROID_EMULATOR_IP):8080

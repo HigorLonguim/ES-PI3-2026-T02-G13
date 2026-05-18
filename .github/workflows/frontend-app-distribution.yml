@@ -1,0 +1,58 @@
+# Autoria: Felipe Sousa - RA: 22018160
+name: MesclaInvest - App Distribution (Android)
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-app-distribution.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  distribute:
+    name: Build APK e Distribuir no Firebase
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.41.2"
+          channel: stable
+          cache: true
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Gerar .env.json de producao
+        shell: bash
+        run: |
+          cat <<'EOF' > .env.json
+          ${{ secrets.FRONTEND_ENV_JSON_PROD }}
+          EOF
+
+      - name: Build APK release
+        run: flutter build apk --release --dart-define-from-file=.env.json
+
+      - name: Distribuir APK no Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          file: frontend/build/app/outputs/flutter-apk/app-release.apk
+          testers: feltista07123@gmail.com
+          releaseNotes: |
+            Build automatico da branch develop
+            Commit: ${{ github.sha }}
+
