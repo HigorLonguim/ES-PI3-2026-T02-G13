@@ -1,4 +1,5 @@
 // Autoria: Felipe Sousa - RA: 22018160
+// Nome: Higor Vedovello Longuim RA: 23000291
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';

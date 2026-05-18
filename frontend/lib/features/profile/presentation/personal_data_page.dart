@@ -1,10 +1,47 @@
 // Autoria: Felipe Sousa - RA: 22018160
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
+// Nome: Higor Vedovello Longuim RA: 23000291
 
 import 'package:flutter/material.dart';
+import '../../../core/auth/auth_session_storage.dart';
 
-class PersonalDataPage extends StatelessWidget {
+class PersonalDataPage extends StatefulWidget {
   const PersonalDataPage({super.key});
+
+  @override
+  State<PersonalDataPage> createState() => _PersonalDataPageState();
+}
+
+class _PersonalDataPageState extends State<PersonalDataPage> {
+  final AuthSessionStorage _sessionStorage = AuthSessionStorage();
+
+  String _nome     = '';
+  String _email    = '';
+  String _cpf      = '';
+  String _telefone = '';
+  bool _isLoading  = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final nome     = await _sessionStorage.getUserName()     ?? '';
+    final email    = await _sessionStorage.getUserEmail()    ?? '';
+    final cpf      = await _sessionStorage.getUserCpf()      ?? '';
+    final telefone = await _sessionStorage.getUserTelefone() ?? '';
+
+    if (!mounted) return;
+    setState(() {
+      _nome      = nome;
+      _email     = email;
+      _cpf       = cpf;
+      _telefone  = telefone;
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,78 +65,77 @@ class PersonalDataPage extends StatelessWidget {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Cards individuais para cada dado pessoal
-            _buildDataCard(
-              icon: Icons.person_outline,
-              label: 'Nome Completo',
-              value: 'João Silva',
-            ),
-            const SizedBox(height: 12),
-            _buildDataCard(
-              icon: Icons.email_outlined,
-              label: 'Email',
-              value: 'ajfaf@mail.com',
-            ),
-            const SizedBox(height: 12),
-            _buildDataCard(
-              icon: Icons.credit_card_outlined,
-              label: 'CPF',
-              value: '123.456.789-00',
-            ),
-            const SizedBox(height: 12),
-            _buildDataCard(
-              icon: Icons.phone_android_outlined,
-              label: 'Telefone',
-              value: '(11) 98765-4321',
-            ),
-
-            const SizedBox(height: 24),
-
-            // Card de Aviso (Importante)
-            Container(
-              width: double.infinity,
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF9810FA)),
+            )
+          : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF101A3D), // Azul escuro
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: const Color(0xFF1E3A8A).withValues(alpha: 0.5),
-                ),
-              ),
-              child: RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    height: 1.5,
+              child: Column(
+                children: [
+                  _buildDataCard(
+                    icon: Icons.person_outline,
+                    label: 'Nome Completo',
+                    value: _nome.isNotEmpty ? _nome : '—',
                   ),
-                  children: [
-                    TextSpan(
-                      text: 'Importante: ',
-                      style: TextStyle(
-                        color: Color(0xFF60A5FA),
-                        fontWeight: FontWeight.bold,
+                  const SizedBox(height: 12),
+                  _buildDataCard(
+                    icon: Icons.email_outlined,
+                    label: 'Email',
+                    value: _email.isNotEmpty ? _email : '—',
+                  ),
+                  const SizedBox(height: 12),
+                  _buildDataCard(
+                    icon: Icons.credit_card_outlined,
+                    label: 'CPF',
+                    value: _cpf.isNotEmpty ? _cpf : '—',
+                  ),
+                  const SizedBox(height: 12),
+                  _buildDataCard(
+                    icon: Icons.phone_android_outlined,
+                    label: 'Telefone',
+                    value: _telefone.isNotEmpty ? _telefone : '—',
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF101A3D),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF1E3A8A).withValues(alpha: 0.5),
                       ),
                     ),
-                    TextSpan(
-                      text:
-                          'Para alterar seus dados pessoais, entre em contato com o suporte.',
+                    child: RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: 'Importante: ',
+                            style: TextStyle(
+                              color: Color(0xFF60A5FA),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextSpan(
+                            text:
+                                'Para alterar seus dados pessoais, entre em contato com o suporte.',
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
-  // Widget para criar os cards de informação individuais
   Widget _buildDataCard({
     required IconData icon,
     required String label,
@@ -114,7 +150,6 @@ class PersonalDataPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Ícone com fundo roxo circular
           Container(
             padding: const EdgeInsets.all(12),
             decoration: const BoxDecoration(
@@ -124,7 +159,6 @@ class PersonalDataPage extends StatelessWidget {
             child: Icon(icon, color: Colors.white, size: 24),
           ),
           const SizedBox(width: 16),
-          // Textos (Label e Valor)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

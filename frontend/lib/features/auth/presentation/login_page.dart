@@ -1,7 +1,7 @@
 // Autoria: Felipe Sousa - RA: 22018160
+// Nome: Higor Vedovello Longuim RA: 23000291
 
 import 'package:flutter/material.dart';
-
 import '../../../core/auth/auth_session_storage.dart';
 import '../../../core/navigation/app_route.dart';
 import '../../../core/widgets/app_status_indicator.dart';
