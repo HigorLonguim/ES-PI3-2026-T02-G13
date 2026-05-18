@@ -30,13 +30,8 @@ class CompositeAuthStorageBackend implements AuthStorageBackend {
   Future<String?> read({required String key}) async {
     try {
       final value = await _secureStorage.read(key: key);
-      if (value != null) {
-        return value;
-      }
-    } catch (_) {
-      // Fall back to SharedPreferences when secure storage is unavailable.
-    }
-
+      if (value != null) return value;
+    } catch (_) {}
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);
   }
@@ -45,10 +40,7 @@ class CompositeAuthStorageBackend implements AuthStorageBackend {
   Future<void> delete({required String key}) async {
     try {
       await _secureStorage.delete(key: key);
-    } catch (_) {
-      // Fall back to SharedPreferences when secure storage is unavailable.
-    }
-
+    } catch (_) {}
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(key);
   }
@@ -58,53 +50,55 @@ class AuthSessionStorage {
   AuthSessionStorage({AuthStorageBackend? backend})
     : _backend = backend ?? CompositeAuthStorageBackend();
 
-  static const String _tokenKey = 'auth_token';
-  static const String _userNameKey = 'auth_user_name';
-  static const String _userEmailKey = 'auth_user_email';
-  static const String _userIdKey = 'auth_user_id';
+  static const String _tokenKey        = 'auth_token';
+  static const String _userNameKey     = 'auth_user_name';
+  static const String _userEmailKey    = 'auth_user_email';
+  static const String _userIdKey       = 'auth_user_id';
+  static const String _userCpfKey      = 'auth_user_cpf';
+  static const String _userTelefoneKey = 'auth_user_telefone';
 
   final AuthStorageBackend _backend;
 
-  Future<void> saveToken(String token) {
-    return _backend.write(key: _tokenKey, value: token);
-  }
+  Future<void> saveToken(String token) =>
+      _backend.write(key: _tokenKey, value: token);
 
-  Future<String?> getToken() {
-    return _backend.read(key: _tokenKey);
-  }
+  Future<String?> getToken() => _backend.read(key: _tokenKey);
 
   Future<void> saveUserProfile({
     required String nome,
     required String email,
     String? userId,
+    String? cpf,
+    String? telefone,
   }) async {
     await _backend.write(key: _userNameKey, value: nome);
     await _backend.write(key: _userEmailKey, value: email);
     if (userId != null && userId.trim().isNotEmpty) {
       await _backend.write(key: _userIdKey, value: userId.trim());
     }
+    if (cpf != null && cpf.trim().isNotEmpty) {
+      await _backend.write(key: _userCpfKey, value: cpf.trim());
+    }
+    if (telefone != null && telefone.trim().isNotEmpty) {
+      await _backend.write(key: _userTelefoneKey, value: telefone.trim());
+    }
   }
 
-  Future<String?> getUserName() {
-    return _backend.read(key: _userNameKey);
-  }
+  Future<String?> getUserName()     => _backend.read(key: _userNameKey);
+  Future<String?> getUserEmail()    => _backend.read(key: _userEmailKey);
+  Future<String?> getUserId()       => _backend.read(key: _userIdKey);
+  Future<String?> getUserCpf()      => _backend.read(key: _userCpfKey);
+  Future<String?> getUserTelefone() => _backend.read(key: _userTelefoneKey);
 
-  Future<String?> getUserEmail() {
-    return _backend.read(key: _userEmailKey);
-  }
-
-  Future<void> saveUserId(String userId) {
-    return _backend.write(key: _userIdKey, value: userId);
-  }
-
-  Future<String?> getUserId() {
-    return _backend.read(key: _userIdKey);
-  }
+  Future<void> saveUserId(String userId) =>
+      _backend.write(key: _userIdKey, value: userId);
 
   Future<void> clearToken() async {
     await _backend.delete(key: _tokenKey);
     await _backend.delete(key: _userNameKey);
     await _backend.delete(key: _userEmailKey);
     await _backend.delete(key: _userIdKey);
+    await _backend.delete(key: _userCpfKey);
+    await _backend.delete(key: _userTelefoneKey);
   }
 }
