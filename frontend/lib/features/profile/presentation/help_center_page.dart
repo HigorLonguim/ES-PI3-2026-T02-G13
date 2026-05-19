@@ -16,23 +16,29 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
   final List<Map<String, dynamic>> _supportItems = [
     {
       'question': 'Esqueci minha senha de acesso, como posso recuperar?',
-      'answer': 'Na tela de login, clique em "Esqueci minha senha". Insira o e-mail cadastrado e você receberá um link simulado para redefinir suas credenciais de acesso com segurança.',
+      'answer':
+          'Na tela de login, clique em "Esqueci minha senha". Insira o e-mail cadastrado e você receberá um link simulado para redefinir suas credenciais de acesso com segurança.',
     },
     {
       'question': 'Meu saldo fictício sumiu ou não atualizou, o que fazer?',
-      'answer': 'Isso pode ocorrer devido à latência da API simulada. Vá até o painel principal, puxe a tela para baixo para forçar o "Pull-to-Refresh" ou faça logout e login novamente para sincronizar a carteira.',
+      'answer':
+          'Isso pode ocorrer devido à latência da API simulada. Vá até o painel principal, puxe a tela para baixo para forçar o "Pull-to-Refresh" ou faça logout e login novamente para sincronizar a carteira.',
     },
     {
       'question': 'Como faço para alterar meus dados cadastrais?',
-      'answer': 'Acesse a aba "Perfil" no menu inferior e clique na opção "Dados Pessoais". Lá você conseguirá editar suas informações cadastrais e atualizar sua foto de perfil.',
+      'answer':
+          'Acesse a aba "Perfil" no menu inferior e clique na opção "Dados Pessoais". Lá você conseguirá editar suas informações cadastrais e atualizar sua foto de perfil.',
     },
     {
-      'question': 'O aplicativo está travando ou fechando sozinho, como reportar?',
-      'answer': 'Como este é um ambiente em desenvolvimento (Beta), pedimos que limpe o cache do navegador ou app. Caso persista, tire um print do erro e envie para o e-mail do suporte com o log técnico.',
+      'question':
+          'O aplicativo está travando ou fechando sozinho, como reportar?',
+      'answer':
+          'Como este é um ambiente em desenvolvimento (Beta), pedimos que limpe o cache do navegador ou app. Caso persista, tire um print do erro e envie para o e-mail do suporte com o log técnico.',
     },
     {
       'question': 'Por que minha ordem no Balcão de Negócios está "Pendente"?',
-      'answer': 'Uma ordem fica pendente até encontrar outro usuário com uma intenção de negociação equivalente (preço e quantidade). Se preferir, você pode cancelar a ordem a qualquer momento no seu histórico.',
+      'answer':
+          'Uma ordem fica pendente até encontrar outro usuário com uma intenção de negociação equivalente (preço e quantidade). Se preferir, você pode cancelar a ordem a qualquer momento no seu histórico.',
     },
   ];
 
@@ -49,7 +55,11 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
           child: CircleAvatar(
             backgroundColor: Colors.white.withValues(alpha: 0.1),
             child: IconButton(
-              icon: const Icon(Icons.chevron_left, color: Colors.white, size: 24),
+              icon: const Icon(
+                Icons.chevron_left,
+                color: Colors.white,
+                size: 24,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -115,10 +125,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
   }
 
   // Caixa expansível para os itens de suporte técnico
-  Widget _buildSupportBox({
-    required String question,
-    required String answer,
-  }) {
+  Widget _buildSupportBox({required String question, required String answer}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(

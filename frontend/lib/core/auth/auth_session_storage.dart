@@ -53,11 +53,11 @@ class AuthSessionStorage {
   AuthSessionStorage({AuthStorageBackend? backend})
     : _backend = backend ?? CompositeAuthStorageBackend();
 
-  static const String _tokenKey        = 'auth_token';
-  static const String _userNameKey     = 'auth_user_name';
-  static const String _userEmailKey    = 'auth_user_email';
-  static const String _userIdKey       = 'auth_user_id';
-  static const String _userCpfKey      = 'auth_user_cpf';
+  static const String _tokenKey = 'auth_token';
+  static const String _userNameKey = 'auth_user_name';
+  static const String _userEmailKey = 'auth_user_email';
+  static const String _userIdKey = 'auth_user_id';
+  static const String _userCpfKey = 'auth_user_cpf';
   static const String _userTelefoneKey = 'auth_user_telefone';
 
   final AuthStorageBackend _backend;
@@ -134,10 +134,10 @@ class AuthSessionStorage {
     }
   }
 
-  Future<String?> getUserName()     => _backend.read(key: _userNameKey);
-  Future<String?> getUserEmail()    => _backend.read(key: _userEmailKey);
-  Future<String?> getUserId()       => _backend.read(key: _userIdKey);
-  Future<String?> getUserCpf()      => _backend.read(key: _userCpfKey);
+  Future<String?> getUserName() => _backend.read(key: _userNameKey);
+  Future<String?> getUserEmail() => _backend.read(key: _userEmailKey);
+  Future<String?> getUserId() => _backend.read(key: _userIdKey);
+  Future<String?> getUserCpf() => _backend.read(key: _userCpfKey);
   Future<String?> getUserTelefone() => _backend.read(key: _userTelefoneKey);
 
   Future<void> saveUserId(String userId) =>

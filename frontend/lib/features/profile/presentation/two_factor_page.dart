@@ -18,23 +18,25 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
       setState(() {
         _isMfaEnabled = !_isMfaEnabled;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            _isMfaEnabled 
-                ? 'Autenticação de Dois Fatores ativada com sucesso!' 
+            _isMfaEnabled
+                ? 'Autenticação de Dois Fatores ativada com sucesso!'
                 : 'MFA desativado.',
           ),
           backgroundColor: _isMfaEnabled ? Colors.green : Colors.redAccent,
         ),
       );
-      
+
       _codeController.clear();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Insira o código de 6 dígitos gerado pelo seu autenticador.'),
+          content: Text(
+            'Insira o código de 6 dígitos gerado pelo seu autenticador.',
+          ),
           backgroundColor: Colors.orangeAccent,
         ),
       );
@@ -54,7 +56,11 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
           child: CircleAvatar(
             backgroundColor: Colors.white.withValues(alpha: 0.1),
             child: IconButton(
-              icon: const Icon(Icons.chevron_left, color: Colors.white, size: 24),
+              icon: const Icon(
+                Icons.chevron_left,
+                color: Colors.white,
+                size: 24,
+              ),
               onPressed: () => Navigator.pop(context, _isMfaEnabled),
             ),
           ),
@@ -85,13 +91,21 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
             const SizedBox(height: 32),
             const Text(
               'Proteja sua carteira digital',
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 12),
             const Text(
               'A autenticação de dois fatores (MFA) adiciona uma camada extra de segurança para validar suas ordens de compra e venda simuladas.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFF99A1AF), fontSize: 14, height: 1.5),
+              style: TextStyle(
+                color: Color(0xFF99A1AF),
+                fontSize: 14,
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 32),
             Container(
@@ -104,11 +118,20 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildStepRow('1', 'Abra o Google Authenticator ou similar no seu celular.'),
+                  _buildStepRow(
+                    '1',
+                    'Abra o Google Authenticator ou similar no seu celular.',
+                  ),
                   const SizedBox(height: 16),
-                  _buildStepRow('2', 'Insira a chave manual temporária do ambiente de testes: MESCLATEST2026'),
+                  _buildStepRow(
+                    '2',
+                    'Insira a chave manual temporária do ambiente de testes: MESCLATEST2026',
+                  ),
                   const SizedBox(height: 16),
-                  _buildStepRow('3', 'Digite o código de 6 dígitos gerado abaixo para confirmar.'),
+                  _buildStepRow(
+                    '3',
+                    'Digite o código de 6 dígitos gerado abaixo para confirmar.',
+                  ),
                 ],
               ),
             ),
@@ -118,15 +141,24 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
               controller: _codeController,
               keyboardType: TextInputType.number,
               maxLength: 6,
-              style: const TextStyle(color: Colors.white, fontSize: 24, letterSpacing: 8),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                letterSpacing: 8,
+              ),
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 hintText: '000000',
-                hintStyle: const TextStyle(color: Colors.grey, letterSpacing: 8),
+                hintStyle: const TextStyle(
+                  color: Colors.grey,
+                  letterSpacing: 8,
+                ),
                 counterStyle: const TextStyle(color: Colors.grey),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                  borderSide: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -143,12 +175,22 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
               child: ElevatedButton(
                 onPressed: _toggleMfa,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isMfaEnabled ? Colors.redAccent : const Color(0xFF9810FA),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  backgroundColor: _isMfaEnabled
+                      ? Colors.redAccent
+                      : const Color(0xFF9810FA),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
                 child: Text(
-                  _isMfaEnabled ? 'Desativar Autenticação' : 'Ativar Autenticação',
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  _isMfaEnabled
+                      ? 'Desativar Autenticação'
+                      : 'Ativar Autenticação',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -165,13 +207,24 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
         CircleAvatar(
           radius: 12,
           backgroundColor: const Color(0xFF9810FA),
-          child: Text(number, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+          child: Text(
+            number,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(color: Color(0xFF99A1AF), fontSize: 13, height: 1.4),
+            style: const TextStyle(
+              color: Color(0xFF99A1AF),
+              fontSize: 13,
+              height: 1.4,
+            ),
           ),
         ),
       ],

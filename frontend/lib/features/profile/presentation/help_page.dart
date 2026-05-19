@@ -56,7 +56,9 @@ class HelpPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const HelpCenterPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const HelpCenterPage(),
+                        ),
                       );
                     },
                   ),
@@ -69,7 +71,9 @@ class HelpPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const ContactSupportPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const ContactSupportPage(),
+                        ),
                       );
                     },
                   ),
@@ -91,7 +95,7 @@ class HelpPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             const Text(
               'Perguntas Frequentes',
               style: TextStyle(
@@ -101,7 +105,7 @@ class HelpPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Listagem do FAQ (Acordeon)
             _buildFaqTile(
               'Como funciona o investment em startups?',
@@ -120,7 +124,7 @@ class HelpPage extends StatelessWidget {
               'No ambiente simulado, não há taxas reais.',
             ),
             const SizedBox(height: 32),
-            
+
             // Card informativo com horários de atendimento
             Container(
               width: double.infinity,
@@ -167,10 +171,10 @@ class HelpPage extends StatelessWidget {
     required IconData icon,
     required String title,
     required String subtitle,
-    required VoidCallback onTap, 
+    required VoidCallback onTap,
   }) {
     return ListTile(
-      onTap: onTap, 
+      onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(10),

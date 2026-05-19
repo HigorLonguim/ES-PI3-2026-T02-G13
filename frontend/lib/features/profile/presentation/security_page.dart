@@ -54,15 +54,17 @@ class _SecurityPageState extends State<SecurityPage> {
                   _buildSecurityTile(
                     icon: Icons.verified_user_outlined,
                     title: 'Autenticação de Dois Fatores',
-                    subtitle: _isMfaActive 
-                        ? 'Ativado — Conta protegida' 
+                    subtitle: _isMfaActive
+                        ? 'Ativado — Conta protegida'
                         : 'Desativado — Configure agora',
                     onTap: () async {
                       final result = await Navigator.push<bool>(
                         context,
-                        MaterialPageRoute(builder: (context) => const TwoFactorPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const TwoFactorPage(),
+                        ),
                       );
-                      
+
                       if (result != null) {
                         setState(() {
                           _isMfaActive = result;
@@ -114,19 +116,35 @@ class _SecurityPageState extends State<SecurityPage> {
                   SizedBox(height: 12),
                   Text(
                     '• Use senhas fortes e únicas',
-                    style: TextStyle(color: Colors.white, fontSize: 13, height: 1.8),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      height: 1.8,
+                    ),
                   ),
                   Text(
                     '• Ative a autenticação de dois fatores',
-                    style: TextStyle(color: Colors.white, fontSize: 13, height: 1.8),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      height: 1.8,
+                    ),
                   ),
                   Text(
                     '• Não compartilhe seus dados de acesso',
-                    style: TextStyle(color: Colors.white, fontSize: 13, height: 1.8),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      height: 1.8,
+                    ),
                   ),
                   Text(
                     '• Salve seus códigos de backup em local seguro',
-                    style: TextStyle(color: Colors.white, fontSize: 13, height: 1.8),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      height: 1.8,
+                    ),
                   ),
                 ],
               ),
