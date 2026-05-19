@@ -1,4 +1,5 @@
 // Autoria: Felipe Sousa - RA: 22018160
+// Nome: Higor Vedovello Longuim RA: 23000291
 
 import 'package:flutter/material.dart';
 
@@ -64,24 +65,22 @@ class _LoginPageState extends State<LoginPage> {
       final userId = (usuario['id'] as String?)?.trim().isNotEmpty == true
           ? (usuario['id'] as String).trim()
           : (usuario['uid'] as String?)?.trim();
-      final userName = (usuario['nome'] as String?)?.trim();
+      final userName    = (usuario['nome']     as String?)?.trim();
+      final userCpf     = (usuario['cpf']      as String?)?.trim();
+      final userTelefone = (usuario['telefone'] as String?)?.trim();
       final userEmail = (usuario['email'] as String?)?.trim().isNotEmpty == true
           ? (usuario['email'] as String).trim()
           : email;
 
-      if (userName != null && userName.isNotEmpty) {
-        await _authSessionStorage.saveUserProfile(
-          nome: userName,
-          email: userEmail,
-          userId: userId,
-        );
-      } else {
-        await _authSessionStorage.saveUserProfile(
-          nome: userEmail.split('@').first,
-          email: userEmail,
-          userId: userId,
-        );
-      }
+      await _authSessionStorage.saveUserProfile(
+        nome: (userName != null && userName.isNotEmpty)
+            ? userName
+            : userEmail.split('@').first,
+        email: userEmail,
+        userId: userId,
+        cpf: userCpf,
+        telefone: userTelefone,
+      );
 
       final token = result.token;
       if (token != null && token.isNotEmpty) {
