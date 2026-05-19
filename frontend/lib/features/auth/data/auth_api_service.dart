@@ -29,6 +29,7 @@ class AuthApiService {
     Dio? dio,
     AuthSessionStorage? sessionStorage,
     String? registerFunctionUrl,
+    String? userProfileFunctionUrl,
     String? firebaseWebApiKey,
   }) {
     final resolvedSessionStorage = sessionStorage ?? AuthSessionStorage();
@@ -36,6 +37,11 @@ class AuthApiService {
     final resolvedRegisterFunctionUrl = _resolveFunctionUrl(
       registerFunctionUrl,
       AppConfig.registerFunctionUrl,
+    );
+    final resolvedUserProfileFunctionUrl = _resolveUserProfileFunctionUrl(
+      overrideUrl: userProfileFunctionUrl,
+      configuredUrl: AppConfig.userProfileFunctionUrl,
+      registerFunctionUrl: resolvedRegisterFunctionUrl,
     );
     final resolvedFirebaseWebApiKey = _resolveFirebaseWebApiKey(
       firebaseWebApiKey,
@@ -62,6 +68,7 @@ class AuthApiService {
       dio: resolvedDio,
       ownsDio: dio == null,
       registerFunctionUrl: resolvedRegisterFunctionUrl,
+      userProfileFunctionUrl: resolvedUserProfileFunctionUrl,
       firebaseWebApiKey: resolvedFirebaseWebApiKey,
     );
   }
@@ -70,15 +77,18 @@ class AuthApiService {
     required Dio dio,
     required bool ownsDio,
     required String registerFunctionUrl,
+    required String userProfileFunctionUrl,
     required String firebaseWebApiKey,
   }) : _dio = dio,
        _ownsDio = ownsDio,
        _registerFunctionUrl = registerFunctionUrl,
+       _userProfileFunctionUrl = userProfileFunctionUrl,
        _firebaseWebApiKey = firebaseWebApiKey;
 
   final Dio _dio;
   final bool _ownsDio;
   final String _registerFunctionUrl;
+  final String _userProfileFunctionUrl;
   final String _firebaseWebApiKey;
 
   static String _resolveBaseUrl() {
@@ -124,12 +134,36 @@ class AuthApiService {
     return (overrideKey ?? AppConfig.firebaseWebApiKey).trim();
   }
 
+  static String _resolveUserProfileFunctionUrl({
+    required String? overrideUrl,
+    required String configuredUrl,
+    required String registerFunctionUrl,
+  }) {
+    final explicit = _resolveFunctionUrl(overrideUrl, configuredUrl);
+    if (explicit.isNotEmpty) {
+      return explicit;
+    }
+
+    if (registerFunctionUrl.isEmpty) {
+      return '';
+    }
+
+    if (registerFunctionUrl.endsWith('/registerUser')) {
+      return registerFunctionUrl.replaceAll('/registerUser', '/getUserProfile');
+    }
+
+    return '';
+  }
+
   bool get _shouldUseFirebaseAuthDirectly => _firebaseWebApiKey.isNotEmpty;
 
-  Future<AuthResult> login({required String email, required String senha}) {
+  Future<AuthResult> login({
+    required String email,
+    required String senha,
+  }) async {
     final normalizedEmail = _normalizeEmail(email);
     if (_shouldUseFirebaseAuthDirectly) {
-      return _post(
+      final firebaseResult = await _post(
         endpoint:
             'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$_firebaseWebApiKey',
         payload: {
@@ -140,6 +174,62 @@ class AuthApiService {
         successStatusCodes: {200},
         fallbackSuccessMessage: 'Login realizado',
       );
+
+      if (!firebaseResult.success) {
+        return firebaseResult;
+      }
+
+      // O Firebase Auth nao retorna dados de perfil interno (cpf/telefone).
+      // Enriquecemos com o backend quando disponivel.
+      try {
+        if (_userProfileFunctionUrl.isNotEmpty &&
+            firebaseResult.token != null &&
+            firebaseResult.token!.isNotEmpty) {
+          final functionProfile = await _post(
+            endpoint: _userProfileFunctionUrl,
+            payload: const <String, dynamic>{},
+            successStatusCodes: {200},
+            fallbackSuccessMessage: 'Perfil carregado',
+            method: 'GET',
+            headers: <String, dynamic>{
+              'Authorization': 'Bearer ${firebaseResult.token!}',
+            },
+          );
+
+          if (functionProfile.success) {
+            return AuthResult(
+              success: true,
+              message: firebaseResult.message,
+              usuario: _mergeProfiles(
+                firebaseResult.usuario,
+                functionProfile.usuario,
+              ),
+              token: firebaseResult.token,
+            );
+          }
+        }
+
+        final backendResult = await _post(
+          endpoint: '/users/login',
+          payload: {'email': normalizedEmail, 'senha': senha},
+          successStatusCodes: {200},
+          fallbackSuccessMessage: 'Login realizado',
+        );
+
+        if (backendResult.success) {
+          return AuthResult(
+            success: true,
+            message: firebaseResult.message,
+            usuario: _mergeProfiles(
+              firebaseResult.usuario,
+              backendResult.usuario,
+            ),
+            token: firebaseResult.token ?? backendResult.token,
+          );
+        }
+      } catch (_) {}
+
+      return firebaseResult;
     }
 
     return _post(
@@ -148,6 +238,24 @@ class AuthApiService {
       successStatusCodes: {200},
       fallbackSuccessMessage: 'Login realizado',
     );
+  }
+
+  Map<String, dynamic>? _mergeProfiles(
+    Map<String, dynamic>? primary,
+    Map<String, dynamic>? secondary,
+  ) {
+    if (primary == null && secondary == null) {
+      return null;
+    }
+
+    final merged = <String, dynamic>{};
+    if (secondary != null) {
+      merged.addAll(secondary);
+    }
+    if (primary != null) {
+      merged.addAll(primary);
+    }
+    return merged;
   }
 
   Future<AuthResult> register({
@@ -208,9 +316,24 @@ class AuthApiService {
     required Map<String, dynamic> payload,
     required Set<int> successStatusCodes,
     required String fallbackSuccessMessage,
+    String method = 'POST',
+    Map<String, dynamic>? headers,
   }) async {
     try {
-      final response = await _dio.post(endpoint, data: payload);
+      final Options? requestOptions = headers == null
+          ? null
+          : Options(headers: headers);
+      final response = method == 'GET'
+          ? (requestOptions == null
+                ? await _dio.get(endpoint)
+                : await _dio.get(endpoint, options: requestOptions))
+          : (requestOptions == null
+                ? await _dio.post(endpoint, data: payload)
+                : await _dio.post(
+                    endpoint,
+                    data: payload,
+                    options: requestOptions,
+                  ));
       final body = _decodeBody(response.data);
       final message =
           _readSuccessMessage(body) ??

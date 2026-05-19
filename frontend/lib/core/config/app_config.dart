@@ -15,6 +15,10 @@ class AppConfig {
     'REGISTER_FUNCTION_URL',
     defaultValue: '',
   );
+  static const String userProfileFunctionUrl = String.fromEnvironment(
+    'USER_PROFILE_FUNCTION_URL',
+    defaultValue: '',
+  );
 
   static const String firebaseWebApiKey = String.fromEnvironment(
     'FIREBASE_WEB_API_KEY',

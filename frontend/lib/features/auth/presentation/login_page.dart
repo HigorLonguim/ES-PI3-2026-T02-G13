@@ -62,15 +62,40 @@ class _LoginPageState extends State<LoginPage> {
 
     if (result.success) {
       final usuario = result.usuario ?? <String, dynamic>{};
-      final userId = (usuario['id'] as String?)?.trim().isNotEmpty == true
-          ? (usuario['id'] as String).trim()
-          : (usuario['uid'] as String?)?.trim();
-      final userName    = (usuario['nome']     as String?)?.trim();
-      final userCpf     = (usuario['cpf']      as String?)?.trim();
-      final userTelefone = (usuario['telefone'] as String?)?.trim();
-      final userEmail = (usuario['email'] as String?)?.trim().isNotEmpty == true
-          ? (usuario['email'] as String).trim()
-          : email;
+      final userId =
+          _firstNonEmptyValue(usuario, const ['id', 'uid']) ??
+          _firstNonEmptyValue(_nestedMap(usuario), const ['id', 'uid']);
+      final userName =
+          _firstNonEmptyValue(usuario, const ['nome', 'name']) ??
+          _firstNonEmptyValue(_nestedMap(usuario), const ['nome', 'name']);
+      final userCpf =
+          _firstNonEmptyValue(usuario, const [
+            'cpf',
+            'documento',
+            'document',
+          ]) ??
+          _firstNonEmptyValue(_nestedMap(usuario), const [
+            'cpf',
+            'documento',
+            'document',
+          ]);
+      final userTelefone =
+          _firstNonEmptyValue(usuario, const [
+            'telefone',
+            'phone',
+            'celular',
+            'mobile',
+          ]) ??
+          _firstNonEmptyValue(_nestedMap(usuario), const [
+            'telefone',
+            'phone',
+            'celular',
+            'mobile',
+          ]);
+      final userEmail =
+          _firstNonEmptyValue(usuario, const ['email']) ??
+          _firstNonEmptyValue(_nestedMap(usuario), const ['email']) ??
+          email;
 
       await _authSessionStorage.saveUserProfile(
         nome: (userName != null && userName.isNotEmpty)
@@ -95,6 +120,33 @@ class _LoginPageState extends State<LoginPage> {
         (route) => false,
       );
     }
+  }
+
+  Map<String, dynamic> _nestedMap(Map<String, dynamic> source) {
+    for (final key in const ['user', 'usuario', 'profile', 'perfil', 'data']) {
+      final value = source[key];
+      if (value is Map<String, dynamic>) {
+        return value;
+      }
+      if (value is Map) {
+        return Map<String, dynamic>.from(value);
+      }
+    }
+    return const <String, dynamic>{};
+  }
+
+  String? _firstNonEmptyValue(Map<String, dynamic> source, List<String> keys) {
+    for (final key in keys) {
+      final rawValue = source[key];
+      if (rawValue == null) {
+        continue;
+      }
+      final normalizedValue = rawValue.toString().trim();
+      if (normalizedValue.isNotEmpty) {
+        return normalizedValue;
+      }
+    }
+    return null;
   }
 
   void _showMessage(String message, {required bool success}) {
