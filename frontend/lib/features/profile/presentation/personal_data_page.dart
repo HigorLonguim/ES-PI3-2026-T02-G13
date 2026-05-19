@@ -15,11 +15,11 @@ class PersonalDataPage extends StatefulWidget {
 class _PersonalDataPageState extends State<PersonalDataPage> {
   final AuthSessionStorage _sessionStorage = AuthSessionStorage();
 
-  String _nome     = '';
-  String _email    = '';
-  String _cpf      = '';
+  String _nome = '';
+  String _email = '';
+  String _cpf = '';
   String _telefone = '';
-  bool _isLoading  = true;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -28,19 +28,41 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   }
 
   Future<void> _loadUserData() async {
-    final nome     = await _sessionStorage.getUserName()     ?? '';
-    final email    = await _sessionStorage.getUserEmail()    ?? '';
-    final cpf      = await _sessionStorage.getUserCpf()      ?? '';
+    final nome = await _sessionStorage.getUserName() ?? '';
+    final email = await _sessionStorage.getUserEmail() ?? '';
+    final cpf = await _sessionStorage.getUserCpf() ?? '';
     final telefone = await _sessionStorage.getUserTelefone() ?? '';
 
     if (!mounted) return;
     setState(() {
-      _nome      = nome;
-      _email     = email;
-      _cpf       = cpf;
-      _telefone  = telefone;
+      _nome = nome;
+      _email = email;
+      _cpf = _formatCpf(cpf);
+      _telefone = _formatTelefone(telefone);
       _isLoading = false;
     });
+  }
+
+  String _formatCpf(String rawCpf) {
+    final digits = rawCpf.replaceAll(RegExp(r'\D'), '');
+    if (digits.length != 11) {
+      return rawCpf;
+    }
+    return '${digits.substring(0, 3)}.${digits.substring(3, 6)}.'
+        '${digits.substring(6, 9)}-${digits.substring(9, 11)}';
+  }
+
+  String _formatTelefone(String rawTelefone) {
+    final digits = rawTelefone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11) {
+      return '(${digits.substring(0, 2)}) ${digits.substring(2, 7)}-'
+          '${digits.substring(7, 11)}';
+    }
+    if (digits.length == 10) {
+      return '(${digits.substring(0, 2)}) ${digits.substring(2, 6)}-'
+          '${digits.substring(6, 10)}';
+    }
+    return rawTelefone;
   }
 
   @override

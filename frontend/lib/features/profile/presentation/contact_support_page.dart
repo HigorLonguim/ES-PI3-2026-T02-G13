@@ -14,11 +14,14 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
   String _selectedCategory = 'Dúvidas Gerais';
-  bool _isLoading = false;
 
-  final List<String> _categories = ['Dúvidas Gerais', 'Problemas com Saldo/Carteira', 'Erro nas Ordens do Balcão', 'Segurança e Acesso', 'Reportar um Bug (Ambiente Beta)'];
-
-  void _submitTicket() {}
+  final List<String> _categories = [
+    'Dúvidas Gerais',
+    'Problemas com Saldo/Carteira',
+    'Erro nas Ordens do Balcão',
+    'Segurança e Acesso',
+    'Reportar um Bug (Ambiente Beta)',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +36,19 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
           child: CircleAvatar(
             backgroundColor: Colors.white.withValues(alpha: 0.1),
             child: IconButton(
-              icon: const Icon(Icons.chevron_left, color: Colors.white, size: 24),
+              icon: const Icon(
+                Icons.chevron_left,
+                color: Colors.white,
+                size: 24,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
         ),
-        title: const Text('Contatar Suporte', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Contatar Suporte',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -47,34 +57,73 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Como podemos ajudar?', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text(
+                'Como podemos ajudar?',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 8),
-              const Text('Preencha as informações abaixo para enviar uma solicitação técnica.', style: TextStyle(color: Color(0xFF99A1AF), fontSize: 14)),
+              const Text(
+                'Preencha as informações abaixo para enviar uma solicitação técnica.',
+                style: TextStyle(color: Color(0xFF99A1AF), fontSize: 14),
+              ),
               const SizedBox(height: 32),
-              const Text('Categoria do problema', style: TextStyle(color: Colors.grey, fontSize: 14)),
+              const Text(
+                'Categoria do problema',
+                style: TextStyle(color: Colors.grey, fontSize: 14),
+              ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(color: const Color(0xFF141E2D), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white.withValues(alpha: 0.05))),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF141E2D),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
+                ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedCategory,
                     dropdownColor: const Color(0xFF141E2D),
                     isExpanded: true,
                     style: const TextStyle(color: Colors.white, fontSize: 15),
-                    items: _categories.map((val) => DropdownMenuItem(value: val, child: Text(val))).toList(),
+                    items: _categories
+                        .map(
+                          (val) =>
+                              DropdownMenuItem(value: val, child: Text(val)),
+                        )
+                        .toList(),
                     onChanged: (v) => setState(() => _selectedCategory = v!),
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-              const Text('Assunto', style: TextStyle(color: Colors.grey, fontSize: 14)),
+              const Text(
+                'Assunto',
+                style: TextStyle(color: Colors.grey, fontSize: 14),
+              ),
               const SizedBox(height: 8),
-              TextFormField(controller: _subjectController, style: const TextStyle(color: Colors.white), decoration: _inputDecoration('Ex: Erro ao atualizar saldo')),
+              TextFormField(
+                controller: _subjectController,
+                style: const TextStyle(color: Colors.white),
+                decoration: _inputDecoration('Ex: Erro ao atualizar saldo'),
+              ),
               const SizedBox(height: 24),
-              const Text('Mensagem explicativa', style: TextStyle(color: Colors.grey, fontSize: 14)),
+              const Text(
+                'Mensagem explicativa',
+                style: TextStyle(color: Colors.grey, fontSize: 14),
+              ),
               const SizedBox(height: 8),
-              TextFormField(controller: _messageController, style: const TextStyle(color: Colors.white), maxLines: 6, decoration: _inputDecoration('Descreva o erro...')),
+              TextFormField(
+                controller: _messageController,
+                style: const TextStyle(color: Colors.white),
+                maxLines: 6,
+                decoration: _inputDecoration('Descreva o erro...'),
+              ),
             ],
           ),
         ),
@@ -86,8 +135,14 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
     return InputDecoration(
       hintText: hintText,
       hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF9810FA))),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF9810FA)),
+      ),
       filled: true,
       fillColor: const Color(0xFF141E2D),
     );
