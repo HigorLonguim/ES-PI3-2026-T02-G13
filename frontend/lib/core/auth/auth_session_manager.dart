@@ -2,6 +2,9 @@
 
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+
 import '../../features/auth/presentation/login_page.dart';
 import '../navigation/app_route.dart';
 import 'auth_session_storage.dart';
@@ -53,6 +56,9 @@ class AuthSessionManager {
     _isLoggingOut = true;
     stopSessionMonitoring();
     try {
+      if (Firebase.apps.isNotEmpty) {
+        await FirebaseAuth.instance.signOut();
+      }
       await _sessionStorage.clearToken();
 
       final navigatorState = AppRoute.navigatorKey.currentState;

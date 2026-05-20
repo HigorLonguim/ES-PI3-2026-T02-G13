@@ -1,6 +1,8 @@
 // Autoria: Felipe Sousa - RA: 22018160
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/core/auth/auth_session_manager.dart';
 import 'package:frontend/core/auth/auth_session_storage.dart';
@@ -50,6 +52,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _logout() async {
     AuthSessionManager.instance.stopSessionMonitoring();
     try {
+      if (Firebase.apps.isNotEmpty) {
+        await FirebaseAuth.instance.signOut();
+      }
       await _authSessionStorage.clearToken();
     } catch (_) {}
 

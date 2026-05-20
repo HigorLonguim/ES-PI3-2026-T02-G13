@@ -179,57 +179,11 @@ class AuthApiService {
         return firebaseResult;
       }
 
-      // O Firebase Auth nao retorna dados de perfil interno (cpf/telefone).
-      // Enriquecemos com o backend quando disponivel.
-      try {
-        if (_userProfileFunctionUrl.isNotEmpty &&
-            firebaseResult.token != null &&
-            firebaseResult.token!.isNotEmpty) {
-          final functionProfile = await _post(
-            endpoint: _userProfileFunctionUrl,
-            payload: const <String, dynamic>{},
-            successStatusCodes: {200},
-            fallbackSuccessMessage: 'Perfil carregado',
-            method: 'GET',
-            headers: <String, dynamic>{
-              'Authorization': 'Bearer ${firebaseResult.token!}',
-            },
-          );
-
-          if (functionProfile.success) {
-            return AuthResult(
-              success: true,
-              message: firebaseResult.message,
-              usuario: _mergeProfiles(
-                firebaseResult.usuario,
-                functionProfile.usuario,
-              ),
-              token: firebaseResult.token,
-            );
-          }
-        }
-
-        final backendResult = await _post(
-          endpoint: '/users/login',
-          payload: {'email': normalizedEmail, 'senha': senha},
-          successStatusCodes: {200},
-          fallbackSuccessMessage: 'Login realizado',
-        );
-
-        if (backendResult.success) {
-          return AuthResult(
-            success: true,
-            message: firebaseResult.message,
-            usuario: _mergeProfiles(
-              firebaseResult.usuario,
-              backendResult.usuario,
-            ),
-            token: firebaseResult.token ?? backendResult.token,
-          );
-        }
-      } catch (_) {}
-
-      return firebaseResult;
+      return enrichFirebaseLoginResult(
+        firebaseResult: firebaseResult,
+        email: normalizedEmail,
+        senha: senha,
+      );
     }
 
     return _post(
@@ -238,6 +192,68 @@ class AuthApiService {
       successStatusCodes: {200},
       fallbackSuccessMessage: 'Login realizado',
     );
+  }
+
+  Future<AuthResult> enrichFirebaseLoginResult({
+    required AuthResult firebaseResult,
+    required String email,
+    required String senha,
+  }) async {
+    if (!firebaseResult.success) {
+      return firebaseResult;
+    }
+
+    final normalizedEmail = _normalizeEmail(email);
+
+    try {
+      if (_userProfileFunctionUrl.isNotEmpty &&
+          firebaseResult.token != null &&
+          firebaseResult.token!.isNotEmpty) {
+        final functionProfile = await _post(
+          endpoint: _userProfileFunctionUrl,
+          payload: const <String, dynamic>{},
+          successStatusCodes: {200},
+          fallbackSuccessMessage: 'Perfil carregado',
+          method: 'GET',
+          headers: <String, dynamic>{
+            'Authorization': 'Bearer ${firebaseResult.token!}',
+          },
+        );
+
+        if (functionProfile.success) {
+          return AuthResult(
+            success: true,
+            message: firebaseResult.message,
+            usuario: _mergeProfiles(
+              firebaseResult.usuario,
+              functionProfile.usuario,
+            ),
+            token: firebaseResult.token,
+          );
+        }
+      }
+
+      final backendResult = await _post(
+        endpoint: '/users/login',
+        payload: {'email': normalizedEmail, 'senha': senha},
+        successStatusCodes: {200},
+        fallbackSuccessMessage: 'Login realizado',
+      );
+
+      if (backendResult.success) {
+        return AuthResult(
+          success: true,
+          message: firebaseResult.message,
+          usuario: _mergeProfiles(
+            firebaseResult.usuario,
+            backendResult.usuario,
+          ),
+          token: firebaseResult.token ?? backendResult.token,
+        );
+      }
+    } catch (_) {}
+
+    return firebaseResult;
   }
 
   Map<String, dynamic>? _mergeProfiles(

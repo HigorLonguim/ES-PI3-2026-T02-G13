@@ -1,5 +1,7 @@
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/features/profile/presentation/change_password_page.dart';
 import 'package:frontend/features/profile/presentation/two_factor_page.dart';
@@ -12,8 +14,27 @@ class SecurityPage extends StatefulWidget {
 }
 
 class _SecurityPageState extends State<SecurityPage> {
-  // Estado que controla se a autenticação simulada está ativa
   bool _isMfaActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMfa();
+  }
+
+  Future<void> _loadMfa() async {
+    if (Firebase.apps.isEmpty || FirebaseAuth.instance.currentUser == null) {
+      return;
+    }
+
+    final factors = await FirebaseAuth.instance.currentUser!.multiFactor
+        .getEnrolledFactors();
+
+    if (!mounted) return;
+    setState(() {
+      _isMfaActive = factors.isNotEmpty;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +62,6 @@ class _SecurityPageState extends State<SecurityPage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Painel de gerenciamento de credenciais e acessos
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFF141E2D),
@@ -50,7 +70,6 @@ class _SecurityPageState extends State<SecurityPage> {
               ),
               child: Column(
                 children: [
-                  // CARD MFA: Abre a configuração e escuta o retorno do estado
                   _buildSecurityTile(
                     icon: Icons.verified_user_outlined,
                     title: 'Autenticação de Dois Fatores',
@@ -91,7 +110,6 @@ class _SecurityPageState extends State<SecurityPage> {
             ),
             const SizedBox(height: 24),
 
-            // Card informativo com boas práticas de segurança
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
