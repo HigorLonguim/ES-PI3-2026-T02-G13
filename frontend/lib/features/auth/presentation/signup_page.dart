@@ -108,6 +108,10 @@ class _SignUpPageState extends State<SignUpPage> {
     _showMessage(result.message, success: result.success);
 
     if (result.success) {
+      await Future<void>.delayed(const Duration(milliseconds: 350));
+      if (!mounted) {
+        return;
+      }
       Navigator.of(context).pop();
     }
   }

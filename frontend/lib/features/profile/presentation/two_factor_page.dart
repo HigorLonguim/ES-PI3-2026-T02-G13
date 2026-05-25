@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/auth/auth_session_storage.dart';
+import '../../../core/widgets/app_status_indicator.dart';
 
 class TwoFactorPage extends StatefulWidget {
   const TwoFactorPage({super.key});
@@ -199,6 +200,12 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
   String _firebaseError(FirebaseAuthException error) {
     if (error.code == 'invalid-phone-number') return 'Telefone invalido.';
     if (error.code == 'invalid-verification-code') return 'Codigo invalido.';
+    if (error.code == 'captcha-check-failed') {
+      return 'Captcha invalido ou expirado. Tente novamente.';
+    }
+    if (error.code == 'missing-client-identifier') {
+      return 'Falha no captcha. Reinicie o app e tente novamente.';
+    }
     if (error.code == 'requires-recent-login') {
       return 'Faca login novamente antes de alterar o MFA.';
     }
@@ -206,9 +213,11 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    showAppStatusSnackBar(
+      context: context,
+      message: message,
+      type: AppStatusType.info,
+    );
   }
 
   @override

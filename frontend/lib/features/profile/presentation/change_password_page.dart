@@ -1,7 +1,10 @@
 // Autoria: Felipe Sousa - RA: 22018160
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import '../../../core/widgets/app_status_indicator.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -11,10 +14,96 @@ class ChangePasswordPage extends StatefulWidget {
 }
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
-  // Controles de visibilidade das senhas
+  final TextEditingController _currentController = TextEditingController();
+  final TextEditingController _newController = TextEditingController();
+  final TextEditingController _confirmController = TextEditingController();
+
   bool _obscureCurrent = true;
   bool _obscureNew = true;
   bool _obscureConfirm = true;
+  bool _loading = false;
+
+  @override
+  void dispose() {
+    _currentController.dispose();
+    _newController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _changePassword() async {
+    final currentPassword = _currentController.text;
+    final newPassword = _newController.text;
+    final confirmPassword = _confirmController.text;
+
+    if (currentPassword.isEmpty ||
+        newPassword.isEmpty ||
+        confirmPassword.isEmpty) {
+      _show('Preencha todos os campos.', AppStatusType.error);
+      return;
+    }
+
+    if (newPassword != confirmPassword) {
+      _show('A confirmacao da nova senha nao confere.', AppStatusType.error);
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      _show(
+        'A nova senha deve ter pelo menos 6 caracteres.',
+        AppStatusType.error,
+      );
+      return;
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    final email = user?.email;
+    if (user == null || email == null || email.isEmpty) {
+      _show('Usuario invalido. Faca login novamente.', AppStatusType.error);
+      return;
+    }
+
+    setState(() => _loading = true);
+
+    try {
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: currentPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(newPassword);
+
+      if (!mounted) return;
+      _show('Senha alterada com sucesso!', AppStatusType.success);
+      await Future<void>.delayed(const Duration(milliseconds: 350));
+      if (!mounted) return;
+      Navigator.pop(context);
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) return;
+      _show(_firebaseMessage(error), AppStatusType.error);
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+    }
+  }
+
+  String _firebaseMessage(FirebaseAuthException error) {
+    if (error.code == 'wrong-password' || error.code == 'invalid-credential') {
+      return 'Senha atual incorreta.';
+    }
+    if (error.code == 'weak-password') {
+      return 'A nova senha e fraca. Use mais caracteres e combinacoes.';
+    }
+    if (error.code == 'requires-recent-login') {
+      return 'Sua sessao expirou. Faca login novamente e tente de novo.';
+    }
+    return error.message ?? 'Nao foi possivel alterar a senha.';
+  }
+
+  void _show(String message, AppStatusType type) {
+    showAppStatusSnackBar(context: context, message: message, type: type);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,74 +132,59 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Campo: Senha Atual
             _buildLabel('Senha Atual'),
             _buildPasswordField(
+              controller: _currentController,
               obscure: _obscureCurrent,
               onToggle: () =>
                   setState(() => _obscureCurrent = !_obscureCurrent),
             ),
             const SizedBox(height: 20),
-
-            // Campo: Nova Senha
             _buildLabel('Nova Senha'),
             _buildPasswordField(
+              controller: _newController,
               obscure: _obscureNew,
               onToggle: () => setState(() => _obscureNew = !_obscureNew),
             ),
             const SizedBox(height: 20),
-
-            // Campo: Confirmar Nova Senha
             _buildLabel('Confirmar Nova Senha'),
             _buildPasswordField(
+              controller: _confirmController,
               obscure: _obscureConfirm,
               onToggle: () =>
                   setState(() => _obscureConfirm = !_obscureConfirm),
             ),
             const SizedBox(height: 40),
-
-            // Botão: Alterar Senha (com brilho/glow igual à imagem)
-            Container(
+            SizedBox(
               width: double.infinity,
               height: 55,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF9810FA).withValues(alpha: 0.4),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF6A1BFF), Color(0xFF9810FA)],
-                ),
-              ),
               child: ElevatedButton(
-                onPressed: () {
-                  // Simulação de sucesso
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Senha alterada com sucesso!'),
-                    ),
-                  );
-                },
+                onPressed: _loading ? null : _changePassword,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
+                  backgroundColor: const Color(0xFF9810FA),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text(
-                  'Alterar Senha',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: _loading
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : const Text(
+                        'Alterar Senha',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -119,7 +193,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
-  // Widget auxiliar para as labels dos campos
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 4),
@@ -130,8 +203,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
-  // Widget auxiliar para os campos de input estilizados
   Widget _buildPasswordField({
+    required TextEditingController controller,
     required bool obscure,
     required VoidCallback onToggle,
   }) {
@@ -142,6 +215,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: TextField(
+        controller: controller,
         obscureText: obscure,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(

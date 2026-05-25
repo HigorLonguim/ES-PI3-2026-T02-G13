@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../core/widgets/app_status_indicator.dart';
+
 class MfaChallengePage extends StatefulWidget {
   const MfaChallengePage({super.key, required this.resolver});
 
@@ -52,7 +54,7 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
       verificationFailed: (error) {
         if (!mounted) return;
         setState(() => _loading = false);
-        _showMessage(_firebaseError(error));
+        _showMessage(_firebaseError(error), AppStatusType.error);
       },
       codeSent: (verificationId, _) {
         if (!mounted) return;
@@ -60,7 +62,7 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
           _verificationId = verificationId;
           _loading = false;
         });
-        _showMessage('Codigo enviado por SMS.');
+        _showMessage('Codigo enviado por SMS.', AppStatusType.info);
       },
       codeAutoRetrievalTimeout: (verificationId) {
         _verificationId = verificationId;
@@ -73,7 +75,7 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
     final code = _codeController.text.trim();
 
     if (verificationId == null || code.length != 6) {
-      _showMessage('Digite o codigo de 6 digitos.');
+      _showMessage('Digite o codigo de 6 digitos.', AppStatusType.error);
       return;
     }
 
@@ -96,7 +98,7 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
     } on FirebaseAuthException catch (error) {
       if (!mounted) return;
       setState(() => _loading = false);
-      _showMessage(_firebaseError(error));
+      _showMessage(_firebaseError(error), AppStatusType.error);
     }
   }
 
@@ -107,10 +109,8 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
     return error.message ?? 'Nao foi possivel validar o codigo.';
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+  void _showMessage(String message, AppStatusType type) {
+    showAppStatusSnackBar(context: context, message: message, type: type);
   }
 
   @override
@@ -128,12 +128,45 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Icon(Icons.sms, color: Color(0xFF9810FA), size: 64),
+            const SizedBox(height: 12),
+            const Icon(Icons.lock, color: Color(0xFF7B61FF), size: 72),
             const SizedBox(height: 24),
-            Text(
-              'Codigo enviado para $phone',
+            const Text(
+              'Confirme sua Identidade',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Como medida de seguranca, enviamos um codigo de verificacao para',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFF99A1AF), fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF201641),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: const Color(0xFF4B3BB0)),
+                ),
+                child: Text(
+                  phone,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 24),
             TextField(
@@ -154,7 +187,7 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
               decoration: InputDecoration(
                 hintText: '000000',
                 filled: true,
-                fillColor: const Color(0xFF141E2D),
+                fillColor: const Color(0xFF12052E),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -164,14 +197,18 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
             ElevatedButton(
               onPressed: _loading ? null : _confirmCode,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF9810FA),
+                backgroundColor: const Color(0xFF7B61FF),
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: const Color(0xFF7B61FF),
+                disabledForegroundColor: Colors.white70,
                 minimumSize: const Size.fromHeight(52),
               ),
-              child: Text(_loading ? 'Aguarde...' : 'Confirmar'),
+              child: Text(_loading ? 'Aguarde...' : 'Verificar e Entrar'),
             ),
+            const SizedBox(height: 8),
             TextButton(
               onPressed: _loading ? null : _sendSms,
-              child: const Text('Reenviar SMS'),
+              child: const Text('Reenviar codigo'),
             ),
           ],
         ),

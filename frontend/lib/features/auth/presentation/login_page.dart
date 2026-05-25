@@ -67,7 +67,10 @@ class _LoginPageState extends State<LoginPage> {
 
     if (result.success) {
       await _salvarSessao(result, email);
+      return;
     }
+
+    _showMessage(result.message, success: false);
   }
 
   Future<AuthResult?> _login(String email, String senha) async {
@@ -191,6 +194,9 @@ class _LoginPageState extends State<LoginPage> {
       await AuthSessionManager.instance.startSessionMonitoring(token: token);
     }
 
+    if (!mounted) return;
+    _showMessage(result.message, success: true);
+    await Future<void>.delayed(const Duration(milliseconds: 350));
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       AppRoute(const MainNavigationPage()),

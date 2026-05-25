@@ -2,8 +2,10 @@
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 // Nome: Higor Vedovello Longuim RA: 23000291
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../../core/auth/auth_session_storage.dart';
+import '../../../core/widgets/app_status_indicator.dart';
 
 class PersonalDataPage extends StatefulWidget {
   const PersonalDataPage({super.key});
@@ -28,10 +30,16 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
   }
 
   Future<void> _loadUserData() async {
-    final nome = await _sessionStorage.getUserName() ?? '';
-    final email = await _sessionStorage.getUserEmail() ?? '';
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    final nome =
+        await _sessionStorage.getUserName() ?? firebaseUser?.displayName ?? '';
+    final email =
+        await _sessionStorage.getUserEmail() ?? firebaseUser?.email ?? '';
     final cpf = await _sessionStorage.getUserCpf() ?? '';
-    final telefone = await _sessionStorage.getUserTelefone() ?? '';
+    final telefone =
+        await _sessionStorage.getUserTelefone() ??
+        firebaseUser?.phoneNumber ??
+        '';
 
     if (!mounted) return;
     setState(() {
@@ -41,6 +49,112 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
       _telefone = _formatTelefone(telefone);
       _isLoading = false;
     });
+  }
+
+  Future<void> _openEditModal() async {
+    final nameController = TextEditingController(text: _nome);
+    final emailController = TextEditingController(text: _email);
+    final cpfController = TextEditingController(text: _cpf);
+    final phoneController = TextEditingController(text: _telefone);
+
+    final shouldSave = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF141E2D),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(
+            20,
+            20,
+            20,
+            MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _field(label: 'Nome', controller: nameController),
+              const SizedBox(height: 12),
+              _field(label: 'Email', controller: emailController),
+              const SizedBox(height: 12),
+              _field(label: 'CPF', controller: cpfController),
+              const SizedBox(height: 12),
+              _field(label: 'Telefone', controller: phoneController),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF9810FA),
+                  ),
+                  child: const Text('Salvar'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (shouldSave != true || !mounted) {
+      nameController.dispose();
+      emailController.dispose();
+      cpfController.dispose();
+      phoneController.dispose();
+      return;
+    }
+
+    final rawName = nameController.text.trim();
+    final rawEmail = emailController.text.trim();
+    final rawCpf = cpfController.text.trim();
+    final rawPhone = phoneController.text.trim();
+
+    nameController.dispose();
+    emailController.dispose();
+    cpfController.dispose();
+    phoneController.dispose();
+
+    if (rawName.isEmpty || rawEmail.isEmpty) {
+      _show('Nome e email sao obrigatorios.', AppStatusType.error);
+      return;
+    }
+
+    final cpfDigits = rawCpf.replaceAll(RegExp(r'\D'), '');
+    if (cpfDigits.isNotEmpty && cpfDigits.length != 11) {
+      _show('CPF invalido. Informe 11 digitos.', AppStatusType.error);
+      return;
+    }
+
+    final phoneDigits = rawPhone.replaceAll(RegExp(r'\D'), '');
+    if (phoneDigits.isNotEmpty && phoneDigits.length < 10) {
+      _show('Telefone invalido.', AppStatusType.error);
+      return;
+    }
+
+    await _sessionStorage.saveUserName(rawName);
+    await _sessionStorage.saveUserEmail(rawEmail);
+    await _sessionStorage.saveUserCpf(cpfDigits);
+    await _sessionStorage.saveUserTelefone(phoneDigits);
+
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
+      await firebaseUser.updateDisplayName(rawName);
+      await firebaseUser.reload();
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _nome = rawName;
+      _email = rawEmail;
+      _cpf = _formatCpf(cpfDigits);
+      _telefone = _formatTelefone(phoneDigits);
+    });
+
+    _show('Dados pessoais atualizados com sucesso.', AppStatusType.success);
   }
 
   String _formatCpf(String rawCpf) {
@@ -65,6 +179,10 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
     return rawTelefone;
   }
 
+  void _show(String message, AppStatusType type) {
+    showAppStatusSnackBar(context: context, message: message, type: type);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,6 +204,9 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
           'Dados Pessoais',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(onPressed: _openEditModal, icon: const Icon(Icons.edit)),
+        ],
       ),
       body: _isLoading
           ? const Center(
@@ -98,63 +219,46 @@ class _PersonalDataPageState extends State<PersonalDataPage> {
                   _buildDataCard(
                     icon: Icons.person_outline,
                     label: 'Nome Completo',
-                    value: _nome.isNotEmpty ? _nome : '—',
+                    value: _nome.isNotEmpty ? _nome : '-',
                   ),
                   const SizedBox(height: 12),
                   _buildDataCard(
                     icon: Icons.email_outlined,
                     label: 'Email',
-                    value: _email.isNotEmpty ? _email : '—',
+                    value: _email.isNotEmpty ? _email : '-',
                   ),
                   const SizedBox(height: 12),
                   _buildDataCard(
                     icon: Icons.credit_card_outlined,
                     label: 'CPF',
-                    value: _cpf.isNotEmpty ? _cpf : '—',
+                    value: _cpf.isNotEmpty ? _cpf : '-',
                   ),
                   const SizedBox(height: 12),
                   _buildDataCard(
                     icon: Icons.phone_android_outlined,
                     label: 'Telefone',
-                    value: _telefone.isNotEmpty ? _telefone : '—',
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF101A3D),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: const Color(0xFF1E3A8A).withValues(alpha: 0.5),
-                      ),
-                    ),
-                    child: RichText(
-                      text: const TextSpan(
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          height: 1.5,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: 'Importante: ',
-                            style: TextStyle(
-                              color: Color(0xFF60A5FA),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextSpan(
-                            text:
-                                'Para alterar seus dados pessoais, entre em contato com o suporte.',
-                          ),
-                        ],
-                      ),
-                    ),
+                    value: _telefone.isNotEmpty ? _telefone : '-',
                   ),
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _field({
+    required String label,
+    required TextEditingController controller,
+  }) {
+    return TextField(
+      controller: controller,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
+        filled: true,
+        fillColor: const Color(0xFF1C273A),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
     );
   }
 
