@@ -386,6 +386,7 @@ class PortfolioStore extends ChangeNotifier {
         ownershipStructure: '',
         mentorsCouncil: '',
         demoVideoUrl: '',
+        tokenHistory: const <double>[],
       );
 
       _holdings[holding.startupId] = PortfolioHolding(

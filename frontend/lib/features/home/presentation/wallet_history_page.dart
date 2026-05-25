@@ -124,7 +124,7 @@ class _TransactionTile extends StatelessWidget {
           if (item.createdAtIso != null && item.createdAtIso!.isNotEmpty) ...[
             const SizedBox(height: 2),
             Text(
-              item.createdAtIso!,
+              _formatDateTime(item.createdAtIso!),
               style: const TextStyle(
                 color: MesclaColors.textTertiary,
                 fontSize: 12,
@@ -134,5 +134,19 @@ class _TransactionTile extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDateTime(String value) {
+    final parsed = DateTime.tryParse(value)?.toLocal();
+    if (parsed == null) {
+      return value;
+    }
+    final day = parsed.day.toString().padLeft(2, '0');
+    final month = parsed.month.toString().padLeft(2, '0');
+    final year = parsed.year.toString();
+    final hour = parsed.hour.toString().padLeft(2, '0');
+    final minute = parsed.minute.toString().padLeft(2, '0');
+    final second = parsed.second.toString().padLeft(2, '0');
+    return '$day/$month/$year $hour:$minute:$second';
   }
 }
