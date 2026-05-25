@@ -22,13 +22,14 @@ Future<void> _startFirebase() async {
       return;
     }
 
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: AppConfig.firebaseWebApiKey,
-        projectId: AppConfig.firebaseProjectId,
-        appId: AppConfig.firebaseAppId,
-        messagingSenderId: AppConfig.firebaseMessagingSenderId,
-      ),
-    );
+await Firebase.initializeApp(
+  options: const FirebaseOptions(
+    apiKey: AppConfig.firebaseWebApiKey,
+    authDomain: AppConfig.firebaseAuthDomain,
+    projectId: AppConfig.firebaseProjectId,
+    appId: AppConfig.firebaseAppId,
+    messagingSenderId: AppConfig.firebaseMessagingSenderId,
+  ),
+);
   } catch (_) {}
 }
