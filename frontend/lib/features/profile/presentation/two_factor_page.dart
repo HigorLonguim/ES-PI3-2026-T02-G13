@@ -1,12 +1,14 @@
+﻿// Autoria: Felipe Sousa - RA: 22018160
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 /* Nome: Joao Vitor Custodio | RA: 22000115 */
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../../core/auth/auth_session_storage.dart';
 import '../../../core/widgets/app_status_indicator.dart';
 
 class TwoFactorPage extends StatefulWidget {
@@ -17,14 +19,12 @@ class TwoFactorPage extends StatefulWidget {
 }
 
 class _TwoFactorPageState extends State<TwoFactorPage> {
-  final AuthSessionStorage _storage = AuthSessionStorage();
-  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
 
   bool _loading = true;
-  bool _codeSent = false;
-  String? _verificationId;
   List<MultiFactorInfo> _factors = const [];
+  TotpSecret? _totpSecret;
+  String? _qrUrl;
 
   bool get _isMfaEnabled => _factors.isNotEmpty;
 
@@ -36,17 +36,11 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
 
   @override
   void dispose() {
-    _phoneController.dispose();
     _codeController.dispose();
     super.dispose();
   }
 
   Future<void> _loadMfa() async {
-    final savedPhone = await _storage.getUserTelefone();
-    if (savedPhone != null && _phoneController.text.isEmpty) {
-      _phoneController.text = _formatPhone(savedPhone);
-    }
-
     if (Firebase.apps.isEmpty || FirebaseAuth.instance.currentUser == null) {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -64,23 +58,16 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
     });
   }
 
-  Future<void> _sendCode() async {
+  Future<void> _startTotpEnrollment() async {
     final user = FirebaseAuth.instance.currentUser;
-    final phone = _normalizePhone(_phoneController.text);
-
     if (user == null) {
-      _showMessage('Faca login novamente para configurar MFA.');
-      return;
-    }
-
-    if (phone == null) {
-      _showMessage('Digite um telefone valido com DDD.');
+      _showMessage('Faca login novamente para configurar o MFA.', AppStatusType.error);
       return;
     }
 
     if (!user.emailVerified) {
       await user.sendEmailVerification();
-      _showMessage('Verifique seu email. Enviamos um link para voce.');
+      _showMessage('Verifique seu email antes de ativar o MFA.', AppStatusType.warning);
       return;
     }
 
@@ -88,69 +75,79 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
 
     try {
       final session = await user.multiFactor.getSession();
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: phone,
-        multiFactorSession: session,
-        verificationCompleted: _enrollMfa,
-        verificationFailed: (error) {
-          if (!mounted) return;
-          setState(() => _loading = false);
-          _showMessage(_firebaseError(error));
-        },
-        codeSent: (verificationId, _) {
-          if (!mounted) return;
-          setState(() {
-            _verificationId = verificationId;
-            _codeSent = true;
-            _loading = false;
-          });
-          _showMessage('Codigo enviado por SMS.');
-        },
-        codeAutoRetrievalTimeout: (verificationId) {
-          _verificationId = verificationId;
-        },
+      final secret = await TotpMultiFactorGenerator.generateSecret(session);
+      final email = user.email ?? 'usuario@mesclainvest.app';
+      final qrCodeUrl = await secret.generateQrCodeUrl(
+        accountName: email,
+        issuer: 'MesclaInvest',
       );
-    } catch (_) {
+
+      if (!mounted) return;
+      setState(() {
+        _totpSecret = secret;
+        _qrUrl = qrCodeUrl;
+        _loading = false;
+      });
+
+      _showMessage('Chave TOTP gerada. Cadastre no autenticador e confirme o codigo.', AppStatusType.info);
+    } on FirebaseAuthException catch (error) {
       if (!mounted) return;
       setState(() => _loading = false);
-      _showMessage('Nao foi possivel enviar o SMS.');
+      _showMessage(_firebaseError(error), AppStatusType.error);
+    } on FirebaseException catch (error) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      if (kDebugMode) {
+        debugPrint('[TOTP] FirebaseException ao gerar segredo: ${error.code} - ${error.message}');
+      }
+      _showMessage(_firebasePlatformError(error), AppStatusType.error);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      if (kDebugMode) {
+        debugPrint('[TOTP] Erro inesperado ao gerar segredo: $error');
+      }
+      _showMessage('Nao foi possivel iniciar o cadastro TOTP.', AppStatusType.error);
     }
   }
 
-  Future<void> _confirmCode() async {
-    final verificationId = _verificationId;
+  Future<void> _confirmTotpEnrollment() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final secret = _totpSecret;
     final code = _codeController.text.trim();
 
-    if (verificationId == null || code.length != 6) {
-      _showMessage('Digite o codigo de 6 digitos.');
+    if (user == null || secret == null) {
+      _showMessage('Gere a chave TOTP antes de confirmar.', AppStatusType.error);
       return;
     }
 
-    final credential = PhoneAuthProvider.credential(
-      verificationId: verificationId,
-      smsCode: code,
-    );
-    await _enrollMfa(credential);
-  }
-
-  Future<void> _enrollMfa(PhoneAuthCredential credential) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    if (code.length != 6) {
+      _showMessage('Digite o codigo de 6 digitos do autenticador.', AppStatusType.error);
+      return;
+    }
 
     setState(() => _loading = true);
 
     try {
-      final assertion = PhoneMultiFactorGenerator.getAssertion(credential);
-      await user.multiFactor.enroll(assertion, displayName: 'Telefone');
+      final assertion = await TotpMultiFactorGenerator.getAssertionForEnrollment(
+        secret,
+        code,
+      );
+
+      await user.multiFactor.enroll(assertion, displayName: 'Authenticator');
       _codeController.clear();
-      _verificationId = null;
-      _codeSent = false;
+
+      if (!mounted) return;
+      setState(() {
+        _totpSecret = null;
+        _qrUrl = null;
+      });
       await _loadMfa();
-      _showMessage('MFA ativado com sucesso.');
+      _showMessage('MFA TOTP ativado com sucesso.', AppStatusType.success);
     } on FirebaseAuthException catch (error) {
       if (!mounted) return;
       setState(() => _loading = false);
-      _showMessage(_firebaseError(error));
+      _showMessage(_firebaseError(error), AppStatusType.error);
     }
   }
 
@@ -163,34 +160,18 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
     try {
       await user.multiFactor.unenroll(multiFactorInfo: factor);
       await _loadMfa();
-      _showMessage('MFA desativado.');
+      _showMessage('MFA desativado.', AppStatusType.success);
     } on FirebaseAuthException catch (error) {
       if (!mounted) return;
       setState(() => _loading = false);
-      _showMessage(_firebaseError(error));
+      _showMessage(_firebaseError(error), AppStatusType.error);
     }
-  }
-
-  String _formatPhone(String phone) {
-    final digits = phone.replaceAll(RegExp(r'\D'), '');
-    if (digits.length == 10 || digits.length == 11) {
-      return '+55$digits';
-    }
-    return phone;
-  }
-
-  String? _normalizePhone(String phone) {
-    final digits = phone.replaceAll(RegExp(r'\D'), '');
-    if (phone.trim().startsWith('+') && digits.length >= 8) {
-      return '+$digits';
-    }
-    if (digits.length == 10 || digits.length == 11) {
-      return '+55$digits';
-    }
-    return null;
   }
 
   String _factorText(MultiFactorInfo factor) {
+    if (factor.factorId == 'totp') {
+      return factor.displayName ?? 'Authenticator (TOTP)';
+    }
     if (factor is PhoneMultiFactorInfo) {
       return factor.phoneNumber;
     }
@@ -198,26 +179,42 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
   }
 
   String _firebaseError(FirebaseAuthException error) {
-    if (error.code == 'invalid-phone-number') return 'Telefone invalido.';
-    if (error.code == 'invalid-verification-code') return 'Codigo invalido.';
-    if (error.code == 'captcha-check-failed') {
-      return 'Captcha invalido ou expirado. Tente novamente.';
-    }
-    if (error.code == 'missing-client-identifier') {
-      return 'Falha no captcha. Reinicie o app e tente novamente.';
-    }
     if (error.code == 'requires-recent-login') {
       return 'Faca login novamente antes de alterar o MFA.';
+    }
+    if (error.code == 'unsupported-first-factor') {
+      return 'Ative login por email/senha para usar TOTP.';
+    }
+    if (error.code == 'second-factor-already-in-use') {
+      return 'Este fator ja esta cadastrado.';
+    }
+    if (error.code == 'invalid-verification-code') {
+      return 'Codigo TOTP invalido. Tente novamente.';
+    }
+    if (error.code == 'operation-not-allowed') {
+      return 'TOTP nao habilitado no projeto Firebase.';
+    }
+    if (error.code == 'invalid-app-credential') {
+      return 'Credencial do app invalida para MFA. Revise configuracao do Firebase.';
     }
     return error.message ?? 'Nao foi possivel concluir a operacao.';
   }
 
-  void _showMessage(String message) {
-    showAppStatusSnackBar(
-      context: context,
-      message: message,
-      type: AppStatusType.info,
-    );
+  String _firebasePlatformError(FirebaseException error) {
+    if (error.code == 'operation-not-allowed') {
+      return 'TOTP nao habilitado no projeto Firebase.';
+    }
+    if (error.code == 'unimplemented') {
+      return 'Projeto sem suporte a TOTP MFA (Identity Platform).';
+    }
+    if (error.code == 'permission-denied') {
+      return 'Permissao negada para iniciar TOTP. Verifique configuracao do projeto.';
+    }
+    return error.message ?? 'Falha ao iniciar o cadastro TOTP.';
+  }
+
+  void _showMessage(String message, AppStatusType type) {
+    showAppStatusSnackBar(context: context, message: message, type: type);
   }
 
   @override
@@ -227,7 +224,7 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Autenticação de Dois Fatores'),
+        title: const Text('Autenticacao de Dois Fatores'),
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.white),
           onPressed: () => Navigator.pop(context, _isMfaEnabled),
@@ -256,6 +253,8 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
         ),
       );
     }
+
+    final canConfirm = _totpSecret != null;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -289,34 +288,76 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
               ),
             ),
           const SizedBox(height: 16),
-          TextField(
-            controller: _phoneController,
-            keyboardType: TextInputType.phone,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[0-9+()\-\s]')),
-            ],
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              labelText: 'Telefone',
-              hintText: '+5511999999999',
-              labelStyle: const TextStyle(color: Colors.white70),
-              filled: true,
-              fillColor: const Color(0xFF141E2D),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: _sendCode,
+            onPressed: _startTotpEnrollment,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF9810FA),
               minimumSize: const Size.fromHeight(52),
             ),
-            child: Text(_codeSent ? 'Reenviar SMS' : 'Enviar SMS'),
+            child: const Text('Configurar autenticador'),
           ),
-          if (_codeSent) ...[
+          if (_totpSecret != null) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF141E2D),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Chave secreta (manual)',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 6),
+                  SelectableText(
+                    _totpSecret!.secretKey,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                  if (_qrUrl != null) ...[
+                    const SizedBox(height: 10),
+                    const Text(
+                      'QR Code',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: QrImageView(
+                          data: _qrUrl!,
+                          size: 180,
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'URL para QR Code',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 4),
+                    SelectableText(
+                      _qrUrl!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: _codeController,
@@ -342,12 +383,12 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
               ),
             ),
             ElevatedButton(
-              onPressed: _confirmCode,
+              onPressed: canConfirm ? _confirmTotpEnrollment : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF9810FA),
                 minimumSize: const Size.fromHeight(52),
               ),
-              child: const Text('Ativar MFA'),
+              child: const Text('Ativar verificacao em duas etapas'),
             ),
           ],
         ],

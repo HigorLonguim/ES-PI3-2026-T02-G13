@@ -1,3 +1,4 @@
+﻿// Autoria: Felipe Sousa - RA: 22018160
 /* Nome: Joao Vitor Custodio | RA: 22000115 */
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,22 +18,18 @@ class MfaChallengePage extends StatefulWidget {
 
 class _MfaChallengePageState extends State<MfaChallengePage> {
   final TextEditingController _codeController = TextEditingController();
-  String? _verificationId;
   bool _loading = false;
 
-  PhoneMultiFactorInfo? get _phoneFactor {
+  MultiFactorInfo? get _primaryFactor {
+    if (widget.resolver.hints.isEmpty) {
+      return null;
+    }
     for (final factor in widget.resolver.hints) {
-      if (factor is PhoneMultiFactorInfo) {
+      if (factor.factorId == 'totp') {
         return factor;
       }
     }
-    return null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _sendSms());
+    return widget.resolver.hints.first;
   }
 
   @override
@@ -41,58 +38,35 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
     super.dispose();
   }
 
-  Future<void> _sendSms() async {
-    final phoneFactor = _phoneFactor;
-    if (phoneFactor == null) return;
-
-    setState(() => _loading = true);
-
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      multiFactorSession: widget.resolver.session,
-      multiFactorInfo: phoneFactor,
-      verificationCompleted: _finishLogin,
-      verificationFailed: (error) {
-        if (!mounted) return;
-        setState(() => _loading = false);
-        _showMessage(_firebaseError(error), AppStatusType.error);
-      },
-      codeSent: (verificationId, _) {
-        if (!mounted) return;
-        setState(() {
-          _verificationId = verificationId;
-          _loading = false;
-        });
-        _showMessage('Codigo enviado por SMS.', AppStatusType.info);
-      },
-      codeAutoRetrievalTimeout: (verificationId) {
-        _verificationId = verificationId;
-      },
-    );
-  }
-
   Future<void> _confirmCode() async {
-    final verificationId = _verificationId;
     final code = _codeController.text.trim();
-
-    if (verificationId == null || code.length != 6) {
+    if (code.length != 6) {
       _showMessage('Digite o codigo de 6 digitos.', AppStatusType.error);
       return;
     }
 
-    final credential = PhoneAuthProvider.credential(
-      verificationId: verificationId,
-      smsCode: code,
-    );
-    await _finishLogin(credential);
-  }
+    final factor = _primaryFactor;
+    if (factor == null) {
+      _showMessage('Nenhum fator MFA cadastrado para este usuario.', AppStatusType.error);
+      return;
+    }
 
-  Future<void> _finishLogin(PhoneAuthCredential credential) async {
     setState(() => _loading = true);
 
     try {
-      final assertion = PhoneMultiFactorGenerator.getAssertion(credential);
-      final userCredential = await widget.resolver.resolveSignIn(assertion);
+      MultiFactorAssertion assertion;
+      if (factor.factorId == 'totp') {
+        assertion = await TotpMultiFactorGenerator.getAssertionForSignIn(
+          factor.uid,
+          code,
+        );
+      } else {
+        _showMessage('Este fluxo agora suporta apenas TOTP.', AppStatusType.error);
+        setState(() => _loading = false);
+        return;
+      }
 
+      final userCredential = await widget.resolver.resolveSignIn(assertion);
       if (!mounted) return;
       Navigator.pop(context, userCredential);
     } on FirebaseAuthException catch (error) {
@@ -104,7 +78,7 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
 
   String _firebaseError(FirebaseAuthException error) {
     if (error.code == 'invalid-verification-code') {
-      return 'Codigo SMS invalido.';
+      return 'Codigo TOTP invalido.';
     }
     return error.message ?? 'Nao foi possivel validar o codigo.';
   }
@@ -115,7 +89,8 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
 
   @override
   Widget build(BuildContext context) {
-    final phone = _phoneFactor?.phoneNumber ?? 'seu telefone';
+    final factor = _primaryFactor;
+    final label = factor?.displayName ?? 'Authenticator';
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A1A),
@@ -141,25 +116,22 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              'Como medida de seguranca, enviamos um codigo de verificacao para',
+            const Text(
+              'Digite o codigo de 6 digitos do seu aplicativo autenticador.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF99A1AF), fontSize: 14),
+              style: TextStyle(color: Color(0xFF99A1AF), fontSize: 14),
             ),
             const SizedBox(height: 12),
             Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: const Color(0xFF201641),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(color: const Color(0xFF4B3BB0)),
                 ),
                 child: Text(
-                  phone,
+                  label,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -204,11 +176,6 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
                 minimumSize: const Size.fromHeight(52),
               ),
               child: Text(_loading ? 'Aguarde...' : 'Verificar e Entrar'),
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: _loading ? null : _sendSms,
-              child: const Text('Reenviar codigo'),
             ),
           ],
         ),
