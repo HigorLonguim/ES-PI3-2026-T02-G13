@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 /* Nome: Joao Vitor Custodio | RA: 22000115 */
 
@@ -61,13 +61,19 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
   Future<void> _startTotpEnrollment() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      _showMessage('Faca login novamente para configurar o MFA.', AppStatusType.error);
+      _showMessage(
+        'Faca login novamente para configurar o MFA.',
+        AppStatusType.error,
+      );
       return;
     }
 
     if (!user.emailVerified) {
       await user.sendEmailVerification();
-      _showMessage('Verifique seu email antes de ativar o MFA.', AppStatusType.warning);
+      _showMessage(
+        'Verifique seu email antes de ativar o MFA.',
+        AppStatusType.warning,
+      );
       return;
     }
 
@@ -89,7 +95,10 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
         _loading = false;
       });
 
-      _showMessage('Chave TOTP gerada. Cadastre no autenticador e confirme o codigo.', AppStatusType.info);
+      _showMessage(
+        'Chave TOTP gerada. Cadastre no autenticador e confirme o codigo.',
+        AppStatusType.info,
+      );
     } on FirebaseAuthException catch (error) {
       if (!mounted) return;
       setState(() => _loading = false);
@@ -98,7 +107,9 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
       if (!mounted) return;
       setState(() => _loading = false);
       if (kDebugMode) {
-        debugPrint('[TOTP] FirebaseException ao gerar segredo: ${error.code} - ${error.message}');
+        debugPrint(
+          '[TOTP] FirebaseException ao gerar segredo: ${error.code} - ${error.message}',
+        );
       }
       _showMessage(_firebasePlatformError(error), AppStatusType.error);
     } catch (error) {
@@ -107,7 +118,10 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
       if (kDebugMode) {
         debugPrint('[TOTP] Erro inesperado ao gerar segredo: $error');
       }
-      _showMessage('Nao foi possivel iniciar o cadastro TOTP.', AppStatusType.error);
+      _showMessage(
+        'Nao foi possivel iniciar o cadastro TOTP.',
+        AppStatusType.error,
+      );
     }
   }
 
@@ -117,22 +131,29 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
     final code = _codeController.text.trim();
 
     if (user == null || secret == null) {
-      _showMessage('Gere a chave TOTP antes de confirmar.', AppStatusType.error);
+      _showMessage(
+        'Gere a chave TOTP antes de confirmar.',
+        AppStatusType.error,
+      );
       return;
     }
 
     if (code.length != 6) {
-      _showMessage('Digite o codigo de 6 digitos do autenticador.', AppStatusType.error);
+      _showMessage(
+        'Digite o codigo de 6 digitos do autenticador.',
+        AppStatusType.error,
+      );
       return;
     }
 
     setState(() => _loading = true);
 
     try {
-      final assertion = await TotpMultiFactorGenerator.getAssertionForEnrollment(
-        secret,
-        code,
-      );
+      final assertion =
+          await TotpMultiFactorGenerator.getAssertionForEnrollment(
+            secret,
+            code,
+          );
 
       await user.multiFactor.enroll(assertion, displayName: 'Authenticator');
       _codeController.clear();
@@ -349,10 +370,7 @@ class _TwoFactorPageState extends State<TwoFactorPage> {
                     const SizedBox(height: 4),
                     SelectableText(
                       _qrUrl!,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ],
                 ],

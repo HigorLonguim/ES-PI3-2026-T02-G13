@@ -1,4 +1,4 @@
-﻿// Autoria: Felipe Sousa - RA: 22018160
+// Autoria: Felipe Sousa - RA: 22018160
 /* Nome: Joao Vitor Custodio | RA: 22000115 */
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -47,7 +47,10 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
 
     final factor = _primaryFactor;
     if (factor == null) {
-      _showMessage('Nenhum fator MFA cadastrado para este usuario.', AppStatusType.error);
+      _showMessage(
+        'Nenhum fator MFA cadastrado para este usuario.',
+        AppStatusType.error,
+      );
       return;
     }
 
@@ -61,7 +64,10 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
           code,
         );
       } else {
-        _showMessage('Este fluxo agora suporta apenas TOTP.', AppStatusType.error);
+        _showMessage(
+          'Este fluxo agora suporta apenas TOTP.',
+          AppStatusType.error,
+        );
         setState(() => _loading = false);
         return;
       }
@@ -124,7 +130,10 @@ class _MfaChallengePageState extends State<MfaChallengePage> {
             const SizedBox(height: 12),
             Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF201641),
                   borderRadius: BorderRadius.circular(30),
