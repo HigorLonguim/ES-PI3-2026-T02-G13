@@ -82,9 +82,9 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         run: flutter build apk --release --dart-define-from-file=.env.json
 
-      - name: Build APK debug (PR)
+      - name: Build APK release (PR)
         if: ${{ github.event_name == 'pull_request' && !env.ACT }}
-        run: flutter build apk --debug
+        run: flutter build apk --release
 
       - name: Validar fluxo de distribuicao no act (PR)
         if: ${{ github.event_name == 'pull_request' && env.ACT }}
@@ -96,7 +96,7 @@ jobs:
         with:
           appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-          file: ${{ github.event_name == 'pull_request' && 'frontend/build/app/outputs/flutter-apk/app-debug.apk' || 'frontend/build/app/outputs/flutter-apk/app-release.apk' }}
+          file: frontend/build/app/outputs/flutter-apk/app-release.apk
           testers: feltista07123@gmail.com
           releaseNotes: |
             Build automatico do workflow
