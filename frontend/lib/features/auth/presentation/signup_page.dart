@@ -258,6 +258,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           hintText: 'Joao Silva',
                           controller: _nomeController,
                           keyboardType: TextInputType.name,
+                          textInputAction: TextInputAction.next,
                         ),
                         const SizedBox(height: 16),
                         const _FieldLabel('Email'),
@@ -266,6 +267,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           hintText: 'seu@email.com',
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
                         ),
                         const SizedBox(height: 16),
                         const _FieldLabel('CPF'),
@@ -274,6 +276,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           hintText: '000.000.000-00',
                           controller: _cpfController,
                           keyboardType: TextInputType.number,
+                          textInputAction: TextInputAction.next,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                             LengthLimitingTextInputFormatter(11),
@@ -287,6 +290,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           hintText: '(11) 98765-4321',
                           controller: _telefoneController,
                           keyboardType: TextInputType.phone,
+                          textInputAction: TextInputAction.next,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                             LengthLimitingTextInputFormatter(11),
@@ -300,6 +304,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           hintText: '********',
                           controller: _senhaController,
                           obscureText: _obscurePassword,
+                          textInputAction: TextInputAction.next,
                           suffix: IconButton(
                             onPressed: () {
                               setState(() {
@@ -322,6 +327,12 @@ class _SignUpPageState extends State<SignUpPage> {
                           hintText: '********',
                           controller: _confirmarSenhaController,
                           obscureText: _obscureConfirmPassword,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) {
+                            if (!_isLoading) {
+                              _cadastrar();
+                            }
+                          },
                           suffix: IconButton(
                             onPressed: () {
                               setState(() {
@@ -456,6 +467,8 @@ class _InputField extends StatelessWidget {
     this.suffix,
     this.keyboardType,
     this.inputFormatters,
+    this.textInputAction,
+    this.onSubmitted,
   });
 
   final String hintText;
@@ -464,6 +477,8 @@ class _InputField extends StatelessWidget {
   final Widget? suffix;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -479,6 +494,8 @@ class _InputField extends StatelessWidget {
         keyboardType: keyboardType,
         obscureText: obscureText,
         inputFormatters: inputFormatters,
+        textInputAction: textInputAction,
+        onSubmitted: onSubmitted,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: hintText,

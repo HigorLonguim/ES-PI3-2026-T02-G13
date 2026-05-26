@@ -376,6 +376,7 @@ class _LoginPageState extends State<LoginPage> {
                           hintText: 'seu@email.com',
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
                         ),
                         const SizedBox(height: 16),
                         const _FieldLabel('Senha'),
@@ -384,6 +385,12 @@ class _LoginPageState extends State<LoginPage> {
                           hintText: '••••••••',
                           controller: _senhaController,
                           obscureText: _obscurePassword,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) {
+                            if (!_isLoading) {
+                              _entrar();
+                            }
+                          },
                           suffix: IconButton(
                             onPressed: () {
                               setState(() {
@@ -538,6 +545,8 @@ class _InputField extends StatelessWidget {
     this.obscureText = false,
     this.suffix,
     this.keyboardType,
+    this.textInputAction,
+    this.onSubmitted,
   });
 
   final String hintText;
@@ -545,6 +554,8 @@ class _InputField extends StatelessWidget {
   final bool obscureText;
   final Widget? suffix;
   final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -559,6 +570,8 @@ class _InputField extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         obscureText: obscureText,
+        textInputAction: textInputAction,
+        onSubmitted: onSubmitted,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: hintText,
