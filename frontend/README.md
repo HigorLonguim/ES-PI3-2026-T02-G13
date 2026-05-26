@@ -12,6 +12,12 @@ A few resources to get you started if this is your first Flutter project:
 - [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
 - [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
 
+## Firebase
+
+Para testar login e MFA, rode o app com `FIREBASE_WEB_API_KEY`,
+`FIREBASE_PROJECT_ID`, `FIREBASE_APP_ID` e `FIREBASE_MESSAGING_SENDER_ID`.
+No Firebase Console, habilite login por email/senha, telefone e MFA por SMS.
+
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.

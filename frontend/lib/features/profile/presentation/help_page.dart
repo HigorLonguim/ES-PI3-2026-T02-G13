@@ -1,7 +1,9 @@
 /* Nome: Luigi Mazzoni Targa | RA: 23010918 */
 import 'package:flutter/material.dart';
-// Certifique-se de que o import da sua TermsPage está correto abaixo:
+
 import 'package:frontend/features/profile/presentation/terms_page.dart';
+import 'package:frontend/features/profile/presentation/help_center_page.dart';
+import 'package:frontend/features/profile/presentation/contact_support_page.dart'; // Import da tela de suporte
 
 class HelpPage extends StatelessWidget {
   const HelpPage({super.key});
@@ -38,6 +40,7 @@ class HelpPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Menu de ações principais (Central, Contato e Termos)
             Container(
               decoration: BoxDecoration(
                 color: const Color(0xFF141E2D),
@@ -51,20 +54,30 @@ class HelpPage extends StatelessWidget {
                     title: 'Central de Ajuda',
                     subtitle: 'Encontre respostas para suas dúvidas',
                     onTap: () {
-                      /* Adicione navegação se tiver a tela */
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HelpCenterPage(),
+                        ),
+                      );
                     },
                   ),
                   _divider(),
+                  // BOTÃO SUPORTE: Abre o formulário de abertura de chamados simulados
                   _buildActionTile(
                     icon: Icons.email_outlined,
                     title: 'Contatar Suporte',
                     subtitle: 'Fale diretamente com nossa equipe',
                     onTap: () {
-                      /* Adicione navegação se tiver a tela */
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ContactSupportPage(),
+                        ),
+                      );
                     },
                   ),
                   _divider(),
-                  // AQUI ESTÁ A CORREÇÃO PARA OS TERMOS
                   _buildActionTile(
                     icon: Icons.description_outlined,
                     title: 'Termos e Políticas',
@@ -82,6 +95,7 @@ class HelpPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
+
             const Text(
               'Perguntas Frequentes',
               style: TextStyle(
@@ -91,8 +105,10 @@ class HelpPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Listagem do FAQ (Acordeon)
             _buildFaqTile(
-              'Como funciona o investimento em startups?',
+              'Como funciona o investment em startups?',
               'Todas as operações são simuladas...',
             ),
             _buildFaqTile(
@@ -108,7 +124,8 @@ class HelpPage extends StatelessWidget {
               'No ambiente simulado, não há taxas reais.',
             ),
             const SizedBox(height: 32),
-            // Card de Horário
+
+            // Card informativo com horários de atendimento
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -149,15 +166,15 @@ class HelpPage extends StatelessWidget {
     );
   }
 
-  // --- WIDGET AUXILIAR CORRIGIDO ---
+  // Componente reutilizável para as linhas de menu de ação
   Widget _buildActionTile({
     required IconData icon,
     required String title,
     required String subtitle,
-    required VoidCallback onTap, // Agora o parâmetro é obrigatório
+    required VoidCallback onTap,
   }) {
     return ListTile(
-      onTap: onTap, // Atribui a função de clique ao ListTile
+      onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(10),
@@ -183,6 +200,7 @@ class HelpPage extends StatelessWidget {
     );
   }
 
+  // Componente expansível para perguntas do FAQ
   Widget _buildFaqTile(String question, String answer) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -215,6 +233,7 @@ class HelpPage extends StatelessWidget {
     );
   }
 
+  // Divisor de linhas do menu
   Widget _divider() {
     return Divider(
       color: Colors.white.withValues(alpha: 0.05),

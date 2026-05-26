@@ -22,6 +22,7 @@ class MesclaInvestApp extends StatelessWidget {
       child: MaterialApp(
         title: 'MesclaInvest',
         navigatorKey: AppRoute.navigatorKey,
+        scaffoldMessengerKey: AppRoute.scaffoldMessengerKey,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           brightness: Brightness.dark,

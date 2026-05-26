@@ -1,10 +1,12 @@
 // Autoria: Felipe Sousa - RA: 22018160
 
 import 'dart:math' as math;
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/features/home/data/portfolio_store.dart';
+import 'package:frontend/features/home/data/mock_startup_repository.dart';
 import 'package:frontend/features/home/presentation/models/money_formatters.dart';
 
 import '../../../core/theme/mescla_colors.dart';
@@ -17,8 +19,67 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  _ChartRange _selectedRange = _ChartRange.oneMonth;
+  _ChartRange _selectedRange = _ChartRange.oneHour;
   bool _userSelectedRange = false;
+  final List<_ChartSample> _fallbackSamples = <_ChartSample>[];
+  final StartupRepository _startupRepository = StartupRepository();
+  Map<String, List<double>> _tokenHistoryByStartup = <String, List<double>>{};
+  Timer? _refreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshData();
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (_) => _refreshData(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _refreshData() async {
+    final store = PortfolioStore.instance;
+    await store.hydrate();
+    await _refreshTokenHistories();
+    _captureFallbackSample();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _refreshTokenHistories() async {
+    try {
+      final startups = await _startupRepository.fetchStartups(
+        useMockFallback: false,
+      );
+      final map = <String, List<double>>{};
+      for (final startup in startups) {
+        if (startup.id.trim().isEmpty || startup.tokenHistory.isEmpty) {
+          continue;
+        }
+        map[startup.id.trim()] = startup.tokenHistory;
+      }
+      _tokenHistoryByStartup = map;
+    } catch (_) {}
+  }
+
+  void _captureFallbackSample() {
+    final value = PortfolioStore.instance.totalCurrentValue;
+    final now = DateTime.now();
+    if (_fallbackSamples.isNotEmpty &&
+        now.difference(_fallbackSamples.last.timestamp).inSeconds < 10) {
+      return;
+    }
+    _fallbackSamples.add(_ChartSample(timestamp: now, value: value));
+    if (_fallbackSamples.length > 400) {
+      _fallbackSamples.removeAt(0);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +90,15 @@ class _DashboardPageState extends State<DashboardPage> {
       builder: (context, _) {
         final hasInvestments = store.hasHoldings;
         if (!_userSelectedRange && hasInvestments) {
-          _selectedRange = _ChartRange.yearToDate;
+          _selectedRange = _ChartRange.oneHour;
         }
 
         final series = _buildSeries(
           range: _selectedRange,
-          hasInvestments: hasInvestments,
+          holdings: store.holdings,
+          tokenHistoryByStartup: _tokenHistoryByStartup,
+          fallbackSamples: _fallbackSamples,
+          currentValue: store.totalCurrentValue,
         );
 
         return Scaffold(
@@ -216,7 +280,7 @@ class _PortfolioValueCard extends StatelessWidget {
   }
 }
 
-class _HistoryCard extends StatelessWidget {
+class _HistoryCard extends StatefulWidget {
   const _HistoryCard({
     required this.selectedRange,
     required this.onRangeSelected,
@@ -228,7 +292,42 @@ class _HistoryCard extends StatelessWidget {
   final _ChartSeries series;
 
   @override
+  State<_HistoryCard> createState() => _HistoryCardState();
+}
+
+class _HistoryCardState extends State<_HistoryCard> {
+  int? _selectedIndex;
+
+  void _selectByPosition(Offset localPosition, double width) {
+    if (widget.series.points.isEmpty) {
+      return;
+    }
+    const leftPadding = 64.0;
+    final usableWidth = math.max(1.0, width - leftPadding);
+    final x = (localPosition.dx - leftPadding).clamp(0.0, usableWidth);
+    final ratio = x / usableWidth;
+    final index = (ratio * (widget.series.points.length - 1)).round().clamp(
+      0,
+      widget.series.points.length - 1,
+    );
+    setState(() => _selectedIndex = index);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final selectedValue =
+        _selectedIndex == null ||
+            _selectedIndex! < 0 ||
+            _selectedIndex! >= widget.series.points.length
+        ? null
+        : widget.series.points[_selectedIndex!];
+    final selectedLabel =
+        _selectedIndex == null ||
+            _selectedIndex! < 0 ||
+            _selectedIndex! >= widget.series.labels.length
+        ? null
+        : widget.series.labels[_selectedIndex!];
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
@@ -267,8 +366,8 @@ class _HistoryCard extends StatelessWidget {
                         padding: const EdgeInsets.only(right: 8),
                         child: _RangeChip(
                           range: range,
-                          selected: range == selectedRange,
-                          onTap: () => onRangeSelected(range),
+                          selected: range == widget.selectedRange,
+                          onTap: () => widget.onRangeSelected(range),
                         ),
                       ),
                     )
@@ -277,10 +376,51 @@ class _HistoryCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
+          if (selectedValue != null) ...[
+            Text(
+              formatCurrency(selectedValue),
+              style: const TextStyle(
+                color: MesclaColors.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (selectedLabel != null && selectedLabel.isNotEmpty)
+              Text(
+                selectedLabel,
+                style: const TextStyle(
+                  color: MesclaColors.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
+            const SizedBox(height: 10),
+          ],
           SizedBox(
             height: 280,
             width: double.infinity,
-            child: CustomPaint(painter: _DashboardChartPainter(series: series)),
+            child: LayoutBuilder(
+              builder: (context, constraints) => GestureDetector(
+                onTapDown: (details) => _selectByPosition(
+                  details.localPosition,
+                  constraints.maxWidth,
+                ),
+                onPanDown: (details) => _selectByPosition(
+                  details.localPosition,
+                  constraints.maxWidth,
+                ),
+                onPanUpdate: (details) => _selectByPosition(
+                  details.localPosition,
+                  constraints.maxWidth,
+                ),
+                onPanEnd: (_) => setState(() => _selectedIndex = null),
+                child: CustomPaint(
+                  painter: _DashboardChartPainter(
+                    series: widget.series,
+                    selectedIndex: _selectedIndex,
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -424,9 +564,13 @@ class _StatsCard extends StatelessWidget {
 }
 
 class _DashboardChartPainter extends CustomPainter {
-  const _DashboardChartPainter({required this.series});
+  const _DashboardChartPainter({
+    required this.series,
+    required this.selectedIndex,
+  });
 
   final _ChartSeries series;
+  final int? selectedIndex;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -465,7 +609,7 @@ class _DashboardChartPainter extends CustomPainter {
       );
       _drawText(
         canvas: canvas,
-        text: '${(tick / 1000).round()}k',
+        text: _formatTickLabel(tick),
         offset: Offset(0, y - 8),
         color: MesclaColors.textTertiary,
         fontSize: 12,
@@ -515,11 +659,36 @@ class _DashboardChartPainter extends CustomPainter {
 
     canvas.drawPath(areaPath, areaPaint);
     canvas.drawPath(linePath, linePaint);
+
+    if (selectedIndex != null &&
+        selectedIndex! >= 0 &&
+        selectedIndex! < points.length) {
+      final selectedPoint = points[selectedIndex!];
+      final indicatorPaint = Paint()
+        ..color = const Color(0xFF9EF7DA)
+        ..strokeWidth = 1.1;
+      canvas.drawLine(
+        Offset(selectedPoint.dx, chartRect.top),
+        Offset(selectedPoint.dx, chartRect.bottom),
+        indicatorPaint,
+      );
+      canvas.drawCircle(
+        selectedPoint,
+        5,
+        Paint()..color = const Color(0xFF00D9A3),
+      );
+      canvas.drawCircle(
+        selectedPoint,
+        2.5,
+        Paint()..color = MesclaColors.textPrimary,
+      );
+    }
   }
 
   @override
   bool shouldRepaint(covariant _DashboardChartPainter oldDelegate) {
-    return oldDelegate.series != series;
+    return oldDelegate.series != series ||
+        oldDelegate.selectedIndex != selectedIndex;
   }
 
   void _drawText({
@@ -541,12 +710,19 @@ class _DashboardChartPainter extends CustomPainter {
   }
 }
 
+String _formatTickLabel(double value) {
+  if (value >= 1000) {
+    return '${(value / 1000).toStringAsFixed(1)}k';
+  }
+  return value.toStringAsFixed(0);
+}
+
 enum _ChartRange {
-  oneDay('1D'),
-  oneWeek('1W'),
-  oneMonth('1M'),
-  sixMonths('6M'),
-  yearToDate('YTD');
+  tenMinutes('10M'),
+  thirtyMinutes('30M'),
+  oneHour('1H'),
+  sixHours('6H'),
+  oneDay('24H');
 
   const _ChartRange(this.label);
 
@@ -554,10 +730,15 @@ enum _ChartRange {
 }
 
 class _ChartSeries {
-  const _ChartSeries({required this.points, required this.yTicks});
+  const _ChartSeries({
+    required this.points,
+    required this.yTicks,
+    this.labels = const <String>[],
+  });
 
   final List<double> points;
   final List<double> yTicks;
+  final List<String> labels;
 
   double get min => points.fold<double>(
     points.first,
@@ -574,158 +755,158 @@ class _ChartSeries {
       return false;
     }
 
-    return listEquals(points, other.points) && listEquals(yTicks, other.yTicks);
+    return listEquals(points, other.points) &&
+        listEquals(yTicks, other.yTicks) &&
+        listEquals(labels, other.labels);
   }
 
   @override
-  int get hashCode => Object.hash(points, yTicks);
+  int get hashCode => Object.hash(points, yTicks, labels);
 }
 
 _ChartSeries _buildSeries({
   required _ChartRange range,
-  required bool hasInvestments,
+  required List<PortfolioHolding> holdings,
+  required Map<String, List<double>> tokenHistoryByStartup,
+  required List<_ChartSample> fallbackSamples,
+  required double currentValue,
 }) {
-  if (!hasInvestments) {
-    return _seriesForNoInvestment(range);
+  final realSamples = _buildPortfolioHistorySamples(
+    holdings: holdings,
+    tokenHistoryByStartup: tokenHistoryByStartup,
+  );
+  final filtered = _samplesForRange(
+    range,
+    realSamples.isNotEmpty ? realSamples : fallbackSamples,
+  );
+  if (filtered.length >= 2) {
+    final points = filtered
+        .map((sample) => sample.value)
+        .toList(growable: false);
+    final labels = filtered
+        .map((sample) => _formatSampleTime(sample.timestamp))
+        .toList(growable: false);
+    return _ChartSeries(
+      points: points,
+      yTicks: _buildTicks(points),
+      labels: labels,
+    );
   }
 
-  return _seriesForInvestment(range);
+  if (currentValue >= 0) {
+    final now = DateTime.now();
+    final seed = <double>[
+      currentValue == 0 ? 0 : currentValue * 0.98,
+      currentValue == 0 ? 0 : currentValue * 0.99,
+      currentValue,
+    ];
+    final labels = <String>[
+      _formatSampleTime(now.subtract(const Duration(seconds: 20))),
+      _formatSampleTime(now.subtract(const Duration(seconds: 10))),
+      _formatSampleTime(now),
+    ];
+    return _ChartSeries(
+      points: seed,
+      yTicks: _buildTicks(seed),
+      labels: labels,
+    );
+  }
+  return const _ChartSeries(
+    points: <double>[0, 0],
+    yTicks: <double>[0, 1],
+    labels: <String>['--:--', '--:--'],
+  );
 }
 
-_ChartSeries _seriesForNoInvestment(_ChartRange range) {
-  const ticks = [15000.0, 30000.0, 45000.0, 60000.0];
-
-  switch (range) {
-    case _ChartRange.oneDay:
-      return const _ChartSeries(
-        points: [50000, 50500, 49500, 50200, 50600, 50100, 50300],
-        yTicks: ticks,
-      );
-    case _ChartRange.oneWeek:
-      return const _ChartSeries(
-        points: [49000, 50000, 51000, 49800, 50200, 49500, 50000],
-        yTicks: ticks,
-      );
-    case _ChartRange.oneMonth:
-      return const _ChartSeries(
-        points: [
-          50000,
-          50500,
-          50700,
-          50300,
-          50000,
-          50200,
-          50600,
-          50800,
-          50900,
-          51000,
-          51300,
-          51700,
-          52000,
-          51900,
-          51800,
-          51600,
-        ],
-        yTicks: ticks,
-      );
-    case _ChartRange.sixMonths:
-      return const _ChartSeries(
-        points: [48000, 49000, 50000, 51000, 50500, 50000, 49500, 50200, 51000],
-        yTicks: ticks,
-      );
-    case _ChartRange.yearToDate:
-      return const _ChartSeries(
-        points: [47000, 48000, 49500, 50000, 50500, 51000, 50000, 49000, 50000],
-        yTicks: ticks,
-      );
+List<_ChartSample> _samplesForRange(_ChartRange range, List<_ChartSample> all) {
+  if (all.isEmpty) {
+    return const <_ChartSample>[];
   }
+  final now = DateTime.now();
+  final Duration window = switch (range) {
+    _ChartRange.tenMinutes => const Duration(minutes: 10),
+    _ChartRange.thirtyMinutes => const Duration(minutes: 30),
+    _ChartRange.oneHour => const Duration(hours: 1),
+    _ChartRange.sixHours => const Duration(hours: 6),
+    _ChartRange.oneDay => const Duration(hours: 24),
+  };
+  final minTime = now.subtract(window);
+  final filtered = all
+      .where((sample) => sample.timestamp.isAfter(minTime))
+      .toList(growable: false);
+  return filtered;
 }
 
-_ChartSeries _seriesForInvestment(_ChartRange range) {
-  const ticks = [20000.0, 40000.0, 60000.0, 80000.0];
-
-  switch (range) {
-    case _ChartRange.oneDay:
-      return const _ChartSeries(
-        points: [50000, 51000, 52000, 51500, 53000, 54000, 54500],
-        yTicks: ticks,
-      );
-    case _ChartRange.oneWeek:
-      return const _ChartSeries(
-        points: [50000, 50500, 51000, 51500, 52000, 52500, 53000, 53500],
-        yTicks: ticks,
-      );
-    case _ChartRange.oneMonth:
-      return const _ChartSeries(
-        points: [50000, 50500, 50800, 51200, 51500, 52000, 51800, 52200, 52800],
-        yTicks: ticks,
-      );
-    case _ChartRange.sixMonths:
-      return const _ChartSeries(
-        points: [48000, 49500, 50500, 51500, 52500, 53000, 54500, 55500, 56500],
-        yTicks: ticks,
-      );
-    case _ChartRange.yearToDate:
-      return const _ChartSeries(
-        points: [
-          50000,
-          49800,
-          50300,
-          50100,
-          50800,
-          50700,
-          51200,
-          51000,
-          51400,
-          51100,
-          50900,
-          51800,
-          51500,
-          52000,
-          52300,
-          51900,
-          52200,
-          52500,
-          52100,
-          52800,
-          53100,
-          52900,
-          53500,
-          53200,
-          53800,
-          54000,
-          53600,
-          54200,
-          54500,
-          54300,
-          54800,
-          55000,
-          54700,
-          55200,
-          55500,
-          56000,
-          56500,
-          55800,
-          56200,
-          57000,
-          57500,
-          57200,
-          56800,
-          56000,
-          55800,
-          56500,
-          57200,
-          58000,
-          57800,
-          59000,
-          60000,
-          59800,
-          60500,
-          61200,
-        ],
-        yTicks: ticks,
-      );
+List<_ChartSample> _buildPortfolioHistorySamples({
+  required List<PortfolioHolding> holdings,
+  required Map<String, List<double>> tokenHistoryByStartup,
+}) {
+  if (holdings.isEmpty || tokenHistoryByStartup.isEmpty) {
+    return const <_ChartSample>[];
   }
+
+  var minLength = 1 << 30;
+  final participating = <({PortfolioHolding holding, List<double> history})>[];
+  for (final holding in holdings) {
+    final startupId = holding.startup.id.trim();
+    if (startupId.isEmpty) {
+      continue;
+    }
+    final history = tokenHistoryByStartup[startupId];
+    if (history == null || history.isEmpty) {
+      continue;
+    }
+    participating.add((holding: holding, history: history));
+    if (history.length < minLength) {
+      minLength = history.length;
+    }
+  }
+
+  if (participating.isEmpty || minLength <= 0) {
+    return const <_ChartSample>[];
+  }
+
+  final now = DateTime.now();
+  final samples = <_ChartSample>[];
+  for (var i = 0; i < minLength; i++) {
+    var total = 0.0;
+    for (final entry in participating) {
+      final history = entry.history;
+      final price = history[history.length - minLength + i];
+      total += price * entry.holding.quantity;
+    }
+    final timestamp = now.subtract(Duration(minutes: minLength - 1 - i));
+    samples.add(_ChartSample(timestamp: timestamp, value: total));
+  }
+
+  return samples;
+}
+
+List<double> _buildTicks(List<double> points) {
+  final minValue = points.reduce(math.min);
+  final maxValue = points.reduce(math.max);
+  if (minValue == 0 && maxValue == 0) {
+    return const <double>[0, 0.25, 0.5, 1];
+  }
+  if ((maxValue - minValue).abs() < 1) {
+    return [minValue * 0.97, minValue * 0.99, minValue * 1.01, minValue * 1.03];
+  }
+  final step = (maxValue - minValue) / 3;
+  return [minValue, minValue + step, minValue + (step * 2), maxValue];
+}
+
+String _formatSampleTime(DateTime timestamp) {
+  final hour = timestamp.hour.toString().padLeft(2, '0');
+  final minute = timestamp.minute.toString().padLeft(2, '0');
+  final second = timestamp.second.toString().padLeft(2, '0');
+  return '$hour:$minute:$second';
+}
+
+class _ChartSample {
+  const _ChartSample({required this.timestamp, required this.value});
+
+  final DateTime timestamp;
+  final double value;
 }
 
 String _formatSignedCurrency(double value) {

@@ -87,6 +87,7 @@ void main() {
 
     await tester.tap(find.text('Criar Conta').last);
     await tester.pump();
+    await tester.pump(const Duration(seconds: 4));
     await tester.pumpAndSettle();
 
     expect(find.text('Abrir cadastro'), findsOneWidget);

@@ -19,6 +19,7 @@ class StartupData {
     required this.mentorsCouncil,
     required this.demoVideoUrl,
     this.publicQaItems = const <PublicQaItem>[],
+    this.tokenHistory = const <double>[],
   });
 
   final String id;
@@ -38,6 +39,7 @@ class StartupData {
   final String mentorsCouncil;
   final String demoVideoUrl;
   final List<PublicQaItem> publicQaItems;
+  final List<double> tokenHistory;
 
   factory StartupData.fromApi(Map<String, dynamic> source) {
     final name = _readString(source, 'name') ?? 'Startup sem nome';
@@ -45,6 +47,11 @@ class StartupData {
         _readString(source, 'description') ?? 'Sem descricao disponivel.';
     final stage = _normalizeStage(_readString(source, 'stage'));
     final tokenPrice = _readDouble(source, 'tokenPrice');
+    final tokenHistory = _readTokenHistory(source);
+    final variationText = _resolveVariation(
+      explicitVariation: _readString(source, 'variation'),
+      tokenHistory: tokenHistory,
+    );
 
     return StartupData(
       id: _readString(source, 'id') ?? _slugFromName(name),
@@ -54,7 +61,7 @@ class StartupData {
       tokenValue:
           _readString(source, 'tokenValue') ?? _formatCurrency(tokenPrice),
       tokenPrice: tokenPrice,
-      variation: _readString(source, 'variation') ?? '+0.00%',
+      variation: variationText,
       imageUrl: _readString(source, 'imageUrl') ?? '',
       sector: _readString(source, 'sector') ?? 'Nao informado',
       totalTokens: _readInt(source, 'totalTokens'),
@@ -65,7 +72,41 @@ class StartupData {
       mentorsCouncil: _readString(source, 'mentorsCouncil') ?? '',
       demoVideoUrl: _readString(source, 'demoVideoUrl') ?? '',
       publicQaItems: _readPublicQaItems(source),
+      tokenHistory: tokenHistory,
     );
+  }
+
+  static String _resolveVariation({
+    required String? explicitVariation,
+    required List<double> tokenHistory,
+  }) {
+    if (tokenHistory.length >= 2) {
+      final previous = tokenHistory[tokenHistory.length - 2];
+      final current = tokenHistory[tokenHistory.length - 1];
+      if (previous > 0) {
+        final percent = ((current - previous) / previous) * 100;
+        final formatted = percent.toStringAsFixed(2);
+        return percent >= 0 ? '+$formatted%' : '$formatted%';
+      }
+    }
+
+    final value = explicitVariation?.trim();
+    if (value != null && value.isNotEmpty) {
+      return value;
+    }
+    return '+0.00%';
+  }
+
+  static List<double> _readTokenHistory(Map<String, dynamic> source) {
+    final raw = source['tokenHistory'];
+    if (raw is! List) {
+      return const <double>[];
+    }
+    return raw
+        .map((item) => item is num ? item.toDouble() : null)
+        .whereType<double>()
+        .where((item) => item > 0)
+        .toList(growable: false);
   }
 
   static List<PublicQaItem> _readPublicQaItems(Map<String, dynamic> source) {

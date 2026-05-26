@@ -40,6 +40,7 @@ class TelefoneInputFormatter extends TextInputFormatter {
     for (int i = 0; i < digits.length && i < 11; i++) {
       if (i == 0) buffer.write('(');
       if (i == 2) buffer.write(')');
+      if (i == 2) buffer.write(' ');
       if (i == 7) buffer.write('-');
       buffer.write(digits[i]);
     }

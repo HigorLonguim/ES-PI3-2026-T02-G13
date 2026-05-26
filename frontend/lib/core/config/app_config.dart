@@ -15,9 +15,25 @@ class AppConfig {
     'REGISTER_FUNCTION_URL',
     defaultValue: '',
   );
+  static const String userProfileFunctionUrl = String.fromEnvironment(
+    'USER_PROFILE_FUNCTION_URL',
+    defaultValue: '',
+  );
 
   static const String firebaseWebApiKey = String.fromEnvironment(
     'FIREBASE_WEB_API_KEY',
+    defaultValue: '',
+  );
+  static const String firebaseProjectId = String.fromEnvironment(
+    'FIREBASE_PROJECT_ID',
+    defaultValue: '',
+  );
+  static const String firebaseAppId = String.fromEnvironment(
+    'FIREBASE_APP_ID',
+    defaultValue: '',
+  );
+  static const String firebaseMessagingSenderId = String.fromEnvironment(
+    'FIREBASE_MESSAGING_SENDER_ID',
     defaultValue: '',
   );
 

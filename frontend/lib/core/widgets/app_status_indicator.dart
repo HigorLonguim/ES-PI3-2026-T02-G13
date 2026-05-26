@@ -1,6 +1,9 @@
 // Autoria: Felipe Sousa - RA: 22018160
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import '../navigation/app_route.dart';
 
 enum AppStatusType { success, error, warning, info }
 
@@ -52,19 +55,58 @@ void showAppStatusSnackBar({
   required AppStatusType type,
   Duration duration = const Duration(seconds: 3),
 }) {
-  final messenger = ScaffoldMessenger.of(context);
+  final overlayState =
+      AppRoute.navigatorKey.currentState?.overlay ?? Overlay.maybeOf(context);
+  if (overlayState == null) {
+    return;
+  }
 
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        duration: duration,
-        content: AppStatusIndicator(message: message, type: type),
+  _AppToastOverlay.instance.show(
+    overlayState: overlayState,
+    message: message,
+    type: type,
+    duration: duration,
+  );
+}
+
+class _AppToastOverlay {
+  _AppToastOverlay._();
+
+  static final _AppToastOverlay instance = _AppToastOverlay._();
+
+  OverlayEntry? _entry;
+  Timer? _timer;
+
+  void show({
+    required OverlayState overlayState,
+    required String message,
+    required AppStatusType type,
+    required Duration duration,
+  }) {
+    _timer?.cancel();
+    _entry?.remove();
+
+    _entry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: MediaQuery.of(context).padding.bottom + 16,
+        left: 16,
+        right: 16,
+        child: IgnorePointer(
+          child: Material(
+            color: Colors.transparent,
+            child: AppStatusIndicator(message: message, type: type),
+          ),
+        ),
       ),
     );
+
+    overlayState.insert(_entry!);
+    _timer = Timer(duration, () {
+      _entry?.remove();
+      _entry = null;
+      _timer = null;
+    });
+  }
 }
 
 class _StatusStyle {

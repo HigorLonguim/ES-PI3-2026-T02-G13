@@ -12,6 +12,9 @@ type StartupFirestore = {
   nome_startup?: unknown;
   capital_aportado?: unknown;
   tokens_emitidos?: unknown;
+  token_preco_atual?: unknown;
+  token_variacao_percentual?: unknown;
+  token_historico?: unknown;
   socios?: unknown;
   participacao_societaria?: unknown;
   mentores_conselho?: unknown;
@@ -42,6 +45,7 @@ type StartupItem = {
   mentorsCouncil: string;
   demoVideoUrl: string;
   publicQaItems: PublicQaItem[];
+  tokenHistory: number[];
 };
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -201,7 +205,24 @@ function buildStartupItem(
   const sector = toOptionalString(payload.setor) ?? "Nao informado";
   const totalTokens = toPositiveNumber(payload.tokens_emitidos);
   const raisedCapitalValue = toPositiveNumber(payload.capital_aportado);
-  const tokenPrice = totalTokens > 0 ? raisedCapitalValue / totalTokens : 0;
+  const fallbackTokenPrice = totalTokens > 0 ? raisedCapitalValue / totalTokens : 0;
+  const tokenPrice = toPositiveNumber(payload.token_preco_atual) || fallbackTokenPrice;
+  const tokenHistory = Array.isArray(payload.token_historico)
+    ? payload.token_historico
+        .map((entry) => {
+          if (typeof entry === "number" && Number.isFinite(entry)) {
+            return entry;
+          }
+          if (typeof entry === "object" && entry !== null && "price" in entry) {
+            const price = (entry as {price?: unknown}).price;
+            return typeof price === "number" && Number.isFinite(price) ? price : null;
+          }
+          return null;
+        })
+        .filter((entry): entry is number => typeof entry === "number" && entry > 0)
+    : [];
+  const variationValue = Number(payload.token_variacao_percentual ?? 0);
+  const variationText = resolveVariationText(tokenHistory, variationValue);
   const founders = toOptionalString(payload.socios) ?? "";
   const ownershipStructure =
     toOptionalString(payload.participacao_societaria) ?? "";
@@ -219,7 +240,7 @@ function buildStartupItem(
     stage,
     tokenValue: currencyFormatter.format(tokenPrice),
     tokenPrice,
-    variation: "+0.00%",
+    variation: variationText,
     imageUrl: `https://picsum.photos/seed/${id}/400/400`,
     sector,
     totalTokens: Math.trunc(totalTokens),
@@ -230,7 +251,27 @@ function buildStartupItem(
     mentorsCouncil,
     demoVideoUrl,
     publicQaItems,
+    tokenHistory,
   };
+}
+
+function resolveVariationText(tokenHistory: number[], fallbackVariation: number): string {
+  if (tokenHistory.length >= 2) {
+    const previous = tokenHistory[tokenHistory.length - 2];
+    const current = tokenHistory[tokenHistory.length - 1];
+    if (previous > 0) {
+      const percent = ((current - previous) / previous) * 100;
+      return percent >= 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`;
+    }
+  }
+
+  if (Number.isFinite(fallbackVariation)) {
+    return fallbackVariation >= 0
+      ? `+${fallbackVariation.toFixed(2)}%`
+      : `${fallbackVariation.toFixed(2)}%`;
+  }
+
+  return "+0.00%";
 }
 
 function startupSortOrder(payload: StartupFirestore): number {
