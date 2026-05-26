@@ -11,11 +11,6 @@ class AppConfig {
     defaultValue: '',
   );
 
-  static const String firebaseAuthDomain = String.fromEnvironment(
-  'FIREBASE_AUTH_DOMAIN',
-  defaultValue: '',
-  );
-
   static const String registerFunctionUrl = String.fromEnvironment(
     'REGISTER_FUNCTION_URL',
     defaultValue: '',
