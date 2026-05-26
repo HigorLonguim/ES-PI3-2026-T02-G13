@@ -51,7 +51,6 @@ jobs:
 
   distribute:
     name: Build APK e Distribuir no Firebase
-    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -72,6 +71,7 @@ jobs:
         run: flutter pub get
 
       - name: Gerar .env.json de producao
+        if: ${{ github.event_name != 'pull_request' }}
         shell: bash
         run: |
           cat <<'EOF' > .env.json
@@ -79,16 +79,27 @@ jobs:
           EOF
 
       - name: Build APK release
+        if: ${{ github.event_name != 'pull_request' }}
         run: flutter build apk --release --dart-define-from-file=.env.json
 
+      - name: Build APK debug (PR)
+        if: ${{ github.event_name == 'pull_request' && !env.ACT }}
+        run: flutter build apk --debug
+
+      - name: Validar fluxo de distribuicao no act (PR)
+        if: ${{ github.event_name == 'pull_request' && env.ACT }}
+        run: flutter --version
+
       - name: Distribuir APK no Firebase App Distribution
+        if: ${{ !env.ACT }}
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-          file: frontend/build/app/outputs/flutter-apk/app-release.apk
+          file: ${{ github.event_name == 'pull_request' && 'frontend/build/app/outputs/flutter-apk/app-debug.apk' || 'frontend/build/app/outputs/flutter-apk/app-release.apk' }}
           testers: feltista07123@gmail.com
           releaseNotes: |
-            Build automatico da branch develop
+            Build automatico do workflow
+            Evento: ${{ github.event_name }}
             Commit: ${{ github.sha }}
 
