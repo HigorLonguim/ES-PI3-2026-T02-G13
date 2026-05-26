@@ -39,6 +39,7 @@ dependencies:
   shared_preferences: ^2.5.3
   firebase_core: ^4.9.0
   firebase_auth: ^6.5.1
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   # Nome: Felipe Sousa de Almeida | RA: 22018160
