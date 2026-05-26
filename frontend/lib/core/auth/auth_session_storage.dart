@@ -139,6 +139,14 @@ class AuthSessionStorage {
   Future<String?> getUserId() => _backend.read(key: _userIdKey);
   Future<String?> getUserCpf() => _backend.read(key: _userCpfKey);
   Future<String?> getUserTelefone() => _backend.read(key: _userTelefoneKey);
+  Future<void> saveUserName(String value) =>
+      _backend.write(key: _userNameKey, value: value);
+  Future<void> saveUserEmail(String value) =>
+      _backend.write(key: _userEmailKey, value: value);
+  Future<void> saveUserCpf(String value) =>
+      _backend.write(key: _userCpfKey, value: value);
+  Future<void> saveUserTelefone(String value) =>
+      _backend.write(key: _userTelefoneKey, value: value);
 
   Future<void> saveUserId(String userId) =>
       _backend.write(key: _userIdKey, value: userId);

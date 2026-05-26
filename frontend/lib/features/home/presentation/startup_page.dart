@@ -1,6 +1,7 @@
 // Autoria: Felipe Sousa - RA: 22018160
 
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:frontend/core/auth/auth_session_storage.dart';
 
 import '../../../core/config/app_config.dart';
@@ -38,6 +39,7 @@ class _StartupPageState extends State<StartupPage> {
   String _userName = 'Usuario';
   bool _isLoadingStartups = true;
   String _startupsFeedbackMessage = 'Nenhuma startup encontrada';
+  Timer? _refreshTimer;
 
   @override
   void initState() {
@@ -46,6 +48,10 @@ class _StartupPageState extends State<StartupPage> {
     _authSessionStorage = widget.authSessionStorage ?? AuthSessionStorage();
     _loadStartups();
     _loadUserProfile();
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 10),
+      (_) => _refreshStartupsSilently(),
+    );
   }
 
   Future<void> _loadStartups() async {
@@ -90,8 +96,27 @@ class _StartupPageState extends State<StartupPage> {
     });
   }
 
+  Future<void> _refreshStartupsSilently() async {
+    try {
+      final startups = await _startupRepository.fetchStartups(
+        useMockFallback: false,
+      );
+      if (!mounted || startups.isEmpty) {
+        return;
+      }
+
+      setState(() {
+        _allStartups = startups;
+        _startupsFeedbackMessage = 'Nenhuma startup encontrada';
+      });
+    } catch (_) {
+      // Mantem dados atuais em caso de falha momentanea de rede.
+    }
+  }
+
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _searchController.dispose();
     _filterScrollController.dispose();
     _startupsScrollController.dispose();

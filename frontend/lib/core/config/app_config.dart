@@ -24,6 +24,18 @@ class AppConfig {
     'FIREBASE_WEB_API_KEY',
     defaultValue: '',
   );
+  static const String firebaseProjectId = String.fromEnvironment(
+    'FIREBASE_PROJECT_ID',
+    defaultValue: '',
+  );
+  static const String firebaseAppId = String.fromEnvironment(
+    'FIREBASE_APP_ID',
+    defaultValue: '',
+  );
+  static const String firebaseMessagingSenderId = String.fromEnvironment(
+    'FIREBASE_MESSAGING_SENDER_ID',
+    defaultValue: '',
+  );
 
   static const String startupsFunctionUrl = String.fromEnvironment(
     'STARTUPS_FUNCTION_URL',

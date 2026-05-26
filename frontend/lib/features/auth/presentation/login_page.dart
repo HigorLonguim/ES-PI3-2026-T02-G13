@@ -1,6 +1,8 @@
 // Autoria: Felipe Sousa - RA: 22018160
 // Nome: Higor Vedovello Longuim RA: 23000291
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/auth/auth_session_manager.dart';
@@ -9,6 +11,7 @@ import '../../../core/navigation/app_route.dart';
 import '../../../core/widgets/app_status_indicator.dart';
 import '../../home/presentation/main_navigation_page.dart';
 import '../data/auth_api_service.dart';
+import 'mfa_challenge_page.dart';
 import 'recover_password_page.dart';
 import 'signup_page.dart';
 
@@ -48,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    final result = await _authApiService.login(email: email, senha: senha);
+    final result = await _login(email, senha);
 
     if (!mounted) {
       return;
@@ -58,68 +61,147 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = false;
     });
 
-    _showMessage(result.message, success: result.success);
+    if (result == null) {
+      return;
+    }
 
     if (result.success) {
-      final usuario = result.usuario ?? <String, dynamic>{};
-      final userId =
-          _firstNonEmptyValue(usuario, const ['id', 'uid']) ??
-          _firstNonEmptyValue(_nestedMap(usuario), const ['id', 'uid']);
-      final userName =
-          _firstNonEmptyValue(usuario, const ['nome', 'name']) ??
-          _firstNonEmptyValue(_nestedMap(usuario), const ['nome', 'name']);
-      final userCpf =
-          _firstNonEmptyValue(usuario, const [
-            'cpf',
-            'documento',
-            'document',
-          ]) ??
-          _firstNonEmptyValue(_nestedMap(usuario), const [
-            'cpf',
-            'documento',
-            'document',
-          ]);
-      final userTelefone =
-          _firstNonEmptyValue(usuario, const [
-            'telefone',
-            'phone',
-            'celular',
-            'mobile',
-          ]) ??
-          _firstNonEmptyValue(_nestedMap(usuario), const [
-            'telefone',
-            'phone',
-            'celular',
-            'mobile',
-          ]);
-      final userEmail =
-          _firstNonEmptyValue(usuario, const ['email']) ??
-          _firstNonEmptyValue(_nestedMap(usuario), const ['email']) ??
-          email;
-
-      await _authSessionStorage.saveUserProfile(
-        nome: (userName != null && userName.isNotEmpty)
-            ? userName
-            : userEmail.split('@').first,
-        email: userEmail,
-        userId: userId,
-        cpf: userCpf,
-        telefone: userTelefone,
-      );
-
-      final token = result.token;
-      if (token != null && token.isNotEmpty) {
-        await _authSessionStorage.saveToken(token);
-        await AuthSessionManager.instance.startSessionMonitoring(token: token);
-      }
-      if (!mounted) {
-        return;
-      }
-      Navigator.of(context).pushAndRemoveUntil(
-        AppRoute(const MainNavigationPage()),
-        (route) => false,
-      );
+      await _salvarSessao(result, email);
+      return;
     }
+
+    _showMessage(result.message, success: false);
+  }
+
+  Future<AuthResult?> _login(String email, String senha) async {
+    if (Firebase.apps.isEmpty) {
+      return _authApiService.login(email: email, senha: senha);
+    }
+
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
+      final result = await _firebaseResult(credential);
+      return _authApiService.enrichFirebaseLoginResult(
+        firebaseResult: result,
+        email: email,
+        senha: senha,
+      );
+    } on FirebaseAuthMultiFactorException catch (error) {
+      if (!mounted) return null;
+
+      setState(() => _isLoading = false);
+      final credential = await Navigator.of(context).push<UserCredential>(
+        AppRoute<UserCredential>(MfaChallengePage(resolver: error.resolver)),
+      );
+      if (credential == null) return null;
+
+      setState(() => _isLoading = true);
+      final result = await _firebaseResult(credential);
+      return _authApiService.enrichFirebaseLoginResult(
+        firebaseResult: result,
+        email: email,
+        senha: senha,
+      );
+    } on FirebaseAuthException catch (error) {
+      return AuthResult(success: false, message: _firebaseError(error));
+    }
+  }
+
+  Future<AuthResult> _firebaseResult(UserCredential credential) async {
+    final user = credential.user;
+    final token = await user?.getIdToken();
+
+    return AuthResult(
+      success: true,
+      message: 'Login realizado',
+      usuario: {
+        'id': user?.uid,
+        'uid': user?.uid,
+        'email': user?.email,
+        'telefone': user?.phoneNumber,
+      },
+      token: token,
+    );
+  }
+
+  String _firebaseError(FirebaseAuthException error) {
+    switch (error.code) {
+      case 'invalid-credential':
+      case 'invalid-login-credentials':
+      case 'user-not-found':
+      case 'wrong-password':
+        return 'Email ou senha invalidos.';
+      case 'invalid-email':
+        return 'Email invalido.';
+      case 'user-disabled':
+        return 'Usuario desativado.';
+      case 'too-many-requests':
+        return 'Muitas tentativas. Tente novamente mais tarde.';
+      default:
+        return error.message ?? 'Nao foi possivel fazer login.';
+    }
+  }
+
+  Future<void> _salvarSessao(AuthResult result, String email) async {
+    final usuario = result.usuario ?? <String, dynamic>{};
+    final userId =
+        _firstNonEmptyValue(usuario, const ['id', 'uid']) ??
+        _firstNonEmptyValue(_nestedMap(usuario), const ['id', 'uid']);
+    final userName =
+        _firstNonEmptyValue(usuario, const ['nome', 'name']) ??
+        _firstNonEmptyValue(_nestedMap(usuario), const ['nome', 'name']);
+    final userCpf =
+        _firstNonEmptyValue(usuario, const ['cpf', 'documento', 'document']) ??
+        _firstNonEmptyValue(_nestedMap(usuario), const [
+          'cpf',
+          'documento',
+          'document',
+        ]);
+    final userTelefone =
+        _firstNonEmptyValue(usuario, const [
+          'telefone',
+          'phone',
+          'celular',
+          'mobile',
+        ]) ??
+        _firstNonEmptyValue(_nestedMap(usuario), const [
+          'telefone',
+          'phone',
+          'celular',
+          'mobile',
+        ]);
+    final userEmail =
+        _firstNonEmptyValue(usuario, const ['email']) ??
+        _firstNonEmptyValue(_nestedMap(usuario), const ['email']) ??
+        email;
+
+    await _authSessionStorage.saveUserProfile(
+      nome: (userName != null && userName.isNotEmpty)
+          ? userName
+          : userEmail.split('@').first,
+      email: userEmail,
+      userId: userId,
+      cpf: userCpf,
+      telefone: userTelefone,
+    );
+
+    final token = result.token;
+    if (token != null && token.isNotEmpty) {
+      await _authSessionStorage.saveToken(token);
+      await AuthSessionManager.instance.startSessionMonitoring(token: token);
+    }
+
+    if (!mounted) return;
+    _showMessage(result.message, success: true);
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      AppRoute(const MainNavigationPage()),
+      (route) => false,
+    );
   }
 
   Map<String, dynamic> _nestedMap(Map<String, dynamic> source) {
@@ -294,6 +376,7 @@ class _LoginPageState extends State<LoginPage> {
                           hintText: 'seu@email.com',
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
                         ),
                         const SizedBox(height: 16),
                         const _FieldLabel('Senha'),
@@ -302,6 +385,12 @@ class _LoginPageState extends State<LoginPage> {
                           hintText: '••••••••',
                           controller: _senhaController,
                           obscureText: _obscurePassword,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) {
+                            if (!_isLoading) {
+                              _entrar();
+                            }
+                          },
                           suffix: IconButton(
                             onPressed: () {
                               setState(() {
@@ -456,6 +545,8 @@ class _InputField extends StatelessWidget {
     this.obscureText = false,
     this.suffix,
     this.keyboardType,
+    this.textInputAction,
+    this.onSubmitted,
   });
 
   final String hintText;
@@ -463,6 +554,8 @@ class _InputField extends StatelessWidget {
   final bool obscureText;
   final Widget? suffix;
   final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -477,6 +570,8 @@ class _InputField extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         obscureText: obscureText,
+        textInputAction: textInputAction,
+        onSubmitted: onSubmitted,
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: hintText,

@@ -1,6 +1,7 @@
 // Autoria: Felipe Sousa - RA: 22018160
 
 import 'dart:math' as math;
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,7 @@ import '../../../core/navigation/app_route.dart';
 import '../../../core/theme/mescla_colors.dart';
 import '../../../core/widgets/app_status_indicator.dart';
 import '../data/portfolio_store.dart';
+import '../data/mock_startup_repository.dart';
 import 'models/startup_data.dart';
 import 'token_transaction_page.dart';
 
@@ -25,22 +27,54 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
   final TextEditingController _privateQuestionController =
       TextEditingController();
   PortfolioStore get _portfolioStore => PortfolioStore.instance;
+  final StartupRepository _startupRepository = StartupRepository();
+  late StartupData _currentStartup;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
+    _currentStartup = widget.startup;
     _portfolioStore.hydrate();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      _refreshStartupData();
+    });
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _privateQuestionController.dispose();
     super.dispose();
   }
 
+  Future<void> _refreshStartupData() async {
+    try {
+      final startups = await _startupRepository.fetchStartups(
+        useMockFallback: false,
+      );
+      final startupId = _currentStartup.id.trim();
+      final matched = startups
+          .where((item) {
+            if (startupId.isNotEmpty && item.id.trim() == startupId) {
+              return true;
+            }
+            return item.name.trim().toLowerCase() ==
+                _currentStartup.name.trim().toLowerCase();
+          })
+          .toList(growable: false);
+      if (!mounted || matched.isEmpty) {
+        return;
+      }
+      setState(() {
+        _currentStartup = matched.first;
+      });
+    } catch (_) {}
+  }
+
   Future<void> _sendPrivateQuestion() async {
     final result = await _portfolioStore.sendPrivateQuestion(
-      startup: widget.startup,
+      startup: _currentStartup,
       question: _privateQuestionController.text,
     );
     if (!mounted) {
@@ -61,15 +95,15 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
   @override
   Widget build(BuildContext context) {
     final founderEntries = _parseFounderEntries(
-      widget.startup.founders,
-      widget.startup.ownershipStructure,
+      _currentStartup.founders,
+      _currentStartup.ownershipStructure,
     );
-    final mentors = _parseSimpleList(widget.startup.mentorsCouncil);
+    final mentors = _parseSimpleList(_currentStartup.mentorsCouncil);
     final ownershipSlices = _buildOwnershipSlices(
-      widget.startup.ownershipStructure,
+      _currentStartup.ownershipStructure,
       founderEntries,
     );
-    final publicQaItems = widget.startup.publicQaItems;
+    final publicQaItems = _currentStartup.publicQaItems;
 
     return Scaffold(
       backgroundColor: MesclaColors.background,
@@ -123,7 +157,7 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _StartupHeader(startup: widget.startup),
+                        _StartupHeader(startup: _currentStartup),
                         const SizedBox(height: 16),
                         Container(
                           height: 226,
@@ -135,9 +169,12 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                             ),
                             gradient: MesclaGradients.startupCard,
                           ),
-                          child: const Padding(
+                          child: Padding(
                             padding: EdgeInsets.all(16),
-                            child: _TokenChart(),
+                            child: _TokenChart(
+                              tokenHistory: _currentStartup.tokenHistory,
+                              currentTokenPrice: _currentStartup.tokenPrice,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -146,7 +183,7 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                             _InfoStatCard(
                               width: 157.2,
                               title: 'Total de Tokens',
-                              value: widget.startup.totalTokens
+                              value: _currentStartup.totalTokens
                                   .toString()
                                   .replaceAllMapped(
                                     RegExp(r'\B(?=(\d{3})+(?!\d))'),
@@ -157,7 +194,7 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                             _InfoStatCard(
                               width: 157.2,
                               title: 'Capital Captado',
-                              value: widget.startup.raisedCapital,
+                              value: _currentStartup.raisedCapital,
                             ),
                           ],
                         ),
@@ -273,7 +310,7 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            widget.startup.executiveSummary,
+                            _currentStartup.executiveSummary,
                             style: const TextStyle(
                               color: MesclaColors.textSecondary,
                               fontSize: 16,
@@ -283,7 +320,9 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                           const SizedBox(height: 24),
                           const _SectionTitle(title: 'Video Demonstrativo'),
                           const SizedBox(height: 10),
-                          _VideoDemoCard(videoUrl: widget.startup.demoVideoUrl),
+                          _VideoDemoCard(
+                            videoUrl: _currentStartup.demoVideoUrl,
+                          ),
                           const SizedBox(height: 24),
                           const _SectionTitle(
                             title: 'Socios Fundadores',
@@ -299,7 +338,9 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                           const SizedBox(height: 10),
                           _MentorsCard(mentors: mentors),
                           const SizedBox(height: 16),
-                          _PitchDemoLink(videoUrl: widget.startup.demoVideoUrl),
+                          _PitchDemoLink(
+                            videoUrl: _currentStartup.demoVideoUrl,
+                          ),
                           const SizedBox(height: 24),
                           const Text(
                             'Estrutura Societaria',
@@ -317,7 +358,7 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                             animation: _portfolioStore,
                             builder: (context, _) {
                               final isInvestor = _portfolioStore
-                                  .isInvestorForStartup(widget.startup);
+                                  .isInvestorForStartup(_currentStartup);
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -378,7 +419,7 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                         Navigator.of(context).push(
                           AppRoute(
                             TokenTransactionPage(
-                              startup: widget.startup,
+                              startup: _currentStartup,
                               isSell: false,
                             ),
                           ),
@@ -1017,30 +1058,117 @@ class _StartupHeader extends StatelessWidget {
   }
 }
 
-class _TokenChart extends StatelessWidget {
-  const _TokenChart();
+class _TokenChart extends StatefulWidget {
+  const _TokenChart({
+    required this.tokenHistory,
+    required this.currentTokenPrice,
+  });
+
+  final List<double> tokenHistory;
+  final double currentTokenPrice;
+
+  @override
+  State<_TokenChart> createState() => _TokenChartState();
+}
+
+class _TokenChartState extends State<_TokenChart> {
+  int? _selectedIndex;
+
+  List<double> get _series {
+    if (widget.tokenHistory.isNotEmpty) {
+      return widget.tokenHistory;
+    }
+    final base = widget.currentTokenPrice > 0 ? widget.currentTokenPrice : 1.0;
+    return <double>[
+      base * 0.96,
+      base * 0.98,
+      base * 0.99,
+      base * 1.01,
+      base * 1.0,
+      base * 1.02,
+      base,
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
+    final labels = _buildVisibleHourLabels(_series.length);
+    final selected = _selectedIndex != null ? _series[_selectedIndex!] : null;
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (selected != null)
+          Text(
+            'R\$ ${selected.toStringAsFixed(2).replaceAll('.', ',')}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        if (selected != null) const SizedBox(height: 8),
         Expanded(
-          child: CustomPaint(painter: _TokenLinePainter(), child: Container()),
+          child: GestureDetector(
+            onPanDown: (details) => _selectByDx(details.localPosition.dx),
+            onPanUpdate: (details) => _selectByDx(details.localPosition.dx),
+            onPanEnd: (_) => setState(() => _selectedIndex = null),
+            child: CustomPaint(
+              painter: _TokenLinePainter(
+                values: _series,
+                selectedIndex: _selectedIndex,
+              ),
+              child: Container(),
+            ),
+          ),
         ),
         const SizedBox(height: 8),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _ChartLabel('10:00'),
-            _ChartLabel('11:00'),
-            _ChartLabel('12:00'),
-            _ChartLabel('13:00'),
-            _ChartLabel('14:00'),
-            _ChartLabel('15:00'),
-          ],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: labels
+              .map(
+                (label) => Expanded(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: _ChartLabel(label),
+                  ),
+                ),
+              )
+              .toList(growable: false),
         ),
       ],
     );
+  }
+
+  void _selectByDx(double dx) {
+    final chartWidth = context.size?.width ?? 1.0;
+    final safeWidth = chartWidth <= 0 ? 1.0 : chartWidth;
+    final ratio = (dx / safeWidth).clamp(0.0, 1.0);
+    final index = (ratio * (_series.length - 1)).round().clamp(
+      0,
+      _series.length - 1,
+    );
+    setState(() => _selectedIndex = index);
+  }
+
+  List<String> _buildVisibleHourLabels(int count) {
+    const maxLabels = 6;
+    final safeCount = count.clamp(2, 2000);
+    final now = DateTime.now();
+    if (safeCount <= maxLabels) {
+      return List<String>.generate(safeCount, (index) {
+        final hour = now.subtract(Duration(hours: safeCount - 1 - index)).hour;
+        return '${hour.toString().padLeft(2, '0')}:00';
+      });
+    }
+
+    return List<String>.generate(maxLabels, (labelIndex) {
+      final ratio = labelIndex / (maxLabels - 1);
+      final pointIndex = (ratio * (safeCount - 1)).round();
+      final hour = now
+          .subtract(Duration(hours: safeCount - 1 - pointIndex))
+          .hour;
+      return '${hour.toString().padLeft(2, '0')}:00';
+    });
   }
 }
 
@@ -1059,6 +1187,11 @@ class _ChartLabel extends StatelessWidget {
 }
 
 class _TokenLinePainter extends CustomPainter {
+  const _TokenLinePainter({required this.values, required this.selectedIndex});
+
+  final List<double> values;
+  final int? selectedIndex;
+
   @override
   void paint(Canvas canvas, Size size) {
     final areaPaint = Paint()
@@ -1077,15 +1210,15 @@ class _TokenLinePainter extends CustomPainter {
       ..color = const Color(0xFF4A4A5E)
       ..strokeWidth = 1.2;
 
-    final points = [
-      Offset(size.width * 0.02, size.height * 0.68),
-      Offset(size.width * 0.17, size.height * 0.66),
-      Offset(size.width * 0.3, size.height * 0.72),
-      Offset(size.width * 0.48, size.height * 0.67),
-      Offset(size.width * 0.66, size.height * 0.64),
-      Offset(size.width * 0.83, size.height * 0.58),
-      Offset(size.width * 0.98, size.height * 0.60),
-    ];
+    final min = values.reduce(math.min);
+    final max = values.reduce(math.max);
+    final diff = (max - min).abs() < 0.001 ? 1.0 : max - min;
+    final points = List<Offset>.generate(values.length, (index) {
+      final x = size.width * (index / (values.length - 1));
+      final normalized = (values[index] - min) / diff;
+      final y = size.height * (0.82 - (normalized * 0.64));
+      return Offset(x, y);
+    });
 
     final linePath = Path()..moveTo(points.first.dx, points.first.dy);
     for (var i = 1; i < points.length; i++) {
@@ -1110,6 +1243,11 @@ class _TokenLinePainter extends CustomPainter {
 
     canvas.drawPath(areaPath, areaPaint);
     canvas.drawPath(linePath, linePaint);
+    if (selectedIndex != null) {
+      final point = points[selectedIndex!];
+      final markerPaint = Paint()..color = Colors.white;
+      canvas.drawCircle(point, 4.5, markerPaint);
+    }
     canvas.drawLine(
       Offset(0, size.height * 0.88),
       Offset(size.width, size.height * 0.88),
@@ -1118,7 +1256,10 @@ class _TokenLinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _TokenLinePainter oldDelegate) {
+    return oldDelegate.values != values ||
+        oldDelegate.selectedIndex != selectedIndex;
+  }
 }
 
 class _InfoStatCard extends StatelessWidget {

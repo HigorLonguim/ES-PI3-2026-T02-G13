@@ -155,7 +155,9 @@ async function resolveStartupSnapshot(startupId: string): Promise<StartupSnapsho
     "Startup";
   const raisedCapital = numberOrZero(data.capital_aportado);
   const emittedTokens = numberOrZero(data.tokens_emitidos);
-  const tokenPrice = emittedTokens > 0 ? roundMoney(raisedCapital / emittedTokens) : 0;
+  const computedPrice = emittedTokens > 0 ? roundMoney(raisedCapital / emittedTokens) : 0;
+  const configuredPrice = numberOrZero(data.token_preco_atual);
+  const tokenPrice = configuredPrice > 0 ? roundMoney(configuredPrice) : computedPrice;
 
   return {
     id: startupDocument.id,
