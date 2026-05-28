@@ -71,7 +71,6 @@ jobs:
         run: flutter pub get
 
       - name: Gerar .env.json de producao
-        if: ${{ github.event_name != 'pull_request' }}
         shell: bash
         run: |
           cat <<'EOF' > .env.json
@@ -79,15 +78,11 @@ jobs:
           EOF
 
       - name: Build APK release
-        if: ${{ github.event_name != 'pull_request' }}
+        if: ${{ !env.ACT }}
         run: flutter build apk --release --dart-define-from-file=.env.json
 
-      - name: Build APK release (PR)
-        if: ${{ github.event_name == 'pull_request' && !env.ACT }}
-        run: flutter build apk --release
-
       - name: Validar fluxo de distribuicao no act (PR)
-        if: ${{ github.event_name == 'pull_request' && env.ACT }}
+        if: ${{ env.ACT }}
         run: flutter --version
 
       - name: Distribuir APK no Firebase App Distribution
