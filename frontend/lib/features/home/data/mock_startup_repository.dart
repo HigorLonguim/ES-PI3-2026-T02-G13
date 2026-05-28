@@ -177,7 +177,8 @@ const List<StartupData> _mockStartups = [
     founders: 'Ana Silva, Roberto Costa',
     ownershipStructure: 'Ana Silva: 60%; Roberto Costa: 40%',
     mentorsCouncil: 'Dr. Marcos Neves',
-    demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    demoVideoUrl:
+        'https://firebasestorage.googleapis.com/v0/b/pi3-mescla-invest.firebasestorage.app/o/Video%20Ecoloop.mp4?alt=media&token=0cd4b2e2-e175-4a61-800f-2c85396784d0',
     publicQaItems: [
       PublicQaItem(
         question: 'Como sera usado o capital captado?',
@@ -205,7 +206,8 @@ const List<StartupData> _mockStartups = [
     founders: 'Carla Mendes, Bruno Ribeiro',
     ownershipStructure: 'Carla Mendes: 55%; Bruno Ribeiro: 45%',
     mentorsCouncil: 'Paula Freitas, Eduardo Lima',
-    demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    demoVideoUrl:
+        'https://firebasestorage.googleapis.com/v0/b/pi3-mescla-invest.firebasestorage.app/o/Video%20EduVibe.mp4?alt=media&token=83d55191-bd69-4376-9b4a-3f09bceef92f',
     publicQaItems: [
       PublicQaItem(
         question: 'Qual e o mercado-alvo inicial?',
@@ -229,7 +231,8 @@ const List<StartupData> _mockStartups = [
     founders: 'Marina Rocha, Lucas Prado',
     ownershipStructure: 'Marina Rocha: 70%; Lucas Prado: 30%',
     mentorsCouncil: 'Dra. Helena Castro',
-    demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    demoVideoUrl:
+        'https://firebasestorage.googleapis.com/v0/b/pi3-mescla-invest.firebasestorage.app/o/Video%20VitalTrack.mp4?alt=media&token=9a05323a-7e64-4f43-9460-72b754888df7',
     publicQaItems: [
       PublicQaItem(
         question: 'Como funciona a validacao clinica?',
@@ -253,7 +256,8 @@ const List<StartupData> _mockStartups = [
     founders: 'Fernanda Pires, Tiago Alves',
     ownershipStructure: 'Fernanda Pires: 50%; Tiago Alves: 50%',
     mentorsCouncil: 'Renata Silva',
-    demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    demoVideoUrl:
+        'https://firebasestorage.googleapis.com/v0/b/pi3-mescla-invest.firebasestorage.app/o/Video%20AgroSense.mp4?alt=media&token=466ba0ee-bfc2-4579-b602-033d14fae243',
     publicQaItems: [
       PublicQaItem(
         question: 'Qual e o diferencial frente aos concorrentes?',
@@ -277,7 +281,8 @@ const List<StartupData> _mockStartups = [
     founders: 'Juliana Costa, Pedro Rocha',
     ownershipStructure: 'Juliana Costa: 65%; Pedro Rocha: 35%',
     mentorsCouncil: 'Andre Nogueira',
-    demoVideoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    demoVideoUrl:
+        'https://firebasestorage.googleapis.com/v0/b/pi3-mescla-invest.firebasestorage.app/o/Video%20SafePay.mp4?alt=media&token=0b92b6f4-8584-486c-8094-8a085eaf3233',
     publicQaItems: [
       PublicQaItem(
         question: 'Como a solucao gera receita?',
