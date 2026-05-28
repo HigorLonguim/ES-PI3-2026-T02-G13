@@ -1,5 +1,6 @@
 // Autoria: Felipe Sousa - RA: 22018160
 import { db } from "../src/config/firebase";
+import { FieldValue } from "firebase-admin/firestore";
 
 type Startup = {
   id_startup: number;
@@ -29,7 +30,8 @@ const startupsSeed: Startup[] = [
     socios: "Ana Silva; Roberto Costa",
     participacao_societaria: "60%; 40%",
     mentores_conselho: "Dr. Marcos Neves",
-    video_demo: "https://youtu.be/ecoloop",
+    video_demo:
+      "https://firebasestorage.googleapis.com/v0/b/pi3-mescla-invest.firebasestorage.app/o/Video%20Ecoloop.mp4?alt=media&token=0cd4b2e2-e175-4a61-800f-2c85396784d0",
     perguntas_publicas: [
       {
         question: "Qual o foco do uso do capital nesta rodada?",
@@ -53,7 +55,8 @@ const startupsSeed: Startup[] = [
     socios: "Julia Mendes; Lucas Porto",
     participacao_societaria: "50%; 50%",
     mentores_conselho: "Prof. Elena Souza",
-    video_demo: "https://youtu.be/eduvibe",
+    video_demo:
+      "https://firebasestorage.googleapis.com/v0/b/pi3-mescla-invest.firebasestorage.app/o/Video%20EduVibe.mp4?alt=media&token=83d55191-bd69-4376-9b4a-3f09bceef92f",
     perguntas_publicas: [
       {
         question: "Qual e o principal diferencial de aprendizagem?",
@@ -73,7 +76,8 @@ const startupsSeed: Startup[] = [
     socios: "Ricardo Gomes; Sarah Oliveira",
     participacao_societaria: "70%; 30%",
     mentores_conselho: "Dr. Jorge Amado",
-    video_demo: "https://youtu.be/vitaltrack",
+    video_demo:
+      "https://firebasestorage.googleapis.com/v0/b/pi3-mescla-invest.firebasestorage.app/o/Video%20VitalTrack.mp4?alt=media&token=9a05323a-7e64-4f43-9460-72b754888df7",
     perguntas_publicas: [
       {
         question: "Como funciona a validacao com profissionais de saude?",
@@ -93,7 +97,8 @@ const startupsSeed: Startup[] = [
     socios: "Mateus Lima; Fabio Santos",
     participacao_societaria: "55%; 45%",
     mentores_conselho: "Ingrid Ferreira",
-    video_demo: "https://youtu.be/agrosense",
+    video_demo:
+      "https://firebasestorage.googleapis.com/v0/b/pi3-mescla-invest.firebasestorage.app/o/Video%20AgroSense.mp4?alt=media&token=466ba0ee-bfc2-4579-b602-033d14fae243",
     perguntas_publicas: [
       {
         question: "A solucao ja foi testada em campo?",
@@ -113,7 +118,8 @@ const startupsSeed: Startup[] = [
     socios: "Beatriz Nunes; Igor Rocha",
     participacao_societaria: "80%; 20%",
     mentores_conselho: "Samuel Prado",
-    video_demo: "https://youtu.be/safepay",
+    video_demo:
+      "https://firebasestorage.googleapis.com/v0/b/pi3-mescla-invest.firebasestorage.app/o/Video%20SafePay.mp4?alt=media&token=0b92b6f4-8584-486c-8094-8a085eaf3233",
     perguntas_publicas: [
       {
         question: "Como e tratada a seguranca das transacoes?",
@@ -134,7 +140,13 @@ async function runSeed(): Promise<void> {
       .get();
 
     if (!existingSnapshot.empty) {
-      await existingSnapshot.docs[0].ref.set(startup, { merge: true });
+      await existingSnapshot.docs[0].ref.set(
+        {
+          ...startup,
+          ownership: FieldValue.delete(),
+        },
+        { merge: true }
+      );
       continue;
     }
 

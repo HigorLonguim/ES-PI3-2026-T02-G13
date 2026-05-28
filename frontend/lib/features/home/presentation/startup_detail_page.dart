@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../core/navigation/app_route.dart';
 import '../../../core/theme/mescla_colors.dart';
@@ -90,6 +91,37 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
     if (result.success) {
       _privateQuestionController.clear();
     }
+  }
+
+  Future<void> _openDemoVideo() async {
+    final rawUrl = _currentStartup.demoVideoUrl.trim();
+    if (rawUrl.isEmpty) {
+      showAppStatusSnackBar(
+        context: context,
+        message: 'Video demonstrativo indisponivel para esta startup.',
+        type: AppStatusType.warning,
+      );
+      return;
+    }
+
+    final uri = Uri.tryParse(rawUrl);
+    if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
+      showAppStatusSnackBar(
+        context: context,
+        message: 'Link do video invalido.',
+        type: AppStatusType.error,
+      );
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _VideoPlayerDialog(videoUri: uri),
+    );
   }
 
   @override
@@ -322,6 +354,8 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                           const SizedBox(height: 10),
                           _VideoDemoCard(
                             videoUrl: _currentStartup.demoVideoUrl,
+                            startupName: _currentStartup.name,
+                            onTap: _openDemoVideo,
                           ),
                           const SizedBox(height: 24),
                           const _SectionTitle(
@@ -340,6 +374,8 @@ class _StartupDetailPageState extends State<StartupDetailPage> {
                           const SizedBox(height: 16),
                           _PitchDemoLink(
                             videoUrl: _currentStartup.demoVideoUrl,
+                            startupName: _currentStartup.name,
+                            onTap: _openDemoVideo,
                           ),
                           const SizedBox(height: 24),
                           const Text(
@@ -659,60 +695,72 @@ class _SectionTitle extends StatelessWidget {
 }
 
 class _VideoDemoCard extends StatelessWidget {
-  const _VideoDemoCard({required this.videoUrl});
+  const _VideoDemoCard({
+    required this.videoUrl,
+    required this.startupName,
+    required this.onTap,
+  });
 
   final String videoUrl;
+  final String startupName;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 184,
-      width: double.infinity,
-      decoration: BoxDecoration(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MesclaColors.border, width: 1.2),
-        gradient: MesclaGradients.startupCard,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: MesclaGradients.purpleHorizontal,
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0x33000000),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.play_arrow_rounded,
-              color: MesclaColors.textPrimary,
-              size: 30,
-            ),
+        onTap: onTap,
+        child: Container(
+          height: 184,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: MesclaColors.border, width: 1.2),
+            gradient: MesclaGradients.startupCard,
           ),
-          if (videoUrl.trim().isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                videoUrl,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: MesclaColors.textSecondary,
-                  fontSize: 12,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: MesclaGradients.purpleHorizontal,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x33000000),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.play_arrow_rounded,
+                  color: MesclaColors.textPrimary,
+                  size: 30,
                 ),
               ),
-            ),
-          ],
-        ],
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'Video demonstrativo da startup $startupName',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: MesclaColors.textSecondary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -822,44 +870,59 @@ class _MentorsCard extends StatelessWidget {
 }
 
 class _PitchDemoLink extends StatelessWidget {
-  const _PitchDemoLink({required this.videoUrl});
+  const _PitchDemoLink({
+    required this.videoUrl,
+    required this.startupName,
+    required this.onTap,
+  });
 
   final String videoUrl;
+  final String startupName;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 46,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0x1A615FFF),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x66615FFF), width: 1.2),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.open_in_new_rounded,
-            color: Color(0xFF7C86FF),
-            size: 16,
+        onTap: onTap,
+        child: Container(
+          height: 46,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: const Color(0x1A615FFF),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0x66615FFF), width: 1.2),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              videoUrl.trim().isEmpty ? 'Ver Pitch / Demo' : videoUrl,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.open_in_new_rounded,
                 color: Color(0xFF7C86FF),
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+                size: 16,
               ),
-            ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  videoUrl.trim().isEmpty
+                      ? 'Ver video demonstrativo'
+                      : 'Ver video demonstrativo da startup $startupName',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF7C86FF),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -891,6 +954,151 @@ class _InitialAvatar extends StatelessWidget {
           color: MesclaColors.textPrimary,
           fontSize: 12,
           fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _VideoPlayerDialog extends StatefulWidget {
+  const _VideoPlayerDialog({required this.videoUri});
+
+  final Uri videoUri;
+
+  @override
+  State<_VideoPlayerDialog> createState() => _VideoPlayerDialogState();
+}
+
+class _VideoPlayerDialogState extends State<_VideoPlayerDialog> {
+  late final VideoPlayerController _controller;
+  late final Future<void> _initializeFuture;
+  bool _isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(widget.videoUri);
+    _initializeFuture = _controller.initialize().then((_) {
+      _controller.play();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isPlaying = true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _togglePlayPause() {
+    if (_controller.value.isPlaying) {
+      _controller.pause();
+      setState(() {
+        _isPlaying = false;
+      });
+      return;
+    }
+
+    _controller.play();
+    setState(() {
+      _isPlaying = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: MesclaColors.surface,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Video demonstrativo',
+              style: TextStyle(
+                color: MesclaColors.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            FutureBuilder<void>(
+              future: _initializeFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: MesclaColors.textPrimary,
+                      ),
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return const SizedBox(
+                    height: 200,
+                    child: Center(
+                      child: Text(
+                        'Nao foi possivel carregar o video.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: MesclaColors.textSecondary),
+                      ),
+                    ),
+                  );
+                }
+
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio <= 0
+                        ? 16 / 9
+                        : _controller.value.aspectRatio,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        VideoPlayer(_controller),
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.1),
+                          ),
+                          child: const SizedBox.expand(),
+                        ),
+                        IconButton(
+                          onPressed: _togglePlayPause,
+                          iconSize: 48,
+                          color: Colors.white,
+                          icon: Icon(
+                            _isPlaying
+                                ? Icons.pause_circle_filled_rounded
+                                : Icons.play_circle_fill_rounded,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Fechar'),
+              ),
+            ),
+          ],
         ),
       ),
     );
