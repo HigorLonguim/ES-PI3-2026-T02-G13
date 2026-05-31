@@ -1,0 +1,25 @@
+{
+  "name": "es-pi3-2026-t02-g13",
+  "version": "1.0.0",
+  "description": "O MesclaInvest é um aplicativo móvel desenvolvido para a disciplina de Projeto Integrador 3. Ele simula um ambiente de investimento em startups por meio de tokens digitais. O sistema permite visualizar startups, consultar documentos e realizar operações simuladas de compra e venda.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "seed:startups": "ts-node --transpile-only scripts/seed-startups.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "firebase-admin": "^13.7.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}

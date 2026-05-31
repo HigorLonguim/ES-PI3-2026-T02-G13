@@ -1,0 +1,100 @@
+# Autoria: Felipe Sousa - RA: 22018160
+name: MesclaInvest - App Distribution (Android)
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-app-distribution.yml"
+  push:
+    branches: [develop, main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-app-distribution.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-pr:
+    name: Validar build Android no PR
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@947e9c91a5355bf3e320e442fd60a6c1cdda4eec
+        with:
+          flutter-version: "3.41.2"
+          channel: stable
+          cache: false
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Validar ambiente Flutter no act
+        if: ${{ env.ACT }}
+        run: flutter --version
+
+      - name: Validar build APK debug
+        if: ${{ !env.ACT }}
+        run: flutter build apk --debug
+
+  distribute:
+    name: Build APK e Distribuir no Firebase
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@947e9c91a5355bf3e320e442fd60a6c1cdda4eec
+        with:
+          flutter-version: "3.41.2"
+          channel: stable
+          cache: false
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Gerar .env.json de producao
+        shell: bash
+        run: |
+          cat <<'EOF' > .env.json
+          ${{ secrets.FRONTEND_ENV_JSON_PROD }}
+          EOF
+
+      - name: Build APK release
+        if: ${{ !env.ACT }}
+        run: flutter build apk --release --dart-define-from-file=.env.json
+
+      - name: Validar fluxo de distribuicao no act (PR)
+        if: ${{ env.ACT }}
+        run: flutter --version
+
+      - name: Distribuir APK no Firebase App Distribution
+        if: ${{ !env.ACT }}
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          file: frontend/build/app/outputs/flutter-apk/app-release.apk
+          testers: feltista07123@gmail.com
+          releaseNotes: |
+            Build automatico do workflow
+            Evento: ${{ github.event_name }}
+            Commit: ${{ github.sha }}
+

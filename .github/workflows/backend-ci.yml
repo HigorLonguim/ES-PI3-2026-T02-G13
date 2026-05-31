@@ -1,0 +1,45 @@
+# Autoria: Felipe Sousa - RA: 22018160
+name: MesclaInvest CI - Backend
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+    paths:
+      - "backend/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Backend - Build e Testes
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Rodar lint (se existir)
+        run: npm run lint --if-present
+
+      - name: Rodar testes (se existir)
+        run: npm test --if-present

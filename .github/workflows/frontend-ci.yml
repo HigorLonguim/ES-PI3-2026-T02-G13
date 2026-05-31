@@ -1,0 +1,55 @@
+# Autoria: Felipe Sousa - RA: 22018160
+name: MesclaInvest CI - Frontend
+
+on:
+  pull_request:
+    branches: [develop]
+    paths:
+      - "frontend/**"
+  push:
+    branches: [develop, main]
+    paths:
+      - "frontend/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Frontend - Analise e Testes
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@947e9c91a5355bf3e320e442fd60a6c1cdda4eec
+        with:
+          flutter-version: "3.41.2"
+          channel: stable
+          cache: false
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Verificar formatacao
+        run: dart format --set-exit-if-changed .
+
+      - name: Analise estatica
+        run: flutter analyze --fatal-infos
+
+      - name: Rodar testes com cobertura
+        run: flutter test --coverage
+
+      - name: Publicar relatorio de cobertura
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/lcov.info
+          if-no-files-found: warn

@@ -1,0 +1,32 @@
+# Dependências
+node_modules/
+jspm_packages/
+
+# Build (TypeScript)
+dist/
+out/
+*.tsbuildinfo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime/IDE
+.npm
+.eslintcache
+.prettiercache
+.DS_Store
+
+# Ambientes e Segredos (MUITO IMPORTANTE)
+.env
+.env.test
+.env.local
+.env.development
+.env.production
+mescla-invest.json
+
+# Testes
+coverage/
