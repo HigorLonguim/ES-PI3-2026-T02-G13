@@ -58,8 +58,7 @@ class StartupData {
       name: name,
       description: description,
       stage: stage,
-      tokenValue:
-          _readString(source, 'tokenValue') ?? _formatCurrency(tokenPrice),
+      tokenValue: _formatCurrency(tokenPrice),
       tokenPrice: tokenPrice,
       variation: variationText,
       imageUrl: _readString(source, 'imageUrl') ?? '',
