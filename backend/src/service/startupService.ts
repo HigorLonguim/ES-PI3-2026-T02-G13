@@ -15,6 +15,9 @@ export interface Startup {
   video_demo: string;
   perguntas_publicas: StartupPublicQaItem[];
   status: "Ativa" | "Inativa";
+  token_preco_atual: number;
+  token_variacao_percentual: number;
+  token_historico: number[];
 }
 
 export interface StartupPublicQaItem {
@@ -55,6 +58,29 @@ function toPublicQaItems(value: unknown): StartupPublicQaItem[] {
     .filter((item) => item.question.length > 0 || item.answer.length > 0);
 }
 
+function toTokenHistory(value: unknown): number[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((entry) => {
+      if (typeof entry === "number" && Number.isFinite(entry) && entry > 0) {
+        return entry;
+      }
+      if (
+        typeof entry === "object" &&
+        entry !== null &&
+        "price" in entry &&
+        Number.isFinite((entry as { price?: unknown }).price)
+      ) {
+        return Number((entry as { price?: unknown }).price);
+      }
+      return null;
+    })
+    .filter((entry): entry is number => entry !== null);
+}
+
 export async function listStartups(): Promise<Startup[]> {
   const snapshot = await db.collection("startups").orderBy("id_startup", "asc").get();
 
@@ -75,6 +101,9 @@ export async function listStartups(): Promise<Startup[]> {
       video_demo: toString(data.video_demo),
       perguntas_publicas: toPublicQaItems(data.perguntas_publicas),
       status: toString(data.status) as Startup["status"],
+      token_preco_atual: toNumber(data.token_preco_atual),
+      token_variacao_percentual: toNumber(data.token_variacao_percentual),
+      token_historico: toTokenHistory(data.token_historico),
     };
   });
 }

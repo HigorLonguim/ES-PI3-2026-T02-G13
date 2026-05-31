@@ -20,6 +20,7 @@ type StartupItem = {
   mentorsCouncil: string;
   demoVideoUrl: string;
   publicQaItems: { question: string; answer: string }[];
+  tokenHistory: number[];
 };
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -29,9 +30,16 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
 });
 
 function mapStartupToItem(startup: Startup): StartupItem {
-  const tokenPrice = startup.tokens_emitidos > 0
+  const fallbackTokenPrice = startup.tokens_emitidos > 0
     ? startup.capital_aportado / startup.tokens_emitidos
     : 0;
+  const tokenPrice = startup.token_preco_atual > 0
+    ? startup.token_preco_atual
+    : fallbackTokenPrice;
+  const variation = resolveVariationText(
+    startup.token_historico,
+    startup.token_variacao_percentual,
+  );
 
   return {
     id: String(startup.id_startup),
@@ -40,7 +48,7 @@ function mapStartupToItem(startup: Startup): StartupItem {
     stage: startup.estagio,
     tokenValue: currencyFormatter.format(tokenPrice),
     tokenPrice,
-    variation: "+0.00%",
+    variation,
     imageUrl: `https://picsum.photos/seed/${startup.id_startup}/400/400`,
     sector: startup.setor,
     totalTokens: startup.tokens_emitidos,
@@ -51,7 +59,30 @@ function mapStartupToItem(startup: Startup): StartupItem {
     mentorsCouncil: startup.mentores_conselho,
     demoVideoUrl: startup.video_demo,
     publicQaItems: startup.perguntas_publicas,
+    tokenHistory: startup.token_historico,
   };
+}
+
+function resolveVariationText(
+  tokenHistory: number[],
+  fallbackVariation: number,
+): string {
+  if (tokenHistory.length >= 2) {
+    const previous = tokenHistory[tokenHistory.length - 2];
+    const current = tokenHistory[tokenHistory.length - 1];
+    if (previous > 0) {
+      const percent = ((current - previous) / previous) * 100;
+      return percent >= 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`;
+    }
+  }
+
+  if (Number.isFinite(fallbackVariation)) {
+    return fallbackVariation >= 0
+      ? `+${fallbackVariation.toFixed(2)}%`
+      : `${fallbackVariation.toFixed(2)}%`;
+  }
+
+  return "+0.00%";
 }
 
 export async function list(_req: Request, res: Response) {
