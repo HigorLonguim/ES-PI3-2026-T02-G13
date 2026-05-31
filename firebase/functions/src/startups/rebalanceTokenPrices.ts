@@ -21,6 +21,10 @@ function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+function roundPrice(value: number): number {
+  return Math.round(value * 1000000) / 1000000;
+}
+
 function randomPercentVariation(): number {
   return Number((Math.random() * 8 - 4).toFixed(2));
 }
@@ -48,7 +52,7 @@ export const rebalanceStartupTokenPrices = onSchedule(
       }
 
       const variationPercent = randomPercentVariation();
-      const nextPrice = roundMoney(currentPrice * (1 + variationPercent / 100));
+      const nextPrice = roundPrice(currentPrice * (1 + variationPercent / 100));
       const historicalRaw = Array.isArray(data.token_historico) ? data.token_historico : [];
       const historical = historicalRaw
         .map((entry) => {
