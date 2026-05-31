@@ -54,6 +54,13 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   minimumFractionDigits: 2,
 });
 
+function formatTokenValue(value: number): string {
+  if (value > 0 && value < 1) {
+    return `R$ ${value.toFixed(4).replace(".", ",")}`;
+  }
+  return currencyFormatter.format(value);
+}
+
 const defaultPublicQaItemsByStartup: Record<string, PublicQaItem[]> = {
   ecoloop: [
     {
@@ -238,7 +245,7 @@ function buildStartupItem(
     name,
     description,
     stage,
-    tokenValue: currencyFormatter.format(tokenPrice),
+    tokenValue: formatTokenValue(tokenPrice),
     tokenPrice,
     variation: variationText,
     imageUrl: `https://picsum.photos/seed/${id}/400/400`,
