@@ -1,5 +1,7 @@
 # Projeto MesclaInvest - PI3 2026
 
+[Projeto Integrador III](https://www.figma.com/design/KSc3mF9Pig0zTgGV1P39Ii/Projeto-Integrador-III?node-id=0-1&t=LzfIiMXKWNP4AvGy-1)
+
 ## Descricao
 
 O MesclaInvest e um aplicativo mobile desenvolvido para a disciplina de Projeto Integrador 3. Ele simula um ambiente de investimento em startups por meio de tokens digitais, permitindo visualizar startups, consultar informacoes institucionais, acompanhar carteira, comprar e vender tokens simulados e interagir com ofertas no balcao de tokens.
